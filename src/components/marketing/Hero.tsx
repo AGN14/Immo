@@ -1,3 +1,4 @@
+import { ArrowRightIcon } from "@/components/ui/ArrowRightIcon";
 import { Button } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Reveal } from "@/components/ui/Reveal";
@@ -18,18 +19,9 @@ export function Hero() {
             qui s&rsquo;enflamme.
           </p>
           <div className="mt-1 flex flex-wrap items-center gap-4">
-            <Button href="#tarifs" variant="primary">
+            <Button href="/inscription" variant="primary">
               Commencer gratuitement
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M5 12h14M13 6l6 6-6 6" />
-              </svg>
+              <ArrowRightIcon />
             </Button>
             <Button href="#demo" variant="ghost">
               <svg
@@ -57,10 +49,7 @@ export function Hero() {
 
             <div className="flex items-center justify-between gap-3 py-[0.65rem]">
               <div className="flex items-center gap-[0.65rem]">
-                <span
-                  className="grid size-[30px] shrink-0 place-items-center rounded-full font-mono text-[0.68rem] font-semibold text-white"
-                  style={{ background: "#0E6B55" }}
-                >
+                <span className="bg-primary grid size-[30px] shrink-0 place-items-center rounded-full font-mono text-[0.68rem] font-semibold text-white">
                   AD
                 </span>
                 <div>
@@ -76,10 +65,7 @@ export function Hero() {
 
             <div className="border-line flex items-center justify-between gap-3 border-t py-[0.65rem]">
               <div className="flex items-center gap-[0.65rem]">
-                <span
-                  className="grid size-[30px] shrink-0 place-items-center rounded-full font-mono text-[0.68rem] font-semibold text-white"
-                  style={{ background: "#128568" }}
-                >
+                <span className="bg-primary-hi grid size-[30px] shrink-0 place-items-center rounded-full font-mono text-[0.68rem] font-semibold text-white">
                   KY
                 </span>
                 <div>
@@ -95,10 +81,7 @@ export function Hero() {
 
             <div className="border-line flex items-center justify-between gap-3 border-t py-[0.65rem]">
               <div className="flex items-center gap-[0.65rem]">
-                <span
-                  className="grid size-[30px] shrink-0 place-items-center rounded-full font-mono text-[0.68rem] font-semibold text-white"
-                  style={{ background: "#0A3D31" }}
-                >
+                <span className="bg-primary-deep grid size-[30px] shrink-0 place-items-center rounded-full font-mono text-[0.68rem] font-semibold text-white">
                   BF
                 </span>
                 <div>

@@ -1,3 +1,4 @@
+import { ArrowRightIcon } from "@/components/ui/ArrowRightIcon";
 import { Button } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 
@@ -10,20 +11,11 @@ export function FinalCta() {
             Rejoins les propriétaires et locataires qui gèrent leur location sans prise de tête
           </h2>
           <div className="flex flex-wrap justify-center gap-4">
-            <Button href="#tarifs" variant="on-dark">
+            <Button href="/inscription/proprietaire" variant="on-dark">
               Je suis propriétaire
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M5 12h14M13 6l6 6-6 6" />
-              </svg>
+              <ArrowRightIcon />
             </Button>
-            <Button href="#tarifs" variant="outline-on-dark">
+            <Button href="/inscription/locataire" variant="outline-on-dark">
               Je suis locataire
             </Button>
           </div>

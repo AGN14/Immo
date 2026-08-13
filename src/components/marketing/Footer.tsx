@@ -1,29 +1,15 @@
 import Link from "next/link";
 import { NewsletterForm } from "@/components/marketing/NewsletterForm";
+import { Logo } from "@/components/ui/Logo";
 
 export function Footer() {
   return (
-    <footer className="bg-lilac py-[clamp(2.5rem,5vw,3.5rem)_0_1.6rem]">
+    <footer className="bg-lilac pt-[clamp(2.5rem,5vw,3.5rem)] pb-[1.6rem]">
       <div className="mx-auto max-w-[1180px] px-5 sm:px-8 lg:px-12">
         <div className="border-line flex flex-wrap justify-between gap-10 border-b pb-8">
           <div className="flex max-w-[22em] flex-col gap-[0.9rem]">
             <Link href="#top" className="flex items-center gap-[0.65rem] no-underline">
-              <span className="bg-primary grid size-[34px] shrink-0 place-items-center rounded-[10px]">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="white"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="size-[18px]"
-                >
-                  <path d="M4 11.5 12 4l8 7.5" />
-                  <path d="M6 10v9h12v-9" />
-                  <path d="M10 19v-5h4v5" />
-                </svg>
-              </span>
-              <span className="font-display text-ink text-[1.28rem] font-bold">Immo</span>
+              <Logo />
             </Link>
             <p className="text-ink-2 text-[0.9rem]">
               La plateforme qui relie propriétaires et locataires — loyers, pannes et litiges, sans

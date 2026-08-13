@@ -1,3 +1,4 @@
+import { ArrowRightIcon } from "@/components/ui/ArrowRightIcon";
 import { Button } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Reveal } from "@/components/ui/Reveal";
@@ -24,16 +25,7 @@ export function StatsSection() {
           </p>
           <Button href="#comment-ca-marche" variant="ghost" className="mt-2 w-fit">
             Voir comment ça marche
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M5 12h14M13 6l6 6-6 6" />
-            </svg>
+            <ArrowRightIcon />
           </Button>
         </Reveal>
 

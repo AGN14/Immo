@@ -30,6 +30,7 @@ const plans = [
       "Accès locataire illimité",
     ],
     cta: "Commencer gratuitement",
+    href: "/inscription/proprietaire",
     variant: "ghost" as const,
     pro: false,
   },
@@ -44,6 +45,7 @@ const plans = [
       "Support prioritaire",
     ],
     cta: "Passer en Pro",
+    href: "/inscription/proprietaire?plan=pro",
     variant: "on-dark" as const,
     pro: true,
   },
@@ -58,6 +60,7 @@ const plans = [
       "Exports comptables",
     ],
     cta: "Contacter l'équipe",
+    href: "mailto:bonjour@immo.app?subject=Offre%20Business",
     variant: "ghost" as const,
     pro: false,
   },
@@ -90,11 +93,7 @@ export function Pricing() {
               <div className="flex flex-col gap-2">
                 <span
                   className={`font-mono text-[0.72rem] font-semibold tracking-[0.08em] uppercase ${
-                    p.pro
-                      ? "text-[#A9C9BE]"
-                      : p.tier.startsWith("★")
-                        ? "text-primary-deep"
-                        : "text-ink-3"
+                    p.pro ? "text-[#A9C9BE]" : "text-ink-3"
                   }`}
                 >
                   {p.tier}
@@ -121,7 +120,7 @@ export function Pricing() {
                   </li>
                 ))}
               </ul>
-              <Button href="#top" variant={p.variant} block>
+              <Button href={p.href} variant={p.variant} block>
                 {p.cta}
               </Button>
             </Reveal>

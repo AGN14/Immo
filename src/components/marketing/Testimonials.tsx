@@ -6,7 +6,7 @@ const testimonials = [
     quote:
       "Je gérais mes quatre appartements dans un cahier. Aujourd'hui je sais qui a payé avant même d'ouvrir Immo. Le plan comptable du mois, c'est ma comptable qui me remercie.",
     initials: "AD",
-    color: "#0E6B55",
+    colorClass: "bg-primary",
     name: "Aïssatou Diallo",
     role: "Propriétaire — Dakar, Sénégal",
   },
@@ -14,7 +14,7 @@ const testimonials = [
     quote:
       "J'ai signalé une fuite avec deux photos un dimanche soir. Le lundi matin, le plombier était déjà prévenu. Avant, j'aurais rappelé trois fois pour rien.",
     initials: "KY",
-    color: "#128568",
+    colorClass: "bg-primary-hi",
     name: "Kouadio Yves",
     role: "Locataire — Abidjan, Côte d'Ivoire",
   },
@@ -22,7 +22,7 @@ const testimonials = [
     quote:
       "Deux locataires en désaccord sur le bruit, tout est resté documenté dans Immo au lieu de dégénérer sur le groupe WhatsApp de l'immeuble.",
     initials: "BF",
-    color: "#0A3D31",
+    colorClass: "bg-primary-deep",
     name: "Brice Fotso",
     role: "Propriétaire — Douala, Cameroun",
   },
@@ -50,8 +50,7 @@ export function Testimonials() {
               </blockquote>
               <div className="flex items-center gap-3">
                 <span
-                  className="grid size-[42px] shrink-0 place-items-center rounded-full font-mono text-[0.85rem] font-semibold text-white"
-                  style={{ background: t.color }}
+                  className={`${t.colorClass} grid size-[42px] shrink-0 place-items-center rounded-full font-mono text-[0.85rem] font-semibold text-white`}
                 >
                   {t.initials}
                 </span>

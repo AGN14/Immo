@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { Logo } from "@/components/ui/Logo";
 
 const links = [
   { href: "#fonctionnalites", label: "Fonctionnalités" },
@@ -32,22 +33,7 @@ export function Header() {
     >
       <div className="mx-auto flex h-[76px] max-w-[1180px] items-center justify-between gap-6 px-5 sm:px-8 lg:px-12">
         <Link href="#top" className="flex items-center gap-[0.65rem] no-underline">
-          <span className="bg-primary grid size-[34px] shrink-0 place-items-center rounded-[10px]">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="white"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="size-[18px]"
-            >
-              <path d="M4 11.5 12 4l8 7.5" />
-              <path d="M6 10v9h12v-9" />
-              <path d="M10 19v-5h4v5" />
-            </svg>
-          </span>
-          <span className="font-display text-ink text-[1.28rem] font-bold">Immo</span>
+          <Logo />
         </Link>
 
         <nav
@@ -68,10 +54,10 @@ export function Header() {
             </a>
           ))}
           <div className="mt-4 flex w-full flex-col gap-3 md:hidden">
-            <Button href="#tarifs" variant="ghost" block>
+            <Button href="/connexion" variant="ghost" block onClick={() => setOpen(false)}>
               Se connecter
             </Button>
-            <Button href="#tarifs" variant="primary" block>
+            <Button href="/inscription" variant="primary" block onClick={() => setOpen(false)}>
               Commencer gratuitement
             </Button>
           </div>
@@ -79,12 +65,12 @@ export function Header() {
 
         <div className="flex items-center gap-[0.9rem]">
           <span className="hidden md:block">
-            <Button href="#tarifs" variant="ghost">
+            <Button href="/connexion" variant="ghost">
               Se connecter
             </Button>
           </span>
           <span className="hidden md:block">
-            <Button href="#tarifs" variant="primary">
+            <Button href="/inscription" variant="primary">
               Commencer gratuitement
             </Button>
           </span>
