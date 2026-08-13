@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vestia — Votre patrimoine locatif, à plat</title>
+<meta name="description" content="Vestia réunit loyers, quittances, messages locataires et interventions de chaque bien sur un seul plan. La gestion locative au Bénin, enfin limpide. En F CFA.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   VESTIA — L'ATELIER DE COTONOU
+   ============================================================ */
+:root{
+  --paper:#FAFAF7;
+  --paper-2:#F2F3EF;
+  --ink:#161D1B;
+  --ink-2:#39443F;
+  --ink-3:#6E7973;
+  --accent:#0E6B55;
+  --accent-hi:#128568;
+  --accent-ink:#0A3D31;
+  --clay:#C14A32;
+  --line:rgba(22,29,27,.14);
+  --line-soft:rgba(22,29,27,.08);
+  --serif:"Space Grotesk","Helvetica Neue",Arial,sans-serif;
+  --sans:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --shadow:0 16px 36px -26px rgba(20,40,35,.28), 0 2px 6px -3px rgba(20,40,35,.12);
+  --shadow-soft:0 8px 20px -16px rgba(20,40,35,.16);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:16.5px;
+  line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+img{display:block;max-width:100%}
+a{color:inherit}
+
+.container{width:min(1200px,92vw);margin:0 auto;position:relative}
+.fine{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+.hairline{border:0;height:1px;background:var(--line)}
+
+/* ---------- engraved icon set ---------- */
+.i{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.i-sm{width:17px;height:17px}
+
+/* ---------- wordmark / nav ---------- */
+.masthead{position:relative;z-index:50;border-bottom:1px solid var(--line-soft);background:rgba(250,250,247,.94);backdrop-filter:blur(6px)}
+.nav{display:flex;align-items:center;justify-content:space-between;height:76px}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+.brand-mark{width:38px;height:38px;border:1px solid var(--accent);border-radius:2px;position:relative;background:var(--paper);display:grid;place-items:center;color:var(--accent)}
+.brand-mark svg{width:20px;height:20px}
+.brand-name{font-family:var(--serif);font-weight:700;font-size:22px;letter-spacing:-.01em;line-height:1}
+.brand-sub{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--ink-3);margin-top:4px;font-weight:500}
+.nav-links{display:flex;align-items:center;gap:36px;list-style:none}
+.nav-links a{text-decoration:none;font-size:15px;color:var(--ink-2);transition:color .18s}
+.nav-links a:hover{color:var(--accent)}
+.nav-cta{display:flex;align-items:center;gap:14px}
+.btn{
+  display:inline-flex;align-items:center;gap:10px;text-decoration:none;cursor:pointer;
+  font-family:var(--sans);font-weight:600;font-size:15px;
+  padding:13px 25px;border-radius:2px;border:1px solid transparent;position:relative;
+  transition:transform .16s ease, box-shadow .16s ease, background .16s ease, color .16s ease;
+}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:var(--accent);color:#F2FBF8;border-color:var(--accent-ink);box-shadow:0 10px 20px -14px rgba(14,107,85,.6)}
+.btn-primary:hover{transform:translateY(-1px);background:var(--accent-hi)}
+.btn-line{color:var(--ink);border-color:var(--line);background:var(--paper)}
+.btn-line:hover{background:var(--paper-2);border-color:var(--accent)}
+
+/* ---------- hero ---------- */
+.hero{position:relative;overflow:hidden}
+.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:84px;align-items:center;padding:104px 0 92px;min-width:0}
+.hero-grid>*{min-width:0}
+.hero h1{
+  font-family:var(--serif);font-weight:600;font-size:clamp(2.55rem,4.8vw,4.2rem);
+  line-height:1.05;letter-spacing:-.02em;text-wrap:balance;
+}
+.hero h1 .hl{color:var(--accent-ink);text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:3px;text-underline-offset:6px}
+.hero p.lede{margin-top:26px;font-size:18px;line-height:1.68;color:var(--ink-2);max-width:50ch}
+.hero-actions{display:flex;gap:13px;margin-top:36px;flex-wrap:wrap}
+.hero-proof{display:flex;gap:26px;margin-top:42px;flex-wrap:wrap}
+.hero-proof .p{display:flex;align-items:center;gap:9px;font-size:13.5px;color:var(--ink-3)}
+.hero-proof .dot{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+
+/* ---------- PLAN DE MASSE (hero drawing) ---------- */
+.plan{position:relative;background:var(--paper-2);border:1px solid var(--line);border-radius:3px;padding:26px 28px 24px;box-shadow:var(--shadow-soft)}
+.plan .plan-head{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-bottom:18px;border-bottom:1px solid var(--line-soft);margin-bottom:22px}
+.plan .plan-title{font-family:var(--serif);font-weight:600;font-size:15px;letter-spacing:.02em}
+.plan .plan-meta{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:500;display:flex;align-items:center;gap:14px}
+.plan .scale{display:inline-flex;align-items:center;gap:8px}
+.plan .scale .bar{width:52px;height:4px;border:1px solid var(--ink-2);border-top:0;position:relative}
+.plan .scale .bar::before{content:"";position:absolute;left:0;top:-1px;width:1px;height:6px;background:var(--ink-2)}
+.plan .scale .bar::after{content:"";position:absolute;right:0;top:-1px;width:1px;height:6px;background:var(--ink-2)}
+.plan-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;position:relative}
+.lot{
+  background:var(--paper);border:1px solid var(--line);border-radius:2px;
+  padding:16px 18px 15px;position:relative;min-height:118px;
+  display:flex;flex-direction:column;justify-content:space-between;gap:12px;
+}
+.lot .lot-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.lot .lot-no{font-family:var(--serif);font-size:11px;font-weight:500;color:var(--ink-3);letter-spacing:.1em}
+.lot .lot-addr{font-family:var(--serif);font-weight:600;font-size:15.5px;letter-spacing:-.01em;line-height:1.2}
+.lot .lot-apt{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);font-weight:500;margin-top:3px}
+.lot .lot-foot{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.lot .lot-amount{font-family:var(--serif);font-weight:600;font-size:16px;letter-spacing:-.01em}
+.lot .lot-state{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:4px 9px;border-radius:2px}
+.s-paye{color:var(--accent-ink);border:1px solid rgba(14,107,85,.45);background:rgba(14,107,85,.06)}
+.s-relance{color:var(--clay);border:1px solid rgba(193,74,50,.45);background:rgba(193,74,50,.05)}
+.s-devis{color:var(--ink-2);border:1px solid var(--line)}
+.lot.active{border-color:var(--accent);box-shadow:0 0 0 1px rgba(14,107,85,.25)}
+.lot.active::before{content:"";position:absolute;left:-1px;top:-1px;bottom:-1px;width:3px;background:var(--accent);border-radius:2px 0 0 2px}
+.lot.empty{border-style:dashed;border-color:var(--line);background:transparent;align-items:center;justify-content:center;text-align:center;color:var(--ink-3)}
+.lot.empty .lot-addr{color:var(--ink-3);font-weight:500}
+.plan .stamp{
+  position:absolute;right:24px;bottom:-20px;background:var(--paper);
+  border:1.5px solid var(--accent);border-radius:50%;
+  width:92px;height:92px;display:grid;place-items:center;text-align:center;
+  transform:rotate(-4deg);box-shadow:var(--shadow-soft);
+}
+.plan .stamp span{font-family:var(--serif);font-weight:600;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-ink);line-height:1.35}
+.plan-cap{margin-top:26px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+
+/* ---------- sections ---------- */
+.section{padding:108px 0}
+.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:30px;margin-bottom:58px}
+.section-head .kicker{font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--accent-ink);margin-bottom:14px}
+.section-head h2{font-family:var(--serif);font-weight:600;font-size:clamp(1.9rem,3.4vw,2.8rem);letter-spacing:-.018em;line-height:1.12;text-wrap:balance;max-width:24ch}
+.section-head .side{font-size:14.5px;color:var(--ink-3);max-width:36ch;line-height:1.7}
+
+/* ---------- fiches (scenarios) ---------- */
+.fiches{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:24px;align-items:start}
+.fiche{
+  background:var(--paper);border:1px solid var(--line);border-radius:3px;
+  padding:30px 30px 26px;box-shadow:var(--shadow-soft);position:relative;
+}
+.fiche .f-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.fiche .f-type{font-size:11px;letter-spacing:.22em;text-transform:uppercase;font-weight:600;color:var(--ink-3)}
+.fiche .f-type b{color:var(--ink)}
+.fiche .f-ic{width:38px;height:38px;border:1px solid var(--line);border-radius:2px;display:grid;place-items:center;color:var(--accent);background:var(--paper-2)}
+.fiche h3{font-family:var(--serif);font-weight:600;font-size:21px;letter-spacing:-.012em;line-height:1.2}
+.fiche .f-body{margin-top:12px;font-size:14.5px;color:var(--ink-2);line-height:1.7}
+.fiche .f-foot{margin-top:20px;display:flex;align-items:center;gap:10px;justify-content:space-between}
+.fiche .f-amount{font-family:var(--serif);font-weight:600;font-size:1.1rem}
+.fiche .f-amount.clay{color:var(--clay)}
+.fiche .f-ok{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-ink);display:inline-flex;align-items:center;gap:6px}
+.fiche .f-sig{margin-top:16px;padding-top:13px;border-top:1px dashed var(--line);font-size:12.5px;color:var(--ink-3);font-family:var(--serif)}
+.fiche.mid{box-shadow:var(--shadow)}
+
+/* ---------- registre (features rows) ---------- */
+.registre{list-style:none;border-top:1px solid var(--line)}
+.registre li{
+  display:grid;grid-template-columns:64px 44px 1.3fr 1fr 120px;gap:24px;align-items:center;
+  padding:30px 8px;border-bottom:1px solid var(--line);
+  transition:background .2s ease;
+}
+.registre li:hover{background:var(--paper-2)}
+.registre .idx{font-family:var(--serif);font-weight:500;font-size:13px;color:var(--ink-3)}
+.registre .ic{width:42px;height:42px;border:1px solid var(--line);border-radius:2px;display:grid;place-items:center;color:var(--accent);background:var(--paper)}
+.registre h3{font-family:var(--serif);font-weight:600;font-size:19.5px;letter-spacing:-.01em}
+.registre .desc{font-size:14.5px;color:var(--ink-2);line-height:1.65;max-width:46ch}
+.registre .more{font-size:13px;font-weight:600;color:var(--accent);display:inline-flex;align-items:center;gap:8px;text-decoration:none}
+.registre .more:hover{color:var(--accent-ink)}
+.registre .order{display:flex;align-items:center;gap:20px}
+
+/* ---------- app plate ---------- */
+.plate{
+  background:var(--paper-2);border:1px solid var(--line);border-radius:4px;
+  padding:0 0 0;position:relative;box-shadow:var(--shadow);
+}
+.plate .plate-tag{
+  position:absolute;top:-1px;left:48px;background:var(--accent);color:#F2FBF8;
+  font-size:10.5px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;
+  padding:8px 20px;border-radius:0 0 2px 2px;
+}
+.app{width:100%;background:var(--paper);color:var(--ink);font-size:14px;border:0}
+.app-top{display:flex;align-items:center;gap:16px;padding:22px 30px;border-bottom:1px solid var(--line-soft)}
+.app-top .mast{border:1px solid var(--accent);border-radius:2px;width:32px;height:32px;display:grid;place-items:center;color:var(--accent);background:var(--paper)}
+.app-top .mast svg{width:17px;height:17px}
+.app-top .t{font-family:var(--serif);font-weight:600;font-size:15.5px}
+.app-top .crumbs{flex:1;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);display:flex;gap:14px}
+.app-top .crumbs b{color:var(--ink);font-weight:600}
+.app-top .search{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:2px;padding:8px 14px;color:var(--ink-3);font-size:13px;background:var(--paper)}
+.app-grid{display:grid;grid-template-columns:180px 1fr;min-height:420px}
+.app-rail{border-right:1px solid var(--line-soft);padding:20px 0}
+.app-rail a{display:flex;align-items:center;gap:12px;padding:11px 22px;color:var(--ink-3);text-decoration:none;font-size:13.5px;border-left:2px solid transparent}
+.app-rail a.on{color:var(--accent-ink);border-left-color:var(--accent);background:rgba(14,107,85,.05);font-weight:600}
+.app-rail a svg{width:16px;height:16px}
+.app-main{padding:28px 30px}
+.app-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.kpi{border:1px solid var(--line);border-radius:3px;padding:15px 17px;background:var(--paper)}
+.kpi .k-l{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.kpi .k-v{font-family:var(--serif);font-weight:600;font-size:24px;margin-top:6px;letter-spacing:-.01em}
+.kpi .k-v em{font-style:normal;color:var(--accent)}
+.kpi .k-s{font-size:11.5px;color:var(--ink-3);margin-top:4px;font-weight:500}
+.app-boxes{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.app-box{border:1px solid var(--line);border-radius:3px;background:var(--paper);padding:15px 17px}
+.app-box .ab-t{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.app-box .ab-addr{font-family:var(--serif);font-weight:600;font-size:15.5px;letter-spacing:-.01em}
+.app-box .ab-apt{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);margin-top:3px;font-weight:500}
+.app-box .ab-row{display:flex;justify-content:space-between;margin-top:12px;font-size:12.5px;color:var(--ink-2)}
+.app-box .ab-row b{color:var(--ink);font-weight:600}
+.app-box .ab-state{margin-top:12px;display:inline-flex;align-items:center;gap:7px;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:4px 9px;border-radius:2px}
+.st-recu{color:var(--accent-ink);border:1px solid rgba(14,107,85,.45);background:rgba(14,107,85,.05)}
+.st-devis{color:var(--ink-2);border:1px solid var(--line)}
+.st-action{color:var(--clay);border:1px solid rgba(193,74,50,.45);background:rgba(193,74,50,.04)}
+.plate-cap{margin-top:18px;text-align:right}
+
+/* ---------- relevé ---------- */
+.releve-wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:72px;align-items:center}
+.releve{background:var(--paper);border:1px solid var(--line);border-radius:3px;box-shadow:var(--shadow);overflow:hidden}
+.releve-head{display:flex;justify-content:space-between;align-items:baseline;padding:24px 28px 16px;border-bottom:1px solid var(--line-soft)}
+.releve-head h3{font-family:var(--serif);font-weight:600;font-size:20px;letter-spacing:-.01em}
+.releve-head .fine{font-size:11px}
+.releve table{width:100%;border-collapse:collapse;font-size:14.5px}
+.releve td{padding:13px 28px;border-bottom:1px solid var(--line-soft);color:var(--ink-2)}
+.releve td:first-child{color:var(--ink);font-weight:500}
+.releve td.amt{text-align:right;font-family:var(--serif);font-weight:500;font-size:15px}
+.releve td.st{text-align:right;width:110px}
+.releve .stamp-tag{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;padding:4px 9px;border-radius:2px}
+.releve .stamp-tag.ok{color:var(--accent-ink);border:1px solid rgba(14,107,85,.45);background:rgba(14,107,85,.05)}
+.releve .stamp-tag.mute{color:var(--ink-3);border:1px solid var(--line)}
+.releve tfoot td{border-bottom:0;padding:15px 28px}
+.releve tfoot .tot{display:flex;justify-content:space-between;align-items:baseline}
+.releve tfoot .tot b{font-family:var(--serif);font-weight:600;font-size:20px;color:var(--accent-ink)}
+.releve-note{display:flex;gap:12px;align-items:flex-start;margin-top:20px;padding:16px 20px;border:1px dashed rgba(14,107,85,.5);border-radius:3px;font-size:13.5px;color:var(--ink-2);background:var(--paper)}
+.releve-note svg{color:var(--accent);width:18px;height:18px;flex:none;margin-top:2px}
+
+/* ---------- témoignage ---------- */
+.temoignage{display:grid;grid-template-columns:1fr 1.15fr;gap:72px;align-items:center}
+.t-photo{position:relative}
+.t-photo .frame{border:1px solid var(--line);border-radius:3px;padding:10px;background:var(--paper);box-shadow:var(--shadow)}
+.t-photo img{border-radius:2px;width:100%;height:420px;object-fit:cover}
+.t-photo .photo-cap{position:absolute;right:-12px;bottom:-15px;background:var(--ink);color:var(--paper);font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;padding:8px 15px;border-radius:2px;box-shadow:var(--shadow-soft)}
+.t-quote blockquote{font-family:var(--serif);font-weight:600;font-size:clamp(1.45rem,2.3vw,1.95rem);line-height:1.35;letter-spacing:-.015em;text-wrap:balance}
+.t-quote blockquote::before{content:"« ";color:var(--accent)}
+.t-quote blockquote::after{content:" »";color:var(--accent)}
+.t-quote .who{margin-top:26px;display:flex;align-items:center;gap:16px}
+.t-quote .who .seal{width:44px;height:44px;border-radius:2px;border:1px solid var(--accent);display:grid;place-items:center;font-family:var(--serif);font-weight:700;color:var(--accent-ink);background:var(--paper)}
+.t-quote .who .n{font-size:15px;font-weight:600}
+.t-quote .who .r{font-size:13px;color:var(--ink-3)}
+.t-quote .fine{margin-top:24px;display:block}
+
+/* ---------- pricing ---------- */
+.trois-boites{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;align-items:end}
+.prix-panel{position:relative;border:1px solid var(--line);background:var(--paper);border-radius:3px;padding:34px 30px;box-shadow:var(--shadow-soft)}
+.prix-panel.milieu{border-color:var(--accent);box-shadow:0 0 0 1px rgba(14,107,85,.3), var(--shadow);transform:translateY(-14px)}
+.prix-panel .p-name{font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-3)}
+.prix-panel .p-price{font-family:var(--serif);font-weight:600;font-size:42px;letter-spacing:-.02em;margin-top:12px}
+.prix-panel .p-price sup{font-size:.38em;font-weight:500;color:var(--ink-3);font-family:var(--sans);letter-spacing:.04em}
+.prix-panel .p-why{font-size:14px;color:var(--ink-2);margin-top:8px;line-height:1.6}
+.prix-panel ul{list-style:none;margin-top:22px;display:grid;gap:11px}
+.prix-panel li{display:flex;gap:11px;font-size:14px;color:var(--ink-2);align-items:baseline}
+.prix-panel li svg{color:var(--accent);width:15px;height:15px;flex:none;transform:translateY(2px)}
+.prix-panel .btn{margin-top:26px;width:100%;justify-content:center}
+.prix-panel .stamp-reco{position:absolute;top:-13px;right:26px;}
+.stamp-reco{
+  font-family:var(--serif);font-weight:600;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent-ink);border:1.5px solid var(--accent);border-radius:2px;background:var(--paper);
+  padding:5px 12px;transform:rotate(-2deg);
+}
+
+/* ---------- close CTA ---------- */
+.close-cta{position:relative;background:var(--accent-ink);color:#E7F4EF;border-radius:4px;overflow:hidden;padding:104px 0;text-align:center;border:1px solid var(--accent-ink)}
+.close-cta::before{content:"";position:absolute;inset:0;background:radial-gradient(720px 420px at 50% -20%,rgba(18,133,104,.35),transparent 65%)}
+.close-cta h2{font-family:var(--serif);font-weight:600;font-size:clamp(2.1rem,4.2vw,3.5rem);letter-spacing:-.02em;position:relative}
+.close-cta p{position:relative;margin:20px auto 0;color:#A9C9BE;font-size:16.5px;max-width:46ch}
+.close-cta .hero-actions{position:relative;justify-content:center;margin-top:36px}
+.close-cta .btn-primary{background:var(--paper);color:var(--accent-ink);border-color:var(--paper)}
+.close-cta .btn-primary:hover{background:#fff}
+.close-cta .btn-line{color:#E7F4EF;border-color:rgba(231,244,239,.4);background:transparent}
+.close-cta .btn-line:hover{background:rgba(231,244,239,.08)}
+.close-cta .plan-line{position:absolute;width:150px;height:150px;top:-20px;left:7%;color:rgba(231,244,239,.14)}
+
+/* ---------- footer ---------- */
+footer{background:var(--ink);color:#9FAB9F;border-top:1px solid var(--line-soft)}
+.foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:48px;padding:68px 0 54px}
+.foot-grid h4{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#7C887E;font-weight:600;margin-bottom:18px}
+.foot-grid ul{list-style:none;display:grid;gap:11px}
+.foot-grid a{text-decoration:none;color:#C3CDC3;font-size:14.5px;transition:color .15s}
+.foot-grid a:hover{color:#F2FBF8}
+.foot-brand .brand-name{color:#F2FBF8}
+.foot-brand .brand-mark{border-color:var(--accent);color:var(--accent)}
+.foot-brand p{font-size:13.5px;line-height:1.7;margin-top:16px;max-width:34ch;color:#7C887E}
+.foot-base{border-top:1px solid rgba(231,244,239,.12);padding:22px 0;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:12.5px;color:#6E7A70}
+.foot-base .demo{display:inline-flex;gap:8px;align-items:center}
+.foot-base .demo .dot{width:6px;height:6px;border-radius:50%;background:var(--accent-hi)}
+
+/* ---------- responsive ---------- */
+@media (max-width:1020px){
+  .hero-grid{grid-template-columns:1fr;gap:56px;padding:72px 0 64px}
+  .plan{max-width:560px;margin:0 auto;width:100%}
+  .fiches{grid-template-columns:1fr;gap:20px}
+  .registre li{grid-template-columns:34px 42px 1fr;grid-template-rows:auto auto auto;row-gap:10px}
+  .registre .desc{grid-column:2/4}
+  .registre .more{grid-column:2/4}
+  .plate .plate-tag{left:20px}
+  .app-grid{grid-template-columns:1fr}
+  .app-rail{display:none}
+  .app-kpis{grid-template-columns:repeat(2,1fr)}
+  .app-boxes{grid-template-columns:1fr}
+  .releve-wrap{grid-template-columns:1fr;gap:44px}
+  .temoignage{grid-template-columns:1fr;gap:52px}
+  .trois-boites{grid-template-columns:1fr;align-items:stretch}
+  .prix-panel.milieu{transform:none}
+  .foot-grid{grid-template-columns:1fr 1fr}
+}
+@media (max-width:760px){
+  body{font-size:16px}
+  .nav{height:64px}
+  .nav-links{display:none}
+  .nav-cta .btn-line{display:none}
+  .nav-cta .btn{padding:10px 16px;font-size:14px}
+  .section{padding:74px 0}
+  .section-head{flex-direction:column;align-items:flex-start;margin-bottom:42px}
+  .hero h1{font-size:clamp(2.2rem,8.6vw,3rem)}
+  .hero p.lede{font-size:16.5px}
+  .plan{padding:20px 18px 18px}
+  .plan-grid{grid-template-columns:1fr}
+  .lot{min-height:102px}
+  .plan .stamp{width:78px;height:78px;right:14px;bottom:-16px}
+  .fiche{padding:24px 22px 22px}
+  .foot-grid{grid-template-columns:1fr;gap:34px}
+  .app-top .crumbs{display:none}
+  .app-top{padding:16px 18px}
+  .app-main{padding:20px 16px}
+  .app-kpis{grid-template-columns:1fr 1fr}
+  .close-cta{padding:80px 0}
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     VESTIA — L'ATELIER DE COTONOU
+     THESIS: La gestion locative traitée comme un bureau
+     d'architecture : chaque bien est un lot sur le plan de masse
+     du patrimoine ; Vestia dessine, suit et clôt chaque lot —
+     loyers, quittances, relances, interventions — à plat, sur un
+     seul document. Le monde refuse la carte de visite immobilière
+     comme le screenshot-de-stock SaaS. Bénin, devise F CFA.
+     OWN-WORLD (clean): papier blanc chaud (#FAFAF7), encre
+     vert-noir (#161D1B), un seul accent vert lagune (#0E6B55),
+     clay (#C14A32) réservé sémantique (retard). Traits fins 1px,
+     coins 2-3px, ombres très douces, large espacement. Espaces
+     graphiques : Space Grotesk (titres, 600) et Archivo (corps).
+     Icônes dessinées au trait 1.4. Quartiers de Cotonou :
+     Cadjèhoun, Haie Vive, Fidjrossè, Gbégamey, Akpakpa.
+     STORY: le visiteur découvre son patrimoine à plat (plan de
+     masse : 5 lots = 5 biens, montants en F CFA, états), voit les
+     trois scénarios quotidiens (loyer reçu, relance, devis),
+     parcourt le registre des fonctions, puis l'intérieur du
+     produit, avant de s'inscrire.
+     FIRST VIEWPORT: à gauche, le titre en Space Grotesk « Votre
+     patrimoine locatif, à plat. », la preuve en ligne et deux
+     actions dont « Commencer gratuitement ». À droite, le plan
+     de masse en papier calque : cinq lots au trait, le lot 01
+     (Cadjèhoun, 185 000 F) actif serti de vert, timbre rond
+     « À JOUR · JUIN 2026 ».
+     FORM: reroll direction (seed 1b92c872, rond 1) — mur de
+     boîtes écarté ; exécution « L'Atelier de Cotonou » :
+     plan de masse + timbre, sobriété maximale.
+     FINISH: unreviewed and undocumented is unfinished; this build
+     ends with the finish review, the verdict, and DESIGN.md.
+   ============================================================ -->
+
+<!-- SVG engraved icon set -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-lot" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="1"/><path d="M3.5 12.5h17M10 7.5v9.2M13.5 12v4.5"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6 2.5h8.5L19 7v14.5H6z"/><path d="M14.5 2.5V7H19M9 12h6M9 15.5h6"/></symbol>
+    <symbol id="i-piece" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v9M9.3 9.4c.8-.7 1.8-1.1 2.7-1.1 1.5 0 2.7.8 2.7 2s-1.4 1.8-2.9 2.3c-1.4.5-2.6 1.2-2.6 2.4 0 1.2 1.2 2 2.9 2 1.1 0 2.1-.4 2.9-1"/></symbol>
+    <symbol id="i-cle" viewBox="0 0 24 24"><circle cx="8" cy="9" r="4.5"/><path d="M11.5 12.5L20 21M15.5 16.5l3-3M13.5 18.5l2-2"/></symbol>
+    <symbol id="i-msg" viewBox="0 0 24 24"><path d="M4 5h16v11.5H9.5L5 20.2V16.5H4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-cloche" viewBox="0 0 24 24"><path d="M12 3.5c-3.3 0-5.5 2.6-5.5 5.8 0 4.7-1.3 6.2-2.3 7.2h15.6c-1-1-2.3-2.5-2.3-7.2 0-3.2-2.2-5.8-5.5-5.8z"/><path d="M10 19.5a2.1 2.1 0 0 0 4 0"/></symbol>
+    <symbol id="i-tool" viewBox="0 0 24 24"><path d="M15.5 6.5a3.5 3.5 0 0 0-4.6 4.4L3 18.8V21h2.2l7.9-7.9a3.5 3.5 0 0 0 4.4-4.6l-2.6 2.6-2.1-2.1z"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4.5 19.5h15M7 15.5v-4M12 15.5V8M17 15.5v-7"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 5.5h3M11 18.5h2"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M4.5 12.5l5 5 10-11"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M3.5 12h16M13.5 5.5L20 12l-6.5 6.5"/></symbol>
+    <symbol id="i-bouclier" viewBox="0 0 24 24"><path d="M12 2.5l7.5 3v6c0 4.8-3.2 8.3-7.5 10-4.3-1.7-7.5-5.2-7.5-10v-6z"/><path d="M9 11.8l2.2 2.2 4-4.2"/></symbol>
+  </defs>
+</svg>
+
+<!-- ============ HEADER ============ -->
+<header class="masthead">
+  <div class="container nav">
+    <a class="brand" href="index.html" aria-label="Vestia — accueil">
+      <span class="brand-mark"><svg><use href="#i-lot"/></svg></span>
+      <span>
+        <span class="brand-name">Vestia</span>
+        <span class="brand-sub" style="display:block">Gestion locative</span>
+      </span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="features.html">Fonctionnalités</a></li>
+      <li><a href="pricing.html">Tarifs</a></li>
+      <li><a href="dashboard.html">L'intérieur</a></li>
+    </ul>
+    <div class="nav-cta">
+      <a class="btn btn-line" href="login.html">Connexion</a>
+      <a class="btn btn-primary" href="signup.html">Commencer gratuitement</a>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <h1>Votre patrimoine locatif,<br><span class="hl">à plat.</span></h1>
+      <p class="lede">Vestia dessine vos biens comme un bureau d'architecture : chaque lot sur le plan, chaque loyer en F CFA, chaque relance réglée. Loyers, quittances, messages et interventions — tout est sur un seul document, rien ne se perd.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="signup.html">Commencer gratuitement
+          <svg class="i i-sm"><use href="#i-arrow"/></svg>
+        </a>
+        <a class="btn btn-line" href="features.html">Voir le produit</a>
+      </div>
+      <div class="hero-proof">
+        <span class="p"><span class="dot"></span>30 jours gratuits</span>
+        <span class="p"><span class="dot"></span>Sans engagement</span>
+        <span class="p"><span class="dot"></span>Assistance en français</span>
+      </div>
+    </div>
+
+    <div class="plan" role="img" aria-label="Plan de masse du patrimoine : cinq biens à Cotonou avec leurs loyers en F CFA">
+      <div class="plan-head">
+        <span class="plan-title">Plan de masse — Patrimoine</span>
+        <span class="plan-meta">Cotonou · juin 2026</span>
+      </div>
+      <div class="plan-grid">
+
+        <div class="lot active">
+          <div>
+            <div class="lot-top">
+              <span class="lot-no">LOT 01</span>
+              <span class="lot-amount">185 000 F</span>
+            </div>
+            <div class="lot-addr">Bd de la Marina</div>
+            <div class="lot-apt">Cadjèhoun · 72 m²</div>
+          </div>
+          <div class="lot-foot"><span class="lot-state s-paye">Loyer reçu</span><span class="lot-state s-paye">MTN MoMo</span></div>
+        </div>
+
+        <div class="lot">
+          <div>
+            <div class="lot-top">
+              <span class="lot-no">LOT 02</span>
+              <span class="lot-amount">120 000 F</span>
+            </div>
+            <div class="lot-addr">Haie Vive</div>
+            <div class="lot-apt">2e ét. · 46 m²</div>
+          </div>
+          <div class="lot-foot"><span class="lot-state s-relance">Relancé</span><span class="lot-state s-relance">Jour 8</span></div>
+        </div>
+
+        <div class="lot">
+          <div>
+            <div class="lot-top">
+              <span class="lot-no">LOT 03</span>
+              <span class="lot-amount">90 000 F</span>
+            </div>
+            <div class="lot-addr">Fidjrossè</div>
+            <div class="lot-apt">Studio · face plage</div>
+          </div>
+          <div class="lot-foot"><span class="lot-state s-devis">Devis en attente</span></div>
+        </div>
+
+        <div class="lot">
+          <div>
+            <div class="lot-top">
+              <span class="lot-no">LOT 04</span>
+              <span class="lot-amount">80 000 F</span>
+            </div>
+            <div class="lot-addr">Gbégamey</div>
+            <div class="lot-apt">Rdc cour · 32 m²</div>
+          </div>
+          <div class="lot-foot"><span class="lot-state s-paye">Loyer reçu</span></div>
+        </div>
+
+        <div class="lot">
+          <div>
+            <div class="lot-top">
+              <span class="lot-no">LOT 05</span>
+              <span class="lot-amount">135 000 F</span>
+            </div>
+            <div class="lot-addr">Akpakpa</div>
+            <div class="lot-apt">5e ét. · 51 m²</div>
+          </div>
+          <div class="lot-foot"><span class="lot-state s-paye">Loyer reçu</span></div>
+        </div>
+
+        <div class="lot empty">
+          <div class="lot-addr">Votre lot</div>
+          <div class="lot-apt" style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;margin-top:4px">À ajouter dès la création de votre compte</div>
+        </div>
+
+      </div>
+      <div class="stamp"><span>À jour<br>·<br>Juin 2026</span></div>
+      <div class="plan-head" style="border-bottom:0;margin-bottom:0;padding-top:20px;padding-bottom:0">
+        <span class="plan-meta">N ↑</span>
+        <span class="plan-meta">Échelle 1:2 000</span>
+        <span class="scale"><span class="bar"></span> 1 cm = 20 m</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FICHES ============ -->
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <div class="kicker">Dossier du jour</div>
+        <h2>Trois documents, trois gestes, zéro paperasse.</h2>
+      </div>
+      <p class="side">Données de démonstration, formatées comme chez vous : un propriétaire, cinq biens, juin 2026 à Cotonou.</p>
+    </div>
+
+    <div class="fiches">
+      <article class="fiche">
+        <div class="f-head">
+          <span class="f-type"><b>Loyer reçu</b> · 3 juin</span>
+          <span class="f-ic"><svg class="i i-sm"><use href="#i-msg"/></svg></span>
+        </div>
+        <h3>Loyer de juin reçu, quittance signée.</h3>
+        <p class="f-body">Le locataire du Bd de la Marina a payé 185 000 F le 3 juin à 9 h 12, réglé depuis son téléphone par Mobile Money. La quittance est générée, signée et rangée dans les documents du lot.</p>
+        <div class="f-foot"><span class="f-amount">185 000 F</span><span class="f-ok"><svg class="i i-sm"><use href="#i-check"/></svg>Reçu</span></div>
+        <div class="f-sig">Quittance n° 2026·06 — MTN MoMo · Cadjèhoun</div>
+      </article>
+
+      <article class="fiche mid">
+        <div class="f-head">
+          <span class="f-type"><b>Relance</b> · jour 8</span>
+          <span class="f-ic"><svg class="i i-sm"><use href="#i-cloche"/></svg></span>
+        </div>
+        <h3>Un loyer en retard, une relance envoyée.</h3>
+        <p class="f-body">Vestia a prévenu la locataire de Haie Vive d'un courrier poli et conforme au jour 5, lui a rappelé le montant exact en F CFA et les moyens de paiement (Mobile Money, virement) au jour 8. Vous n'avez rien à écrire.</p>
+        <div class="f-foot"><span class="f-amount clay">120 000 F</span><span class="f-ok"><svg class="i i-sm"><use href="#i-check"/></svg>Relance jour 8</span></div>
+        <div class="f-sig">N° R-2026-0614 — Haie Vive</div>
+      </article>
+
+      <article class="fiche">
+        <div class="f-head">
+          <span class="f-type"><b>Intervention</b> · jour 2</span>
+          <span class="f-ic"><svg class="i i-sm"><use href="#i-tool"/></svg></span>
+        </div>
+        <h3>Un climatiseur, un devis, un suivi.</h3>
+        <p class="f-body">Le locataire de Gbégamey signale un climatiseur bruyant. Le devis de l'artisan (25 000 F) est validé en un clic, le locataire est prévenu, la facture sera rangée avec le reste.</p>
+        <div class="f-foot"><span class="f-amount">Devis · 25 000 F</span><span class="f-ok"><svg class="i i-sm"><use href="#i-check"/></svg>En cours — jour 2</span></div>
+        <div class="f-sig">Intervention I-2081 — Gbégamey</div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ REGISTRE ============ -->
+<section class="section" style="padding-top:44px">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <div class="kicker">Registre des fonctions</div>
+        <h2>Tout ce que Vestia tient à jour pour vous.</h2>
+      </div>
+      <p class="side">Cinq registres, un seul plan. Chaque ligne est un document vivant, consultable à tout moment.</p>
+    </div>
+
+    <ul class="registre">
+      <li>
+        <span class="idx">01</span>
+        <span class="ic"><svg class="i"><use href="#i-piece"/></svg></span>
+        <h3>Encaissement Mobile Money</h3>
+        <p class="desc">Le locataire paie par MTN MoMo, Moov Money ou virement ; le loyer arrive sur votre compte, la quittance est scellée.</p>
+        <span class="order"><a class="more" href="features.html">Voir en détail <svg class="i i-sm"><use href="#i-arrow"/></svg></a></span>
+      </li>
+      <li>
+        <span class="idx">02</span>
+        <span class="ic"><svg class="i"><use href="#i-doc"/></svg></span>
+        <h3>Quittances automatiques</h3>
+        <p class="desc">Générées à chaque échéance, signées à la réception du paiement, prêtes pour vos déclarations.</p>
+        <span class="order"><a class="more" href="features.html">Voir en détail <svg class="i i-sm"><use href="#i-arrow"/></svg></a></span>
+      </li>
+      <li>
+        <span class="idx">03</span>
+        <span class="ic"><svg class="i"><use href="#i-cloche"/></svg></span>
+        <h3>Relances automatiques</h3>
+        <p class="desc">Des courriers polis et conformes, jour 5 puis jour 10, avec le montant exact en F CFA et les moyens de paiement.</p>
+        <span class="order"><a class="more" href="features.html">Voir en détail <svg class="i i-sm"><use href="#i-arrow"/></svg></a></span>
+      </li>
+      <li>
+        <span class="idx">04</span>
+        <span class="ic"><svg class="i"><use href="#i-tool"/></svg></span>
+        <h3>Interventions suivies</h3>
+        <p class="desc">De la demande du locataire au devis et à la facture : chaque lot garde son historique d'interventions complet.</p>
+        <span class="order"><a class="more" href="features.html">Voir en détail <svg class="i i-sm"><use href="#i-arrow"/></svg></a></span>
+      </li>
+      <li>
+        <span class="idx">05</span>
+        <span class="ic"><svg class="i"><use href="#i-chart"/></svg></span>
+        <h3>Synthèses et relevés</h3>
+        <p class="desc">Revenus perçus, provisions, travaux : tout est séparé et exportable, pour votre comptable comme pour vous.</p>
+        <span class="order"><a class="more" href="features.html">Voir en détail <svg class="i i-sm"><use href="#i-arrow"/></svg></a></span>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ PLATEAU ============ -->
+<section class="section" style="padding-top:44px">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <div class="kicker">L'intérieur</div>
+        <h2>Le bureau, au premier coup d'œil.</h2>
+      </div>
+      <p class="side">Aperçu du tableau de bord — données de démonstration.</p>
+    </div>
+
+    <div class="plate">
+      <div class="plate-tag">Tableau de bord · aperçu</div>
+      <div class="app">
+        <div class="app-top">
+          <span class="mast"><svg><use href="#i-lot"/></svg></span>
+          <span class="t">Bienvenue, M. Amoussou</span>
+          <span class="crumbs"><b>Patrimoine</b> · Juin 2026</span>
+          <span class="search"><svg class="i i-sm"><use href="#i-cle"/></svg>Chercher un lot</span>
+        </div>
+        <div class="app-grid">
+          <div class="app-rail">
+            <a class="on" href="#"><svg><use href="#i-lot"/></svg>Patrimoine</a>
+            <a href="#"><svg><use href="#i-doc"/></svg>Relevés</a>
+            <a href="#"><svg><use href="#i-cloche"/></svg>Relances</a>
+            <a href="#"><svg><use href="#i-tool"/></svg>Interventions</a>
+            <a href="#"><svg><use href="#i-chart"/></svg>Synthèses</a>
+          </div>
+          <div class="app-main">
+            <div class="app-kpis">
+              <div class="kpi"><div class="k-l">Loyers reçus · juin</div><div class="k-v"><em>490 000 F</em></div><div class="k-s">4 / 5 lots</div></div>
+              <div class="kpi"><div class="k-l">En attente</div><div class="k-v">120 000 F</div><div class="k-s">Relance envoyée</div></div>
+              <div class="kpi"><div class="k-l">Interventions</div><div class="k-v">2</div><div class="k-s">1 devis à valider</div></div>
+              <div class="kpi"><div class="k-l">Vacance</div><div class="k-v">0</div><div class="k-s">Aucun lot libre</div></div>
+            </div>
+            <div class="app-boxes">
+              <div class="app-box">
+                <div class="ab-t"><span class="ab-addr">Bd de la Marina</span><span class="ab-apt">Cadjèhoun</span></div>
+                <div class="ab-row"><span>Loyer juin</span><b>185 000 F</b></div>
+                <div class="ab-row"><span>Locataire</span><b>Adjovi</b></div>
+                <span class="ab-state st-recu">Loyer reçu</span>
+              </div>
+              <div class="app-box">
+                <div class="ab-t"><span class="ab-addr">Haie Vive</span><span class="ab-apt">2e ét.</span></div>
+                <div class="ab-row"><span>Loyer juin</span><b>120 000 F</b></div>
+                <div class="ab-row"><span>Locataire</span><b>Hounsou</b></div>
+                <span class="ab-state st-action">Relance jour 8</span>
+              </div>
+              <div class="app-box">
+                <div class="ab-t"><span class="ab-addr">Fidjrossè</span><span class="ab-apt">Studio</span></div>
+                <div class="ab-row"><span>Loyer juin</span><b>90 000 F</b></div>
+                <div class="ab-row"><span>Locataire</span><b>Akplogan</b></div>
+                <span class="ab-state st-devis">Devis en attente</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="plate-cap fine">Chaque lot, son état, son montant — en F CFA.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RELEVÉ ============ -->
+<section class="section">
+  <div class="container">
+    <div class="releve-wrap">
+      <div>
+        <div class="section-head" style="margin-bottom:34px">
+          <div>
+            <div class="kicker">Relevé de juin</div>
+            <h2>Ce mois, à plat, en une table.</h2>
+          </div>
+        </div>
+
+        <div class="releve">
+          <div class="releve-head">
+            <h3>Relevé des loyers — juin 2026</h3>
+            <span class="fine">Cotonou</span>
+          </div>
+          <table>
+            <tbody>
+              <tr><td>Bd de la Marina — Cadjèhoun</td><td class="amt">185 000 F</td><td class="st"><span class="stamp-tag ok">Reçu</span></td></tr>
+              <tr><td>Fidjrossè — studio face plage</td><td class="amt">90 000 F</td><td class="st"><span class="stamp-tag ok">Reçu</span></td></tr>
+              <tr><td>Gbégamey — rdc cour</td><td class="amt">80 000 F</td><td class="st"><span class="stamp-tag ok">Reçu</span></td></tr>
+              <tr><td>Akpakpa — 5e ét.</td><td class="amt">135 000 F</td><td class="st"><span class="stamp-tag ok">Reçu</span></td></tr>
+              <tr><td>Haie Vive — 2e ét.</td><td class="amt">120 000 F</td><td class="st"><span class="stamp-tag mute">Relancé</span></td></tr>
+            </tbody>
+            <tfoot>
+              <tr><td colspan="3"><div class="tot"><span class="fine" style="font-size:12px">Total perçu ce mois</span><b>490 000 F</b></div></td></tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div class="releve-note">
+          <svg><use href="#i-doc"/></svg>
+          <span>Chaque quittance est générée à partir des échéances, signée à la réception du paiement — MTN MoMo, Moov Money ou virement — et prête pour vos déclarations. Données de démonstration.</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-head" style="margin-bottom:34px">
+          <div>
+            <div class="kicker">Clôture</div>
+            <h2>Fin de mois, zéro calcul.</h2>
+          </div>
+        </div>
+        <p style="font-size:15.5px;color:var(--ink-2);line-height:1.75;max-width:46ch">À la clôture, l'export pour votre comptable et la synthèse pour vos déclarations sont prêts — loyers, charges, provisions et travaux séparés d'avance, en F CFA.</p>
+        <div class="hero-actions" style="margin-top:30px">
+          <a class="btn btn-line" href="dashboard.html">Explorer le relevé
+            <svg class="i i-sm"><use href="#i-arrow"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TÉMOIGNAGE ============ -->
+<section class="section" style="padding-top:20px">
+  <div class="container">
+    <div class="temoignage">
+      <div class="t-photo">
+        <div class="frame">
+          <img src="assets/immeuble-cotonou.jpg" alt="Immeuble à Cotonou, Bénin" loading="lazy">
+        </div>
+        <span class="photo-cap">Cotonou · Immeuble du quartier</span>
+      </div>
+      <div class="t-quote">
+        <blockquote>Avant, je passais mon dimanche à ranger des papiers et à relancer poliment. Maintenant je lis mon plan le matin, et le dimanche m'appartient.</blockquote>
+        <div class="who">
+          <span class="seal">MF</span>
+          <div>
+            <div class="n">Mme F.</div>
+            <div class="r">Propriétaire de 4 biens à Cotonou</div>
+          </div>
+        </div>
+        <span class="fine">Témoignage de démonstration</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TARIFS ============ -->
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <div class="kicker">Tarifs</div>
+        <h2>Trois offres, une seule logique : un lot, une boîte de dossiers.</h2>
+      </div>
+      <p class="side">Prix en francs CFA, sans frais cachés. 30 jours d'essai sur toutes les offres.</p>
+    </div>
+
+    <div class="trois-boites">
+      <div class="prix-panel">
+        <div class="p-name">Le Geste</div>
+        <div class="p-price">2 500 F<sup> /mois</sup></div>
+        <p class="p-why">Un lot : son plan, son dossier, son suivi.</p>
+        <ul>
+          <li><svg><use href="#i-check"/></svg>Un bien géré</li>
+          <li><svg><use href="#i-check"/></svg>Quittances et documents</li>
+          <li><svg><use href="#i-check"/></svg>Relances automatiques</li>
+          <li><svg><use href="#i-check"/></svg>Encaissement Mobile Money</li>
+        </ul>
+        <a class="btn btn-line" href="signup.html">Commencer</a>
+      </div>
+
+      <div class="prix-panel milieu">
+        <span class="stamp-reco">Recommandé</span>
+        <div class="p-name">La Sérénité</div>
+        <div class="p-price">4 900 F<sup> /mois</sup></div>
+        <p class="p-why">Jusqu'à 5 lots, finances et pilotage compris.</p>
+        <ul>
+          <li><svg><use href="#i-check"/></svg>Tout « Le Geste », jusqu'à 5 biens</li>
+          <li><svg><use href="#i-check"/></svg>Suivi financier et relevés</li>
+          <li><svg><use href="#i-check"/></svg>Synthèse pour vos déclarations</li>
+          <li><svg><use href="#i-check"/></svg>Tableau de bord complet</li>
+          <li><svg><use href="#i-check"/></svg>Priorité d'assistance</li>
+        </ul>
+        <a class="btn btn-primary" href="signup.html">Commencer</a>
+      </div>
+
+      <div class="prix-panel">
+        <div class="p-name">Le Patrimoine</div>
+        <div class="p-price">9 900 F<sup> /mois</sup></div>
+        <p class="p-why">Un portefeuille, une équipe, zéro limite.</p>
+        <ul>
+          <li><svg><use href="#i-check"/></svg>Biens illimités</li>
+          <li><svg><use href="#i-check"/></svg>Accès collaborateurs</li>
+          <li><svg><use href="#i-check"/></svg>Exports comptables</li>
+          <li><svg><use href="#i-check"/></svg>Assistance dédiée</li>
+        </ul>
+        <a class="btn btn-line" href="signup.html">Commencer</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CTA FINAL ============ -->
+<section class="section" style="padding-top:20px">
+  <div class="container">
+    <div class="close-cta">
+      <svg class="plan-line"><use href="#i-lot"/></svg>
+      <h2>Dessinez votre patrimoine.<br>Le reste, c'est notre plan.</h2>
+      <p>Ajoutez vos lots en dix minutes, encaissez vos premiers loyers ce mois-ci. 30 jours gratuits, sans carte bancaire.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="signup.html">Commencer gratuitement</a>
+        <a class="btn btn-line" href="features.html">Voir le produit</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="brand" href="index.html" style="color:inherit">
+          <span class="brand-mark"><svg><use href="#i-lot"/></svg></span>
+          <span>
+            <span class="brand-name">Vestia</span>
+            <span class="brand-sub" style="display:block">Gestion locative</span>
+          </span>
+        </a>
+        <p>La gestion locative au Bénin, à plat. Rappels, quittances et paiements Mobile Money réunis sur un seul plan.</p>
+      </div>
+      <div>
+        <h4>Produit</h4>
+        <ul>
+          <li><a href="features.html">Fonctionnalités</a></li>
+          <li><a href="pricing.html">Tarifs</a></li>
+          <li><a href="dashboard.html">L'intérieur</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Compte</h4>
+        <ul>
+          <li><a href="signup.html">Créer un compte</a></li>
+          <li><a href="login.html">Connexion</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="#">bonjour@vestia.bj</a></li>
+          <li><a href="#">Cotonou, Bénin</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-base">
+      <span>© 2026 Vestia — Cotonou, Bénin</span>
+      <span class="demo"><span class="dot"></span>Maquette de démonstration — données fictives</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

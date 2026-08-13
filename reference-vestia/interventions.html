@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vestia — Interventions &amp; travaux</title>
+<meta name="description" content="Demande d'intervention locataire, devis artisan, suivi des travaux : chaque lot garde son historique complet, en F CFA.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FAFAF7;--paper-2:#F2F3EF;--ink:#161D1B;--ink-2:#39443F;--ink-3:#6E7973;
+  --accent:#0E6B55;--accent-hi:#128568;--accent-ink:#0A3D31;--clay:#C14A32;
+  --line:rgba(22,29,27,.14);--line-soft:rgba(22,29,27,.08);
+  --serif:"Space Grotesk","Helvetica Neue",Arial,sans-serif;
+  --sans:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --shadow:0 16px 36px -26px rgba(20,40,35,.28), 0 2px 6px -3px rgba(20,40,35,.12);
+  --shadow-soft:0 8px 20px -16px rgba(20,40,35,.16);
+  --rail:236px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.62;-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%}
+a{color:inherit}
+.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.i-sm{width:16px;height:16px}
+.shell{display:grid;grid-template-columns:var(--rail) 1fr;min-height:100vh}
+.sidebar{border-right:1px solid var(--line-soft);background:var(--paper-2);display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.side-head{display:flex;align-items:center;gap:11px;padding:22px 22px 20px;border-bottom:1px solid var(--line-soft)}
+.side-head .mast{width:34px;height:34px;border:1px solid var(--accent);border-radius:2px;display:grid;place-items:center;color:var(--accent);background:var(--paper)}
+.side-head .mast svg{width:18px;height:18px}
+.side-head .t{font-family:var(--serif);font-weight:700;font-size:19px;line-height:1}
+.side-head .s{font-size:9.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--ink-3);margin-top:4px;font-weight:500}
+.side-nav{padding:16px 12px;display:grid;gap:2px;flex:1}
+.side-nav .grp{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-3);font-weight:600;padding:14px 12px 6px}
+.side-nav a{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink-2);font-size:13.5px;padding:9px 12px;border-radius:2px;border-left:2px solid transparent;transition:background .15s,color .15s}
+.side-nav a svg{width:16px;height:16px;color:var(--ink-3)}
+.side-nav a:hover{background:var(--paper)}
+.side-nav a.on{color:var(--accent-ink);font-weight:600;background:var(--paper);border-left-color:var(--accent)}
+.side-nav a.on svg{color:var(--accent)}
+.side-foot{border-top:1px solid var(--line-soft);padding:16px 20px;display:flex;align-items:center;gap:12px}
+.side-foot .seal{width:34px;height:34px;border-radius:2px;border:1px solid var(--accent);display:grid;place-items:center;font-family:var(--serif);font-weight:700;font-size:13px;color:var(--accent-ink);background:var(--paper)}
+.side-foot .n{font-size:13px;font-weight:600;line-height:1.2}
+.side-foot .r{font-size:11px;color:var(--ink-3)}
+.side-foot .plan{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-left:auto;display:inline-flex;align-items:center;gap:6px;text-decoration:none}
+.main{min-width:0}
+.top{display:flex;align-items:center;gap:18px;height:70px;padding:0 34px;border-bottom:1px solid var(--line-soft);position:sticky;top:0;background:rgba(250,250,247,.94);backdrop-filter:blur(6px);z-index:40}
+.top .title{font-family:var(--serif);font-weight:600;font-size:17px;letter-spacing:-.01em}
+.top .crumb{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);display:flex;gap:14px;align-items:center}
+.top .crumb b{color:var(--ink);font-weight:600}
+.top .spacer{flex:1}
+.content{padding:34px;max-width:1240px}
+.kicker{font-size:10.5px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--accent-ink);margin-bottom:10px}
+.h2{font-family:var(--serif);font-weight:600;font-size:clamp(1.4rem,2.2vw,1.9rem);letter-spacing:-.018em;line-height:1.15}
+.lead{font-size:14.5px;color:var(--ink-3);margin-top:8px;max-width:60ch}
+.btn{display:inline-flex;align-items:center;gap:9px;text-decoration:none;cursor:pointer;font-family:var(--sans);font-weight:600;font-size:13.5px;padding:11px 20px;border-radius:2px;border:1px solid transparent;transition:transform .16s, box-shadow .16s, background .16s, color .16s}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:var(--accent);color:#F2FBF8;border-color:var(--accent-ink);box-shadow:0 10px 20px -14px rgba(14,107,85,.6)}
+.btn-primary:hover{transform:translateY(-1px);background:var(--accent-hi)}
+.btn-line{color:var(--ink);border-color:var(--line);background:var(--paper)}
+.btn-line:hover{background:var(--paper-2);border-color:var(--accent)}
+.btn-sm{padding:8px 14px;font-size:12.5px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:26px}
+.kpi{border:1px solid var(--line);border-radius:3px;padding:18px 22px;background:var(--paper);box-shadow:var(--shadow-soft)}
+.kpi .k-l{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.kpi .k-v{font-family:var(--serif);font-weight:600;font-size:26px;margin-top:8px;letter-spacing:-.02em}
+.kpi .k-v em{font-style:normal;color:var(--accent)}
+.kpi .k-s{font-size:12px;color:var(--ink-3);margin-top:4px;font-weight:500}
+.panel{border:1px solid var(--line);border-radius:3px;background:var(--paper);box-shadow:var(--shadow-soft);overflow:hidden;margin-top:30px}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 24px;border-bottom:1px solid var(--line-soft);background:var(--paper-2);flex-wrap:wrap}
+.panel-head h3{font-family:var(--serif);font-weight:600;font-size:15.5px;letter-spacing:-.01em}
+.interv{display:grid;gap:0}
+.it{border-bottom:1px solid var(--line-soft);padding:22px 26px;display:grid;grid-template-columns:52px 1.4fr 1fr 150px;gap:22px;align-items:center;transition:background .15s}
+.it:last-child{border-bottom:0}
+.it:hover{background:var(--paper-2)}
+.it .it-ic{width:44px;height:44px;border:1px solid var(--line);border-radius:2px;display:grid;place-items:center;color:var(--accent);background:var(--paper-2)}
+.it .it-ic svg{width:19px;height:19px}
+.it .t{font-family:var(--serif);font-weight:600;font-size:15.5px;letter-spacing:-.01em}
+.it .s{font-size:13px;color:var(--ink-3);margin-top:3px}
+.it .mid{font-size:13.5px;color:var(--ink-2)}
+.it .mid b{color:var(--ink);font-weight:600;display:block;font-size:14px}
+.it .right{text-align:right}
+.it .amt{font-family:var(--serif);font-weight:600;font-size:16px}
+.it .amt.clay{color:var(--clay)}
+.it .stage{margin-top:6px;font-size:9.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:4px 9px;border-radius:2px;display:inline-block}
+.st-devis{color:var(--ink-2);border:1px solid var(--line)}
+.st-en{color:var(--accent);border:1px solid rgba(14,107,85,.45);background:rgba(14,107,85,.05)}
+.st-done{color:var(--accent-ink);border:1px solid rgba(14,107,85,.45);background:rgba(14,107,85,.06)}
+.st-warn{color:var(--clay);border:1px solid rgba(193,74,50,.45);background:rgba(193,74,50,.05)}
+.tfoot-note{padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink-3);border-top:1px solid var(--line-soft)}
+.tfoot-note .demo{display:inline-flex;gap:8px;align-items:center}
+.tfoot-note .demo .dot{width:6px;height:6px;border-radius:50%;background:var(--accent-hi)}
+.mob-cta{display:none}
+@media (max-width:1080px){.kpis{grid-template-columns:1fr 1fr}.it{grid-template-columns:52px 1fr;grid-template-rows:auto auto;row-gap:12px}.it .mid,.it .right{grid-column:2/3}}
+@media (max-width:820px){
+  .shell{grid-template-columns:1fr}.sidebar{display:none}
+  .mob-cta{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--line-soft);position:sticky;top:0;background:var(--paper-2);z-index:50}
+  .mob-cta .mast{border:1px solid var(--accent);border-radius:2px;width:32px;height:32px;display:grid;place-items:center;color:var(--accent)}
+  .mob-cta .mast svg{width:16px;height:16px}
+  .mob-cta .t{font-family:var(--serif);font-weight:700;font-size:17px}
+  .mob-cta a.link{font-size:12px;font-weight:600;color:var(--accent);margin-left:auto;text-decoration:none}
+  .top{height:60px;padding:0 16px}.top .crumb{display:none}
+  .content{padding:22px 16px}
+  .kpis{grid-template-columns:1fr 1fr;gap:12px}.kpi{padding:16px}.kpi .k-v{font-size:21px}
+  .it{padding:18px}
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-lot" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="1"/><path d="M3.5 12.5h17M10 7.5v9.2M13.5 12v4.5"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6 2.5h8.5L19 7v14.5H6z"/><path d="M14.5 2.5V7H19M9 12h6M9 15.5h6"/></symbol>
+    <symbol id="i-piece" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v9M9.3 9.4c.8-.7 1.8-1.1 2.7-1.1 1.5 0 2.7.8 2.7 2s-1.4 1.8-2.9 2.3c-1.4.5-2.6 1.2-2.6 2.4 0 1.2 1.2 2 2.9 2 1.1 0 2.1-.4 2.9-1"/></symbol>
+    <symbol id="i-tool" viewBox="0 0 24 24"><path d="M15.5 6.5a3.5 3.5 0 0 0-4.6 4.4L3 18.8V21h2.2l7.9-7.9a3.5 3.5 0 0 0 4.4-4.6l-2.6 2.6-2.1-2.1z"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4.5 19.5h15M7 15.5v-4M12 15.5V8M17 15.5v-7"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M3.5 12h16M13.5 5.5L20 12l-6.5 6.5"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.5c1.2-3.5 4.1-5 7.5-5s6.3 1.5 7.5 5"/></symbol>
+    <symbol id="i-cloche" viewBox="0 0 24 24"><path d="M12 3.5c-3.3 0-5.5 2.6-5.5 5.8 0 4.7-1.3 6.2-2.3 7.2h15.6c-1-1-2.3-2.5-2.3-7.2 0-3.2-2.2-5.8-5.5-5.8z"/><path d="M10 19.5a2.1 2.1 0 0 0 4 0"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M4.5 12.5l5 5 10-11"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 4.5v15M4.5 12h15"/></symbol>
+  </defs>
+</svg>
+
+<div class="mob-cta">
+  <span class="mast"><svg><use href="#i-lot"/></svg></span>
+  <span class="t">Vestia</span>
+  <a class="link" href="index.html">Menu</a>
+</div>
+
+<div class="shell">
+
+  <aside class="sidebar">
+    <div class="side-head">
+      <a class="mast" href="index.html" aria-label="Vestia — accueil"><svg><use href="#i-lot"/></svg></a>
+      <div><div class="t">Vestia</div><div class="s">Gestion locative</div></div>
+    </div>
+    <nav class="side-nav">
+      <div class="grp">Bureau</div>
+      <a href="dashboard.html"><svg><use href="#i-chart"/></svg>Vue d'ensemble</a>
+      <div class="grp">Patrimoine</div>
+      <a href="biens.html"><svg><use href="#i-lot"/></svg>Biens</a>
+      <a href="locataires.html"><svg><use href="#i-user"/></svg>Locataires</a>
+      <div class="grp">Trésorerie</div>
+      <a href="loyers.html"><svg><use href="#i-piece"/></svg>Loyers &amp; quittances</a>
+      <a href="finances.html"><svg><use href="#i-chart"/></svg>Finances &amp; déclarations</a>
+      <div class="grp">Terrain</div>
+      <a class="on" href="interventions.html"><svg><use href="#i-tool"/></svg>Interventions</a>
+      <a href="documents.html"><svg><use href="#i-doc"/></svg>Documents &amp; baux</a>
+    </nav>
+    <div class="side-foot">
+      <span class="seal">MA</span>
+      <div><div class="n">M. Amoussou</div><div class="r">Compte · La Sérénité</div></div>
+      <a class="plan" href="index.html">Plan <svg class="i i-sm"><use href="#i-arrow"/></svg></a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="top">
+      <div class="title">Interventions</div>
+      <div class="crumb"><b>Terrain</b> · 2 en cours · juin 2026</div>
+      <div class="spacer"></div>
+      <a class="btn btn-primary btn-sm" href="#">Nouvelle intervention
+        <svg class="i i-sm"><use href="#i-plus"/></svg>
+      </a>
+    </div>
+
+    <div class="content">
+      <div class="kicker">Suivi des travaux</div>
+      <div class="h2">Du signalement au devis, jusqu'à la facture.</div>
+      <p class="lead">Le locataire signale, l'artisan devine, vous validez, Vestia garde la trace : chaque lot garde l'historique complet de ses interventions.</p>
+
+      <div class="kpis">
+        <div class="kpi"><div class="k-l">En cours</div><div class="k-v">2</div><div class="k-s">1 devis à valider</div></div>
+        <div class="kpi"><div class="k-l">Clôturées · juin</div><div class="k-v"><em>2</em></div><div class="k-s">Factures rangées</div></div>
+        <div class="kpi"><div class="k-l">Dépensé · mois</div><div class="k-v"><em>38 500 F</em></div><div class="k-s">2 interventions</div></div>
+        <div class="kpi"><div class="k-l">Devis en attente</div><div class="k-v clay">25 000 F</div><div class="k-s">À valider · Gbégamey</div></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Toutes les interventions</h3>
+          <span style="font-size:12px;color:var(--ink-3)">Juin 2026 · Cotonou</span>
+        </div>
+        <div class="interv">
+
+          <div class="it">
+            <span class="it-ic"><svg><use href="#i-tool"/></svg></span>
+            <div>
+              <div class="t">Climatiseur bruyant — remplacement du compresseur</div>
+              <div class="s">Gbégamey · Rdc cour · signalée le 11 juin par Dossou-Yovo</div>
+            </div>
+            <div class="mid">
+              <b>Artisan Kabirou · Élec &amp; Froid</b>
+              Devis reçu le 13 juin · validé par vous
+            </div>
+            <div class="right"><div class="amt clay">25 000 F</div><span class="stage st-warn">Devis reçu</span></div>
+          </div>
+
+          <div class="it">
+            <span class="it-ic"><svg><use href="#i-cloche"/></svg></span>
+            <div>
+              <div class="t">Fuite au robinet de la cuisine</div>
+              <div class="s">Fidjrossè · studio · signalée le 2 juin par Akplogan</div>
+            </div>
+            <div class="mid">
+              <b>Plombier Aïvoh · réglé</b>
+              Facture rangée · intervention terminée le 4 juin
+            </div>
+            <div class="right"><div class="amt">13 500 F</div><span class="stage st-done">Clôturée · facturée</span></div>
+          </div>
+
+          <div class="it">
+            <span class="it-ic"><svg><use href="#i-tool"/></svg></span>
+            <div>
+              <div class="t">Porte de la chambre qui grince</div>
+              <div class="s">Akpakpa · 5e ét. · signalée le 30 mai par Yehouénou</div>
+            </div>
+            <div class="mid">
+              <b>Menuisier Agossa</b>
+              Devis accepté · intervention planifiée le 16 juin
+            </div>
+            <div class="right"><div class="amt">25 000 F</div><span class="stage st-en">Programmée</span></div>
+          </div>
+
+          <div class="it">
+            <span class="it-ic"><svg><use href="#i-check"/></svg></span>
+            <div>
+              <div class="t">Remplacement interrupteurs salon</div>
+              <div class="s">Bd de la Marina · Cadjèhoun · signalée le 8 mai</div>
+            </div>
+            <div class="mid">
+              <b>Électricien Hounton · réglé</b>
+              Facture n° 2026-05 rangée dans le dossier du lot
+            </div>
+            <div class="right"><div class="amt">12 500 F</div><span class="stage st-done">Clôturée · facturée</span></div>
+          </div>
+
+        </div>
+        <div class="tfoot-note">
+          <span class="demo"><span class="dot"></span>Données de démonstration — artisans et montants fictifs</span>
+          <span>4 interventions · 76 000 F de travaux en cours de l'année</span>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:30px">
+        <a class="btn btn-primary" href="#">Nouvelle intervention
+          <svg class="i i-sm"><use href="#i-plus"/></svg>
+        </a>
+        <a class="btn btn-line" href="finances.html">Voir les dépenses de travaux</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

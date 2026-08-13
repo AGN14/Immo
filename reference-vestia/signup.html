@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vestia — Créer un compte</title>
+<meta name="description" content="Créez votre espace Vestia : 30 jours gratuits, sans engagement, sans carte bancaire. Vos loyers en F CFA, vos quittances, par Mobile Money.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FAFAF7;--paper-2:#F2F3EF;--ink:#161D1B;--ink-2:#39443F;--ink-3:#6E7973;
+  --accent:#0E6B55;--accent-hi:#128568;--accent-ink:#0A3D31;--clay:#C14A32;
+  --line:rgba(22,29,27,.14);--line-soft:rgba(22,29,27,.08);
+  --serif:"Space Grotesk","Helvetica Neue",Arial,sans-serif;
+  --sans:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --shadow:0 16px 36px -26px rgba(20,40,35,.28), 0 2px 6px -3px rgba(20,40,35,.12);
+  --shadow-soft:0 8px 20px -16px rgba(20,40,35,.16);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;-webkit-font-smoothing:antialiased;min-height:100vh}
+a{color:inherit}
+.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.auth{min-height:100vh;display:grid;grid-template-columns:1fr 460px}
+.auth-side{background:var(--paper-2);border-right:1px solid var(--line-soft);padding:44px;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.auth-side::before{content:"";position:absolute;inset:0;background:radial-gradient(700px 400px at 20% -10%,rgba(14,107,85,.10),transparent 60%)}
+.auth-side .brand{display:flex;align-items:center;gap:12px;text-decoration:none;position:relative}
+.auth-side .brand .mast{width:38px;height:38px;border:1px solid var(--accent);border-radius:2px;display:grid;place-items:center;color:var(--accent);background:var(--paper)}
+.auth-side .brand .mast svg{width:20px;height:20px}
+.auth-side .brand .n{font-family:var(--serif);font-weight:700;font-size:22px;line-height:1}
+.auth-side .brand .s{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--ink-3);margin-top:4px;font-weight:500}
+.auth-side .points{margin-top:auto;position:relative;display:grid;gap:26px;padding-bottom:26px}
+.auth-side .pt{display:flex;gap:14px;align-items:flex-start;max-width:38ch}
+.auth-side .pt .n{width:30px;height:30px;border:1px solid var(--accent);border-radius:2px;display:grid;place-items:center;font-family:var(--serif);font-weight:600;font-size:12px;color:var(--accent-ink);background:var(--paper);flex:none}
+.auth-side .pt .t{font-family:var(--serif);font-weight:600;font-size:15px;line-height:1.2}
+.auth-side .pt .s{font-size:13px;color:var(--ink-3);margin-top:4px;line-height:1.55}
+.auth-side .foot{position:relative;border-top:1px solid var(--line-soft);padding-top:18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--ink-3)}
+.auth-side .foot .demo{display:inline-flex;gap:8px;align-items:center}
+.auth-side .foot .demo .dot{width:6px;height:6px;border-radius:50%;background:var(--accent-hi)}
+.auth-main{display:flex;align-items:center;justify-content:center;padding:44px 24px}
+.card{width:100%;max-width:380px}
+.card .k{font-size:10.5px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--accent-ink);margin-bottom:10px}
+.card h1{font-family:var(--serif);font-weight:600;font-size:clamp(1.5rem,2.4vw,2rem);letter-spacing:-.02em;line-height:1.1}
+.card .sub{font-size:14px;color:var(--ink-3);margin-top:8px;line-height:1.6}
+.form{margin-top:30px;display:grid;gap:16px}
+.field label{display:block;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-bottom:8px}
+.field .input{width:100%;border:1px solid var(--line);border-radius:2px;background:var(--paper);padding:13px 15px;font-family:var(--sans);font-size:15px;color:var(--ink);outline:0;transition:border-color .15s}
+.field .input:focus{border-color:var(--accent)}
+.field .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;text-decoration:none;cursor:pointer;font-family:var(--sans);font-weight:600;font-size:15px;padding:13px 22px;border-radius:2px;border:1px solid transparent;transition:transform .16s, box-shadow .16s, background .16s, color .16s;width:100%}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:var(--accent);color:#F2FBF8;border-color:var(--accent-ink);box-shadow:0 10px 20px -14px rgba(14,107,85,.6)}
+.btn-primary:hover{transform:translateY(-1px);background:var(--accent-hi)}
+.terms{font-size:12px;color:var(--ink-3);line-height:1.6}
+.terms a{color:var(--accent);font-weight:600;text-decoration:none}
+.terms a:hover{color:var(--accent-ink)}
+.help{text-align:center;font-size:13.5px;color:var(--ink-3);margin-top:22px}
+.help a{color:var(--accent);font-weight:600;text-decoration:none}
+.help a:hover{color:var(--accent-ink)}
+@media (max-width:860px){
+  .auth{grid-template-columns:1fr}
+  .auth-side{display:none}
+  .auth-main{min-height:100vh}
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-lot" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="1"/><path d="M3.5 12.5h17M10 7.5v9.2M13.5 12v4.5"/></symbol>
+    <symbol id="i-bouclier" viewBox="0 0 24 24"><path d="M12 2.5l7.5 3v6c0 4.8-3.2 8.3-7.5 10-4.3-1.7-7.5-5.2-7.5-10v-6z"/><path d="M9 11.8l2.2 2.2 4-4.2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 5.5h3M11 18.5h2"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6 2.5h8.5L19 7v14.5H6z"/><path d="M14.5 2.5V7H19M9 12h6M9 15.5h6"/></symbol>
+  </defs>
+</svg>
+
+<div class="auth">
+
+  <aside class="auth-side">
+    <a class="brand" href="index.html" aria-label="Vestia — accueil">
+      <span class="mast"><svg><use href="#i-lot"/></svg></span>
+      <span><span class="n">Vestia</span><span class="s" style="display:block">Gestion locative</span></span>
+    </a>
+    <div class="points">
+      <div class="pt">
+        <span class="n">1</span>
+        <div><div class="t">Ajoutez vos lots</div><div class="s">Improbable de se perdre : chaque bien, son plan, son dossier, son loyer en F CFA.</div></div>
+      </div>
+      <div class="pt">
+        <span class="n">2</span>
+        <div><div class="t">Encaissez par Mobile Money</div><div class="s">MTN MoMo ou Moov Money : le loyer arrive, la quittance est signée et rangée.</div></div>
+      </div>
+      <div class="pt">
+        <span class="n">3</span>
+        <div><div class="t">Lisez votre plan le matin</div><div class="s">Relances, interventions, synthèses : tout se pilote depuis le tableau de bord.</div></div>
+      </div>
+    </div>
+    <div class="foot">
+      <span class="demo"><span class="dot"></span>Maquette de démonstration</span>
+      <a href="index.html" style="color:var(--ink-3);text-decoration:none">← Retour au site</a>
+    </div>
+  </aside>
+
+  <main class="auth-main">
+    <div class="card">
+      <div class="k">Compte propriétaire</div>
+      <h1>Dessinez votre patrimoine.</h1>
+      <p class="sub">30 jours gratuits, sans engagement, sans carte bancaire. L'offre complète, tout inclus.</p>
+
+      <form class="form" action="#" method="get">
+        <div class="field">
+          <label>Nom complet</label>
+          <input class="input" type="text" placeholder="Amoussou Mathieu" required>
+        </div>
+        <div class="field">
+          <label>Adresse e-mail</label>
+          <input class="input" type="email" placeholder="vous@exemple.bj" required>
+        </div>
+        <div class="field">
+          <label>Téléphone Mobile Money</label>
+          <input class="input" type="tel" placeholder="+229 97 00 00 00" required>
+        </div>
+        <div class="field">
+          <label>Mot de passe</label>
+          <input class="input" type="password" placeholder="6 caractères minimum" required>
+        </div>
+        <button class="btn btn-primary" type="submit">Créer mon compte gratuit</button>
+        <p class="terms">En continuant, vous acceptez les <a href="#">conditions d'utilisation</a> et la <a href="#">politique de confidentialité</a>. Vos données restent au Bénin.</p>
+      </form>
+
+      <p class="help">Déjà inscrit ? <a href="login.html">Se connecter</a></p>
+    </div>
+  </main>
+
+</div>
+
+</body>
+</html>
