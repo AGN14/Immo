@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { logout } from "@/lib/auth/actions";
 import { getSession } from "@/lib/auth/mock-session";
+import { AppNav } from "@/components/app/AppNav";
 import { Logo } from "@/components/ui/Logo";
 
 const roleLabels = {
@@ -36,6 +37,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           </div>
         </div>
       </header>
+      <AppNav role={session.role} />
       <main className="mx-auto max-w-[1180px] px-5 py-10 sm:px-8 lg:px-12">{children}</main>
     </div>
   );
