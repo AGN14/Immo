@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { logout } from "@/lib/auth/actions";
 import { Logo } from "@/components/ui/Logo";
 import { planSuffisant, type PlanId } from "@/lib/plans";
@@ -183,6 +183,18 @@ export function AppShell({
     if (typeof window === "undefined") return true;
     return window.localStorage.getItem(cleLocalStorage) !== "ferme";
   });
+  const [mobileOuvert, setMobileOuvert] = useState(false);
+
+  useEffect(() => {
+    if (mobileOuvert) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileOuvert]);
 
   const basculer = () => {
     setOuvert((o) => {
@@ -227,26 +239,28 @@ export function AppShell({
 
   return (
     <div className="bg-paper min-h-dvh">
-      {/* Mobile : la sidebar n'existe pas, on garde un en-tête compact. */}
+      {/* Mobile : la sidebar n'existe pas par défaut, on l'affiche via un menu hamburger. */}
       <div className="lg:hidden">
         <header className="border-line bg-surface sticky top-0 z-30 border-b">
           <div className="mx-auto flex h-16 items-center justify-between gap-4 px-5 sm:px-8">
-            <Link href="/dashboard" className="flex items-center gap-2.5 no-underline">
-              <Logo />
-            </Link>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setMobileOuvert(true)}
+                className="text-ink-3 hover:bg-sand hover:text-ink -ml-2 rounded-md p-2 transition-colors"
+                aria-label="Ouvrir le menu"
+              >
+                {icône(<path d="M4 7h16M4 12h16M4 17h16" />)}
+              </button>
+              <Link href="/dashboard" className="flex items-center gap-2.5 no-underline">
+                <Logo />
+              </Link>
+            </div>
             <div className="flex items-center gap-3">
               <div className="text-right text-sm">
                 <div className="text-ink font-semibold">{nom}</div>
                 <div className="text-ink-3">{roleLabels[role]}</div>
               </div>
-              <form action={logout}>
-                <button
-                  type="submit"
-                  className="border-line text-ink-2 hover:border-ink-3 hover:text-ink rounded-md border px-3 py-2 text-sm font-medium transition-colors"
-                >
-                  Se déconnecter
-                </button>
-              </form>
             </div>
           </div>
         </header>
@@ -279,11 +293,20 @@ export function AppShell({
         </nav>
       </div>
 
-      {/* Bureau : sidebar pleine hauteur, sous laquelle rien ne passe. */}
+      {/* Overlay mobile */}
+      {mobileOuvert && (
+        <div
+          className="bg-ink/40 fixed inset-0 z-40 lg:hidden"
+          onClick={() => setMobileOuvert(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Sidebar : pleine hauteur bureau, tiroir mobile. */}
       <aside
-        className={`border-line bg-surface fixed inset-y-0 left-0 z-30 hidden flex-col border-r lg:flex ${
-          ouvert ? "w-60" : "w-16"
-        } transition-[width] duration-200`}
+        className={`border-line bg-surface fixed inset-y-0 left-0 z-50 flex flex-col border-r transition-all duration-200 ${
+          mobileOuvert ? "translate-x-0 w-64" : "-translate-x-full lg:translate-x-0"
+        } ${ouvert ? "lg:w-60" : "lg:w-16"} lg:z-30`}
       >
         <div
           className={`flex h-16 shrink-0 items-center border-b transition-opacity ${
@@ -304,13 +327,21 @@ export function AppShell({
             onClick={basculer}
             aria-label={ouvert ? "Replier la navigation" : "Déplier la navigation"}
             title={ouvert ? "Replier la navigation" : "Déplier la navigation"}
-            className="text-ink-3 hover:bg-sand hover:text-ink rounded-md p-1.5 transition-colors"
+            className="text-ink-3 hover:bg-sand hover:text-ink rounded-md p-1.5 transition-colors lg:block hidden"
           >
             {icône(<path d={ouvert ? "m15 6-6 6 6 6" : "m9 6 6 6-6 6"} />)}
           </button>
+          <button
+            type="button"
+            onClick={() => setMobileOuvert(false)}
+            className="text-ink-3 hover:bg-sand hover:text-ink rounded-md p-1.5 transition-colors lg:hidden"
+            aria-label="Fermer le menu"
+          >
+            {icône(<path d="M6 18L18 6M6 6l12 12" />)}
+          </button>
         </div>
 
-        <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
+        <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3" onClick={() => setMobileOuvert(false)}>
           {nav.map((e) => {
             const verrouille = estVerrouille(e);
             return (
