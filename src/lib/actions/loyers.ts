@@ -3,13 +3,21 @@
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/auth/mock-session";
 import { requireProprietaire } from "@/lib/auth/mock-session";
-import { getBailDuLocataire, getPaiementsDuLocataire, getVersementsDuLocataire } from "@/lib/data";
-import { moisAPayer } from "@/lib/echeances";
+import {
+  getLogementDuLocataire,
+  getPaiementsDuLocataire,
+  getVersementsDuLocataire,
+} from "@/lib/data";
+import { moisAPayer, penaliteDuMois } from "@/lib/echeances";
 import { supabaseServer } from "@/lib/supabase/server";
 import type { EtatAction } from "@/lib/actions/biens";
 import type { MethodePaiement } from "@/lib/types";
 
-const methodes = ["mobile-money", "virement", "especes"] as const satisfies readonly MethodePaiement[];
+const methodes = [
+  "mobile-money",
+  "virement",
+  "especes",
+] as const satisfies readonly MethodePaiement[];
 
 /**
  * Confirmer un versement = le considérer encaissé ET émettre les quittances de
@@ -80,7 +88,11 @@ export async function confirmerVersement(
 
   const { error } = await supabaseServer()
     .from("versement")
-    .update({ statut: "confirme", confirme_le: new Date().toISOString(), confirme_par: "proprietaire" })
+    .update({
+      statut: "confirme",
+      confirme_le: new Date().toISOString(),
+      confirme_par: "proprietaire",
+    })
     .eq("id", versementId);
 
   if (error) return { ok: false, erreur: `Confirmation impossible : ${error.message}` };
@@ -96,16 +108,17 @@ export async function confirmerVersement(
  * La déclaration du locataire : un versement « initié » + une ligne de paiement
  * par mois couvert. Le propriétaire confirmera ensuite — ou pas.
  */
-export async function declarerVersement(
-  prev: EtatAction,
-  formData: FormData,
-): Promise<EtatAction> {
+export async function declarerVersement(prev: EtatAction, formData: FormData): Promise<EtatAction> {
   const session = await getSession();
   if (!session || session.role !== "locataire" || !session.locataireId)
     return { ok: false, erreur: "Connexion locataire requise." };
 
-  const bail = await getBailDuLocataire(session.locataireId);
-  if (!bail) return { ok: false, erreur: "Aucun bail en cours sur votre compte." };
+  // Le propriétaire est nécessaire ici : c'est lui qui porte le barème de
+  // l'amende et le jour d'échéance qui la déclenche.
+  const logement = await getLogementDuLocataire(session.locataireId);
+  if (!logement?.bail || !logement.proprietaire)
+    return { ok: false, erreur: "Aucun bail en cours sur votre compte." };
+  const { bail, proprietaire } = logement;
 
   const mois = formData.getAll("mois").map(String).sort();
   const montant = Number(formData.get("montantFcfa") ?? "NaN");
@@ -117,15 +130,27 @@ export async function declarerVersement(
     return { ok: false, erreur: "Période invalide." };
   if (!Number.isInteger(montant) || montant <= 0)
     return { ok: false, erreur: "Le montant doit être positif." };
-  if (!methodes.some((m) => m === methode)) return { ok: false, erreur: "Moyen de paiement invalide." };
+  if (!methodes.some((m) => m === methode))
+    return { ok: false, erreur: "Moyen de paiement invalide." };
 
-  // Un mois = un loyer, ni plus ni moins : on ne laisse pas s'insinuer un
-  // montant fantaisiste entre le locataire et sa quittance.
-  if (montant !== mois.length * bail.loyerMensuelFcfa) {
-    const attendu = mois.length * bail.loyerMensuelFcfa;
+  // L'amende est figée maintenant, mois par mois. La recalculer à la
+  // confirmation ferait grossir la note pendant que le propriétaire vérifie :
+  // le locataire doit ce qu'il devait le jour où il a payé.
+  const penalites = mois.map((periode) => penaliteDuMois(periode, bail, proprietaire));
+  const penalitesFcfa = penalites.reduce((somme, montantDu) => somme + montantDu, 0);
+  const loyersFcfa = mois.length * bail.loyerMensuelFcfa;
+
+  // Un mois = un loyer + son éventuelle amende, ni plus ni moins : on ne laisse
+  // pas s'insinuer un montant fantaisiste entre le locataire et sa quittance.
+  if (montant !== loyersFcfa + penalitesFcfa) {
+    const attendu = loyersFcfa + penalitesFcfa;
+    const detail =
+      penalitesFcfa > 0
+        ? ` (${mois.length} mois × ${bail.loyerMensuelFcfa.toLocaleString("fr-FR")} F + ${penalitesFcfa.toLocaleString("fr-FR")} F d'amende de retard)`
+        : ` (${mois.length} mois × ${bail.loyerMensuelFcfa.toLocaleString("fr-FR")} F)`;
     return {
       ok: false,
-      erreur: `Ce montant correspond à ${attendu.toLocaleString("fr-FR")} F (${mois.length} mois × ${bail.loyerMensuelFcfa.toLocaleString("fr-FR")} F).`,
+      erreur: `Ce montant correspond à ${attendu.toLocaleString("fr-FR")} F${detail}.`,
     };
   }
 
@@ -143,6 +168,7 @@ export async function declarerVersement(
     .insert({
       bail_id: bail.id,
       montant_total_fcfa: montant,
+      penalites_fcfa: penalitesFcfa,
       methode,
       reference_externe: reference,
       statut: "initie",
@@ -154,14 +180,17 @@ export async function declarerVersement(
     return { ok: false, erreur: `Déclaration impossible : ${error?.message ?? "inconnue"}` };
   }
 
-  const { error: erreurPaiements } = await supabaseServer().from("paiement").insert(
-    mois.map((periode) => ({
-      bail_id: bail.id,
-      versement_id: versement.id,
-      periode,
-      montant_fcfa: bail.loyerMensuelFcfa,
-    })),
-  );
+  const { error: erreurPaiements } = await supabaseServer()
+    .from("paiement")
+    .insert(
+      mois.map((periode, i) => ({
+        bail_id: bail.id,
+        versement_id: versement.id,
+        periode,
+        montant_fcfa: bail.loyerMensuelFcfa,
+        penalite_fcfa: penalites[i],
+      })),
+    );
 
   if (erreurPaiements) {
     // Un paiement par mois et par bail : la contrainte refuse les doublons.

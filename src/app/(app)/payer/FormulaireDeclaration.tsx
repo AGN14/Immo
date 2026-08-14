@@ -19,9 +19,15 @@ const methodeClass =
 export function FormulaireDeclaration({
   loyerMensuelFcfa,
   moisDue,
+  penalites,
 }: {
   loyerMensuelFcfa: number;
   moisDue: string[];
+  /**
+   * L'amende encourue par mois, indexée par période. Les mois se cochent
+   * librement : une liste positionnelle se désaligne au premier décochage.
+   */
+  penalites: Record<string, number>;
 }) {
   const [choisis, setChoisis] = useState<string[]>([moisDue[0]]);
   const [etat, action, pendant] = useActionState(declarerVersement, etatInitial);
@@ -31,11 +37,13 @@ export function FormulaireDeclaration({
       prev.includes(periode) ? prev.filter((m) => m !== periode) : [...prev, periode],
     );
 
-  const montant = choisis.length * loyerMensuelFcfa;
+  const loyers = choisis.length * loyerMensuelFcfa;
+  const amendes = choisis.reduce((somme, periode) => somme + (penalites[periode] ?? 0), 0);
+  const montant = loyers + amendes;
+  const moisPenalises = choisis.filter((periode) => (penalites[periode] ?? 0) > 0).length;
 
   return (
     <form action={action} className="flex flex-col gap-5">
-
       <div>
         <p className="text-ink-2 text-sm font-medium">Mois à régler</p>
         <p className="text-ink-3 mt-0.5 text-sm">
@@ -60,6 +68,11 @@ export function FormulaireDeclaration({
                 className="sr-only"
               />
               {moisLabel(periode)}
+              {(penalites[periode] ?? 0) > 0 && (
+                <span className="text-danger ml-2 font-semibold" data-numeric>
+                  + {penalites[periode].toLocaleString("fr-FR")} F
+                </span>
+              )}
             </label>
           ))}
         </div>
@@ -93,6 +106,12 @@ export function FormulaireDeclaration({
         </p>
         <p className="text-ink-3 mt-1 text-sm">
           {choisis.length} mois × {loyerMensuelFcfa.toLocaleString("fr-FR")} F
+          {amendes > 0 && (
+            <span className="text-danger font-semibold">
+              {" "}
+              + {amendes.toLocaleString("fr-FR")} F d&rsquo;amende ({moisPenalises} mois en retard)
+            </span>
+          )}
         </p>
         <input type="hidden" name="montantFcfa" value={String(montant)} />
       </div>
@@ -100,8 +119,8 @@ export function FormulaireDeclaration({
       {etat.erreur && <p className="text-danger text-sm">{etat.erreur}</p>}
       {etat.ok && (
         <p className="text-success text-sm">
-          Déclaration enregistrée. Votre propriétaire la confirmera ; la quittance sera émise à
-          ce moment-là.
+          Déclaration enregistrée. Votre propriétaire la confirmera ; la quittance sera émise à ce
+          moment-là.
         </p>
       )}
 

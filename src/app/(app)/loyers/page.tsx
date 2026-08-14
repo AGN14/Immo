@@ -64,7 +64,9 @@ export default async function LoyersPage() {
   // Quittances chargées en parallèle, une requête par paiement.
   const quittanceParPaiement = new Map(
     (
-      await Promise.all(paiements.map((p) => getQuittanceDuPaiement(p.id).then((q) => [p.id, q] as const)))
+      await Promise.all(
+        paiements.map((p) => getQuittanceDuPaiement(p.id).then((q) => [p.id, q] as const)),
+      )
     ).filter(([, q]) => q !== undefined),
   );
 
@@ -188,8 +190,17 @@ export default async function LoyersPage() {
                       "—"
                     )}
                   </td>
-                  <td className="text-primary px-4 py-3 font-semibold">
-                    {p.montantFcfa.toLocaleString("fr-FR")} F
+                  <td className="px-4 py-3">
+                    <span className="text-primary font-semibold">
+                      {p.montantFcfa.toLocaleString("fr-FR")} F
+                    </span>
+                    {/* L'amende est annoncée à part : le loyer reste le loyer,
+                        mais le relevé bancaire porte la somme des deux. */}
+                    {p.penaliteFcfa > 0 && (
+                      <span className="text-danger block text-xs font-semibold" data-numeric>
+                        + {p.penaliteFcfa.toLocaleString("fr-FR")} F d&rsquo;amende
+                      </span>
+                    )}
                   </td>
                   <td className="text-ink-2 px-4 py-3">
                     {versement ? methodeLabel[versement.methode] : "—"}
