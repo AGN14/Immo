@@ -153,6 +153,79 @@ export type Database = {
           },
         ]
       }
+      caution: {
+        Row: {
+          bail_id: string
+          cree_le: string
+          encaissee_le: string | null
+          id: string
+          montant_fcfa: number
+          restituee_le: string | null
+          statut: string
+        }
+        Insert: {
+          bail_id: string
+          cree_le?: string
+          encaissee_le?: string | null
+          id?: string
+          montant_fcfa: number
+          restituee_le?: string | null
+          statut?: string
+        }
+        Update: {
+          bail_id?: string
+          cree_le?: string
+          encaissee_le?: string | null
+          id?: string
+          montant_fcfa?: number
+          restituee_le?: string | null
+          statut?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "caution_bail_id_fkey"
+            columns: ["bail_id"]
+            isOneToOne: false
+            referencedRelation: "bail"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gestionnaire: {
+        Row: {
+          cree_le: string
+          email: string | null
+          id: string
+          nom: string
+          proprietaire_id: string
+          telephone: string | null
+        }
+        Insert: {
+          cree_le?: string
+          email?: string | null
+          id?: string
+          nom: string
+          proprietaire_id: string
+          telephone?: string | null
+        }
+        Update: {
+          cree_le?: string
+          email?: string | null
+          id?: string
+          nom?: string
+          proprietaire_id?: string
+          telephone?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gestionnaire_proprietaire_id_fkey"
+            columns: ["proprietaire_id"]
+            isOneToOne: false
+            referencedRelation: "proprietaire"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       locataire: {
         Row: {
           auth_user_id: string | null

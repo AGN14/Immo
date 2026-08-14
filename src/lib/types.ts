@@ -191,3 +191,25 @@ export interface Quittance {
   emiseLe: string;
   annuleeLe?: string;
 }
+
+export type StatutCaution = "due" | "encaisee" | "restituee";
+
+/** Dépôt de garantie d'un bail : due, encaissée, puis restituée. */
+export interface Caution {
+  id: string;
+  bailId: string;
+  montantFcfa: number;
+  statut: StatutCaution;
+  encaisseeLe?: string;
+  restitueeLe?: string;
+}
+
+/** Membre de l'équipe de gestion d'un parc (plan Business). */
+export interface Gestionnaire {
+  id: string;
+  proprietaireId: string;
+  nom: string;
+  email?: string;
+  telephone?: string;
+  creeLe: string;
+}
