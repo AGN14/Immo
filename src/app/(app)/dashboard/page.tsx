@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getBauxActifs, getBiens, getDashboardKpis, getSerieLoyers } from "@/lib/data";
-import { evaluerQuota, type PlanId } from "@/lib/plans";
+import { evaluerQuota, planSuffisant, type PlanId } from "@/lib/plans";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/mock-session";
 import { LocataireDashboard } from "@/app/(app)/dashboard/LocataireDashboard";
@@ -92,27 +92,49 @@ async function ProprietaireDashboard({
 
       <QuotaBanner quota={quota} />
 
-      <div className="mt-12 grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <section className="border-line bg-surface rounded-md border p-5 lg:col-span-2">
-          <div className="flex items-baseline justify-between">
-            <h2 className="font-display text-ink text-xl font-semibold">Trésorerie</h2>
-            <p className="text-ink-3 text-sm">6 derniers mois</p>
-          </div>
-          <div className="mt-4">
-            <ChartLoyersMensuels serie={serie} />
+      {planSuffisant(plan, "pro") ? (
+        <div className="mt-12 grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <section className="border-line bg-surface rounded-md border p-5 lg:col-span-2">
+            <div className="flex items-baseline justify-between">
+              <h2 className="font-display text-ink text-xl font-semibold">Trésorerie</h2>
+              <p className="text-ink-3 text-sm">6 derniers mois</p>
+            </div>
+            <div className="mt-4">
+              <ChartLoyersMensuels serie={serie} />
+            </div>
+          </section>
+          <section className="border-line bg-surface rounded-md border p-5">
+            <h2 className="font-display text-ink text-xl font-semibold">Occupation</h2>
+            <div className="mt-6 flex justify-center">
+              <DonutOccupation
+                taux={kpis.tauxOccupation}
+                lotsLoues={kpis.lotsLoues}
+                lotsTotal={kpis.lotsTotal}
+              />
+            </div>
+          </section>
+        </div>
+      ) : (
+        <section className="border-line bg-highlight mt-12 rounded-md border p-6">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h2 className="font-display text-ink text-xl font-semibold">
+                Graphiques et analyses
+              </h2>
+              <p className="text-ink-2 mt-1 max-w-[36em] text-sm leading-relaxed">
+                Les graphiques de trésorerie, d&rsquo;occupation et les analyses avancées sont
+                réservés aux plans Pro et Business.
+              </p>
+            </div>
+            <Link
+              href="/plans"
+              className="bg-primary text-on-primary hover:bg-primary-hi shadow-cta rounded-md px-4 py-2.5 text-sm font-semibold no-underline transition-colors"
+            >
+              Découvrir les plans
+            </Link>
           </div>
         </section>
-        <section className="border-line bg-surface rounded-md border p-5">
-          <h2 className="font-display text-ink text-xl font-semibold">Occupation</h2>
-          <div className="mt-6 flex justify-center">
-            <DonutOccupation
-              taux={kpis.tauxOccupation}
-              lotsLoues={kpis.lotsLoues}
-              lotsTotal={kpis.lotsTotal}
-            />
-          </div>
-        </section>
-      </div>
+      )}
 
       <div className="mt-12 flex items-baseline justify-between">
         <h2 className="font-display text-ink text-2xl font-semibold">Vos biens</h2>

@@ -35,7 +35,7 @@ export default function AProposPage() {
   return (
     <>
       <section className="py-16 md:py-24">
-        <div className="mx-auto max-w-[1180px] px-5 sm:px-8 lg:px-12">
+        <div className="mx-auto px-5 sm:px-8 lg:px-12">
           <div className="flex max-w-[42em] flex-col items-start gap-4">
             <Eyebrow>À propos</Eyebrow>
             <h1 className="font-display text-ink text-4xl font-semibold text-balance md:text-5xl">
@@ -56,7 +56,7 @@ export default function AProposPage() {
       </section>
 
       <section className="bg-sand py-16 md:py-24">
-        <div className="mx-auto max-w-[1180px] px-5 sm:px-8 lg:px-12">
+        <div className="mx-auto px-5 sm:px-8 lg:px-12">
           <h2 className="font-display text-ink text-3xl font-semibold text-balance md:text-4xl">
             Ce à quoi nous tenons
           </h2>
@@ -72,7 +72,7 @@ export default function AProposPage() {
       </section>
 
       <section className="py-16 md:py-24">
-        <div className="mx-auto max-w-[1180px] px-5 sm:px-8 lg:px-12">
+        <div className="mx-auto px-5 sm:px-8 lg:px-12">
           <div className="border-line bg-surface flex max-w-[42em] flex-col items-start gap-4 rounded-lg border p-6 md:p-8">
             <h2 className="font-display text-ink text-2xl font-semibold">Où en est le produit</h2>
             <p className="text-ink-2 text-sm">

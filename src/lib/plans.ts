@@ -24,6 +24,16 @@ export const PLANS: Record<PlanId, Plan> = {
 
 export const PLAN_PAR_DEFAUT: PlanId = "essentiel";
 
+/** Ordre hiérarchique des paliers : le plus haut débloque tout ce qui est
+ *  en dessous de lui. */
+const RANG: Record<PlanId, number> = { essentiel: 0, pro: 1, business: 2 };
+
+/** Le palier actuel débloque-t-il une fonctionnalité réservée au palier
+ *  requis ? (essentiel < pro < business) */
+export function planSuffisant(actuel: PlanId | undefined, requis: PlanId): boolean {
+  return RANG[actuel ?? PLAN_PAR_DEFAUT] >= RANG[requis];
+}
+
 export function getPlan(id: PlanId | undefined): Plan {
   return PLANS[id ?? PLAN_PAR_DEFAUT] ?? PLANS[PLAN_PAR_DEFAUT];
 }

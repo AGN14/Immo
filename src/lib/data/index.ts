@@ -620,6 +620,52 @@ export async function getSerieLoyers(
   return serie;
 }
 
+/** Série sur les 12 mois d'une année civile donnée — historique antérieur. */
+export async function getSerieLoyersAnnee(
+  proprietaireId: string,
+  annee: number,
+): Promise<{ periode: string; label: string; encaisseFcfa: number; attenduFcfa: number }[]> {
+  const [baux, paiements, versements] = await Promise.all([
+    getBaux(proprietaireId),
+    getPaiements(proprietaireId),
+    getVersements(proprietaireId),
+  ]);
+
+  const versementConfirme = new Set(
+    versements.filter((v) => v.statut === "confirme").map((v) => v.id),
+  );
+
+  const serie: { periode: string; label: string; encaisseFcfa: number; attenduFcfa: number }[] = [];
+  let mois = `${annee}-01`;
+  const fin = `${annee}-12`;
+  while (mois <= fin) {
+    const [a, numMois] = mois.split("-").map(Number);
+    const finMois = new Date(a, numMois, 0);
+    const debutMois = new Date(a, numMois - 1, 1);
+
+    const encaisseFcfa = paiements
+      .filter((p) => p.periode === mois && versementConfirme.has(p.versementId))
+      .reduce((sum, p) => sum + p.montantFcfa, 0);
+
+    const attenduFcfa = baux
+      .filter(
+        (b) =>
+          new Date(b.dateDebut) <= finMois &&
+          (!b.dateFin || new Date(b.dateFin) >= debutMois),
+      )
+      .reduce((sum, b) => sum + b.loyerMensuelFcfa, 0);
+
+    serie.push({
+      periode: mois,
+      label: debutMois.toLocaleDateString("fr-FR", { month: "short" }),
+      encaisseFcfa,
+      attenduFcfa,
+    });
+    mois = moisSuivant(mois);
+  }
+  return serie;
+}
+
 /** Les lots libres de tout bail actif — candidats pour une nouvelle location. */
 export async function getLotsDisponibles(proprietaireId: string) {
   const [{ biens, lots }, baux] = await Promise.all([

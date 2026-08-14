@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { requireProprietaire } from "@/lib/auth/mock-session";
+import { planSuffisant } from "@/lib/plans";
 import {
   getBaux,
   getBiens,
@@ -27,7 +29,8 @@ function dateLisible(iso: string | null) {
 }
 
 export default async function PageSignalements() {
-  const { proprietaireId } = await requireProprietaire();
+  const { plan, proprietaireId } = await requireProprietaire();
+  if (!planSuffisant(plan, "pro")) redirect("/plans");
 
   const signalements = await getSignalements(proprietaireId);
   const [baux, lots, biens, locataires, photos] = await Promise.all([

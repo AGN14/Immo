@@ -14,6 +14,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       nom={session.nom}
       role={session.role}
       plan={plan ? { nom: plan.nom, prixFcfa: plan.prixFcfa } : null}
+      planId={session.plan}
     >
       {children}
     </AppShell>

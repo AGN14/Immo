@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { requireProprietaire } from "@/lib/auth/mock-session";
 import { supabaseServer } from "@/lib/supabase/server";
 import { verifierMotDePasse } from "@/lib/mot-de-passe";
@@ -252,5 +253,5 @@ export async function supprimerBien(
 
   revalidatePath("/biens");
   revalidatePath("/dashboard");
-  return { ok: true };
+  redirect("/biens");
 }

@@ -5,8 +5,9 @@ import { usePathname } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import { logout } from "@/lib/auth/actions";
 import { Logo } from "@/components/ui/Logo";
+import { planSuffisant, type PlanId } from "@/lib/plans";
 
-type Icône = { label: string; href: string; icône: ReactNode };
+type Icône = { label: string; href: string; icône: ReactNode; planRequis?: PlanId };
 
 const icône = (d: ReactNode) => (
   <svg
@@ -61,15 +62,39 @@ const entrées: Icône[] = [
     ),
   },
   {
+    label: "Baux",
+    href: "/baux",
+    planRequis: "pro",
+    icône: icône(
+      <>
+        <path d="M8 6h13M8 12h13M8 18h13" />
+        <path d="M3 6h.01M3 12h.01M3 18h.01" />
+      </>,
+    ),
+  },
+  {
     label: "Reversements",
     href: "/reversements",
+    planRequis: "pro",
     icône: icône(<path d="M5 12h14M13 6l6 6-6 6" />),
   },
   {
     label: "Signalements",
     href: "/signalements",
+    planRequis: "pro",
     icône: icône(
       <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />,
+    ),
+  },
+  {
+    label: "Analyses & Export",
+    href: "/analyses",
+    planRequis: "business",
+    icône: icône(
+      <>
+        <path d="M3 21h18" />
+        <path d="M6 21V10M11 21V4M16 21v-8M21 21V8" />
+      </>,
     ),
   },
 ];
@@ -111,6 +136,7 @@ export function AppShell({
   nom,
   role,
   plan,
+  planId,
   children,
 }: {
   nom: string;
@@ -118,6 +144,9 @@ export function AppShell({
   /** Palier courant, mis en avant pour le propriétaire : cliquer dessus
    *  mène à la page qui permet de le changer. */
   plan: { nom: string; prixFcfa: number } | null;
+  /** Identifiant du palier courant : sert à verrouiller les entrées
+   *  réservées aux paliers supérieurs. */
+  planId?: PlanId | null;
   children: ReactNode;
 }) {
   const pathname = usePathname();
@@ -136,14 +165,43 @@ export function AppShell({
 
   const nav = role === "locataire" ? entréesLocataire : entrées;
   const estActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
+  /** Entrée verrouillée : réservée à un palier supérieur au palier courant.
+   *  Le clic mène à /plans plutôt qu'à la page. */
+  const estVerrouille = (e: Icône) =>
+    role === "proprietaire" && !!e.planRequis && !planSuffisant(planId ?? undefined, e.planRequis);
   const initiale = nom.trim()[0]?.toUpperCase() ?? "?";
+
+  const badgePlan = (requis: PlanId) => (
+    <span
+      className="bg-primary-soft text-primary rounded-sm px-1.5 py-0.5 text-[10px] font-bold uppercase"
+      aria-hidden="true"
+    >
+      {requis}
+    </span>
+  );
+
+  const icôneCadenas = (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className="size-3.5"
+    >
+      <rect x="5" y="11" width="14" height="9" rx="2" />
+      <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+    </svg>
+  );
 
   return (
     <div className="bg-paper min-h-dvh">
       {/* Mobile : la sidebar n'existe pas, on garde un en-tête compact. */}
       <div className="lg:hidden">
         <header className="border-line bg-surface sticky top-0 z-30 border-b">
-          <div className="mx-auto flex h-16 max-w-[1180px] items-center justify-between gap-4 px-5 sm:px-8">
+          <div className="mx-auto flex h-16 items-center justify-between gap-4 px-5 sm:px-8">
             <Link href="/dashboard" className="flex items-center gap-2.5 no-underline">
               <Logo />
             </Link>
@@ -164,20 +222,30 @@ export function AppShell({
           </div>
         </header>
         <nav className="border-line bg-surface sticky top-16 z-20 border-b">
-          <div className="mx-auto flex max-w-[1180px] gap-5 overflow-x-auto px-5 sm:px-8">
-            {nav.map((e) => (
-              <Link
-                key={e.href}
-                href={e.href}
-                className={`-mb-px shrink-0 border-b-2 py-3 text-sm font-medium no-underline transition-colors ${
-                  estActive(e.href)
-                    ? "border-primary text-ink"
-                    : "text-ink-3 hover:text-ink border-transparent"
-                }`}
-              >
-                {e.label}
-              </Link>
-            ))}
+          <div className="mx-auto flex gap-5 overflow-x-auto px-5 sm:px-8">
+            {nav.map((e) => {
+              const verrouille = estVerrouille(e);
+              return (
+                <Link
+                  key={e.href}
+                  href={verrouille ? "/plans" : e.href}
+                  aria-label={verrouille ? `${e.label} — réservé au plan ${e.planRequis}` : undefined}
+                  className={`-mb-px flex shrink-0 items-center gap-1.5 border-b-2 py-3 text-sm font-medium no-underline transition-colors ${
+                    estActive(e.href) && !verrouille
+                      ? "border-primary text-ink"
+                      : "text-ink-3 hover:text-ink border-transparent"
+                  }`}
+                >
+                  {e.label}
+                  {verrouille && (
+                    <span className="flex items-center gap-1" aria-hidden="true">
+                      {icôneCadenas}
+                      {badgePlan(e.planRequis!)}
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
           </div>
         </nav>
       </div>
@@ -194,27 +262,12 @@ export function AppShell({
           }`}
         >
           {ouvert ? (
-            <Link href="/dashboard" className="flex items-center gap-2.5 no-underline">
+            <Link href="/dashboard" className="flex items-center no-underline">
               <Logo />
             </Link>
           ) : (
-            <Link href="/dashboard" aria-label="Immo" className="no-underline">
-              <span className="bg-primary text-on-primary grid size-8 place-items-center rounded-sm">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.6"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="size-4"
-                  aria-hidden="true"
-                >
-                  <path d="M4 11.5 12 4l8 7.5" />
-                  <path d="M6 10v9h12v-9" />
-                  <path d="M10 19v-5h4v5" />
-                </svg>
-              </span>
+            <Link href="/dashboard" aria-label="Immo" className="no-underline" title="Immo">
+              <Logo compact />
             </Link>
           )}
           <button
@@ -229,24 +282,43 @@ export function AppShell({
         </div>
 
         <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
-          {nav.map((e) => (
-            <Link
-              key={e.href}
-              href={e.href}
-              aria-current={estActive(e.href) ? "page" : undefined}
-              title={ouvert ? undefined : e.label}
-              className={`rounded-md font-medium no-underline transition-colors ${
-                estActive(e.href) ? "bg-sand text-ink" : "text-ink-3 hover:bg-sand/60 hover:text-ink"
-              } ${
-                ouvert
-                  ? "flex items-center gap-3 px-3 py-2.5 text-sm"
-                  : "flex justify-center p-2.5"
-              }`}
-            >
-              <span className="shrink-0">{e.icône}</span>
-              {ouvert && <span className="truncate">{e.label}</span>}
-            </Link>
-          ))}
+          {nav.map((e) => {
+            const verrouille = estVerrouille(e);
+            return (
+              <Link
+                key={e.href}
+                href={verrouille ? "/plans" : e.href}
+                aria-current={estActive(e.href) && !verrouille ? "page" : undefined}
+                aria-label={
+                  verrouille ? `${e.label} — réservé au plan ${e.planRequis}` : undefined
+                }
+                title={ouvert ? (verrouille ? `${e.label} — plan ${e.planRequis}` : undefined) : e.label}
+                className={`relative rounded-md font-medium no-underline transition-colors ${
+                  estActive(e.href) && !verrouille
+                    ? "bg-sand text-ink"
+                    : "text-ink-3 hover:bg-sand/60 hover:text-ink"
+                } ${ouvert ? "flex items-center gap-3 px-3 py-2.5 text-sm" : "flex justify-center p-2.5"}`}
+              >
+                <span className="shrink-0">{e.icône}</span>
+                {ouvert && (
+                  <>
+                    <span className="truncate">{e.label}</span>
+                    {verrouille && (
+                      <span className="ml-auto flex shrink-0 items-center gap-1.5" aria-hidden="true">
+                        {icôneCadenas}
+                        {badgePlan(e.planRequis!)}
+                      </span>
+                    )}
+                  </>
+                )}
+                {!ouvert && verrouille && (
+                  <span className="absolute grid size-4 place-items-center rounded-full bg-primary-soft text-primary">
+                    {icôneCadenas}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
         </nav>
 
         {/* Le plan est mis en avant, juste avant le profil : un clic mène au
@@ -350,7 +422,7 @@ export function AppShell({
       </aside>
 
       <div className={`transition-[padding] duration-200 ${ouvert ? "lg:pl-60" : "lg:pl-16"}`}>
-        <main className="mx-auto max-w-[1180px] px-5 py-10 sm:px-8 lg:px-12">{children}</main>
+        <main className="mx-auto px-5 py-10 sm:px-8 lg:px-12">{children}</main>
       </div>
     </div>
   );

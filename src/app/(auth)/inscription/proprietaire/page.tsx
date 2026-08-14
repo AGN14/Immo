@@ -65,7 +65,7 @@ export default async function InscriptionProprietairePage({
             label="Téléphone"
             type="tel"
             name="telephone"
-            placeholder="+221 77 000 00 00"
+            placeholder="+229 01 23 45 67"
             required
           />
           <Input label="Mot de passe" type="password" name="password" required />

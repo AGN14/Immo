@@ -178,3 +178,60 @@ export function DonutOccupation({
     </div>
   );
 }
+
+/** Barres horizontales : encaissement confirmé par bien, du plus gros au plus
+ *  petit. SVG dessiné à la main, comme le reste des graphiques. */
+export function ChartEncaissementParBien({
+  lignes,
+}: {
+  lignes: { label: string; valeurFcfa: number }[];
+}) {
+  const max = Math.max(...lignes.map((l) => l.valeurFcfa), 1);
+  const hauteurLigne = 34;
+  const largeur = 520;
+  const hauteur = lignes.length * hauteurLigne + 8;
+
+  return (
+    <div>
+      <svg
+        viewBox={`0 0 ${largeur} ${hauteur}`}
+        role="img"
+        aria-label="Encaissements par bien"
+        className="w-full"
+      >
+        {lignes.map((ligne, i) => {
+          const y = 20 + i * hauteurLigne;
+          const largeurBarre = (ligne.valeurFcfa / max) * (largeur - 130);
+          return (
+            <g key={ligne.label}>
+              <text x="0" y={y + 4} fontSize="11" className="fill-ink-2">
+                {ligne.label.length > 22 ? `${ligne.label.slice(0, 20)}…` : ligne.label}
+              </text>
+              <rect
+                x="130"
+                y={y - 10}
+                width={Math.max(largeurBarre, ligne.valeurFcfa > 0 ? 3 : 0)}
+                height="14"
+                rx="3"
+                className="fill-primary"
+              />
+              <text
+                x="520"
+                y={y + 4}
+                fontSize="11"
+                fontWeight="600"
+                textAnchor="end"
+                className="fill-ink"
+              >
+                {ligne.valeurFcfa.toLocaleString("fr-FR")} F
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+      {lignes.length === 0 && (
+        <p className="text-ink-3 text-center text-sm">Aucun encaissement pour l&rsquo;instant.</p>
+      )}
+    </div>
+  );
+}

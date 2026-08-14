@@ -267,7 +267,7 @@ function ModalModifierBienInterne({ bien }: { bien: Bien }) {
             <Input
               label="Quartier"
               name="quartier"
-              placeholder="Ex. Ngor"
+              placeholder="Ex. Fidjrossè"
               required
               defaultValue={bien.quartier}
             />
@@ -275,7 +275,7 @@ function ModalModifierBienInterne({ bien }: { bien: Bien }) {
           <Input
             label="Ville"
             name="ville"
-            placeholder="Ex. Dakar"
+            placeholder="Ex. Cotonou"
             required
             defaultValue={bien.ville}
           />

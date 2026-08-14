@@ -138,7 +138,7 @@ function ModalAjouterLocataireInterne() {
               label="Téléphone"
               name="telephone"
               type="tel"
-              placeholder="Ex. +221 77 123 45 67"
+              placeholder="Ex. +229 97 12 34 56"
               hint="Ce numéro recevra la notification de quittance."
             />
           </div>
@@ -181,7 +181,7 @@ function ModalAjouterLocataireInterne() {
             label="Téléphone du garant"
             name="garantTelephone"
             type="tel"
-            placeholder="Ex. +221 77 987 65 43"
+            placeholder="Ex. +229 97 98 76 54"
           />
         </div>
 

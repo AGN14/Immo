@@ -62,7 +62,7 @@ export async function Pricing() {
 
   return (
     <section id="tarifs" className="bg-sand py-16 md:py-24">
-      <div className="mx-auto max-w-[1180px] px-5 sm:px-8 lg:px-12">
+      <div className="mx-auto px-5 sm:px-8 lg:px-12">
         <div className="flex max-w-[42em] flex-col items-start gap-4">
           <Eyebrow>Tarification</Eyebrow>
           <h2 className="font-display text-ink text-3xl font-semibold text-balance md:text-4xl">

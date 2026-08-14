@@ -192,9 +192,9 @@ function ModalAjouterBienInterne() {
         <div data-etape={3} className={etape === 3 ? "flex flex-col gap-4" : "hidden"}>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Input label="Adresse" name="adresse" placeholder="Numéro et rue" required />
-            <Input label="Quartier" name="quartier" placeholder="Ex. Ngor" required />
+            <Input label="Quartier" name="quartier" placeholder="Ex. Fidjrossè" required />
           </div>
-          <Input label="Ville" name="ville" placeholder="Ex. Dakar" required />
+          <Input label="Ville" name="ville" placeholder="Ex. Cotonou" required />
         </div>
 
         {etat.erreur && <p className="text-danger text-sm">{etat.erreur}</p>}

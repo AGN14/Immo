@@ -1,4 +1,6 @@
 import { requireProprietaire } from "@/lib/auth/mock-session";
+import { redirect } from "next/navigation";
+import { planSuffisant } from "@/lib/plans";
 import { supabaseServer } from "@/lib/supabase/server";
 import { getProprietaireById } from "@/lib/data";
 import { StatusPill } from "@/components/ui/StatusPill";
@@ -24,7 +26,8 @@ function prochainReversement(jour: number) {
 }
 
 export default async function ReversementsPage() {
-  const { proprietaireId } = await requireProprietaire();
+  const { plan, proprietaireId } = await requireProprietaire();
+  if (!planSuffisant(plan, "pro")) redirect("/plans");
   const compte = await getProprietaireById(proprietaireId);
 
   const { data: reversements } = await supabaseServer()
