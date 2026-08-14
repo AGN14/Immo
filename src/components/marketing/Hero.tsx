@@ -7,7 +7,7 @@ import Maison_immo from "../../assets/Maison_immo.jpeg";
 export function Hero() {
   return (
     <section className="py-16 md:py-24">
-      <div className="mx-auto grid grid-cols-1 items-center gap-12 px-5 sm:px-8 md:grid-cols-2 lg:gap-16 lg:px-12">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-5 sm:px-8 md:grid-cols-2 lg:gap-16 lg:px-12">
         <div className="flex flex-col items-start gap-5">
           <Eyebrow>Gestion locative</Eyebrow>
           <h1 className="font-display text-ink text-4xl font-semibold text-balance md:text-5xl">

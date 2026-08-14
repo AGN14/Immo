@@ -42,7 +42,7 @@ export function Header() {
         scrolled ? "border-line border-b" : "border-b border-transparent"
       }`}
     >
-      <div className="mx-auto flex h-[68px] items-center justify-between gap-6 px-5 sm:px-8 lg:px-12">
+      <div className="mx-auto flex h-[68px] max-w-7xl items-center justify-between gap-6 px-5 sm:px-8 lg:px-12">
         <Link href="/" className="flex items-center gap-2.5 no-underline">
           <Logo />
         </Link>

@@ -18,7 +18,7 @@ const problems = [
 export function ProblemSection() {
   return (
     <section id="problemes" className="bg-sand py-16 md:py-24">
-      <div className="mx-auto px-5 sm:px-8 lg:px-12">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
         <div className="flex max-w-[42em] flex-col items-start gap-4">
           <Eyebrow>Le quotidien sans Immo</Eyebrow>
           <h2 className="font-display text-ink text-3xl font-semibold text-balance md:text-4xl">
