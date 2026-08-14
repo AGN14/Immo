@@ -5,7 +5,7 @@ import {
   getLocataires,
   getLots,
   getPaiementsPeriodeCourante,
-  getQuittanceDuPaiement,
+  getQuittancesDesPaiements,
   getVersements,
   periodeCourante,
 } from "@/lib/data";
@@ -61,14 +61,9 @@ export default async function LoyersPage() {
   const attendu = bauxActifs.reduce((sum, b) => sum + b.loyerMensuelFcfa, 0);
   const tauxEncaissement = attendu === 0 ? null : Math.round((encaisse / attendu) * 100);
 
-  // Quittances chargées en parallèle, une requête par paiement.
-  const quittanceParPaiement = new Map(
-    (
-      await Promise.all(
-        paiements.map((p) => getQuittanceDuPaiement(p.id).then((q) => [p.id, q] as const)),
-      )
-    ).filter(([, q]) => q !== undefined),
-  );
+  // Une seule requête pour toutes les quittances de la période : en boucle,
+  // c'était un aller-retour réseau par ligne du tableau.
+  const quittanceParPaiement = await getQuittancesDesPaiements(paiements.map((p) => p.id));
 
   return (
     <div>

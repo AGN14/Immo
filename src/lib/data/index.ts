@@ -10,6 +10,7 @@
  */
 
 import "server-only";
+import { cache } from "react";
 import { supabaseServer } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/types.generated";
 import { periodeDe, moisSuivant, statutDuMois } from "@/lib/echeances";
@@ -220,29 +221,52 @@ export async function getLocataireByEmail(email: string): Promise<Locataire | un
 
 /* --------------------------------------------- périmètre du propriétaire */
 
-async function perimetre(proprietaireId: string) {
-  const sb = supabaseServer();
+/**
+ * Le parc complet d'un propriétaire : biens, lots et baux.
+ *
+ * Deux optimisations tiennent ensemble ici, et elles comptent : la base est au
+ * bout du réseau, donc c'est le **nombre d'allers-retours** qui fait le temps
+ * de réponse, pas le volume de données.
+ *
+ * 1. Une seule requête au lieu de trois. Les lots et les baux sont imbriqués
+ *    via les clés étrangères plutôt que chaînés — la version séquentielle
+ *    devait attendre les identifiants de l'étage précédent à chaque niveau.
+ *
+ * 2. `cache()` mémorise le résultat **pour la durée d'un rendu**. Une page qui
+ *    demande les biens, les lots, les baux et les versements appelait cette
+ *    fonction cinq fois ; elle ne l'exécute plus qu'une. Le cache ne survit pas
+ *    à la requête HTTP : aucune donnée périmée d'un rendu à l'autre.
+ */
+const perimetre = cache(async (proprietaireId: string) => {
+  const { data } = await supabaseServer()
+    .from("bien")
+    .select("*, lot(*, bail(*))")
+    .eq("proprietaire_id", proprietaireId);
 
-  const { data: biens } = await sb.from("bien").select("*").eq("proprietaire_id", proprietaireId);
-  const bienIds = (biens ?? []).map((b) => b.id);
+  const biens: Bien[] = [];
+  const lots: Lot[] = [];
+  const lotIds = new Set<string>();
+  const baux: Bail[] = [];
+  const bailIds = new Set<string>();
 
-  const { data: lots } = bienIds.length
-    ? await sb.from("lot").select("*").in("bien_id", bienIds)
-    : { data: [] as LigneLot[] };
-  const lotIds = (lots ?? []).map((l) => l.id);
+  for (const ligne of data ?? []) {
+    const { lot: sesLots, ...bien } = ligne;
+    biens.push(mappeBien(bien as LigneBien));
 
-  const { data: baux } = lotIds.length
-    ? await sb.from("bail").select("*").in("lot_id", lotIds)
-    : { data: [] as LigneBail[] };
+    for (const ligneLot of sesLots ?? []) {
+      const { bail: sesBaux, ...lot } = ligneLot;
+      lots.push(mappeLot(lot as LigneLot));
+      lotIds.add(lot.id);
 
-  return {
-    biens: (biens ?? []).map(mappeBien),
-    lots: (lots ?? []).map(mappeLot),
-    lotIds: new Set(lotIds),
-    baux: (baux ?? []).map(mappeBail),
-    bailIds: new Set((baux ?? []).map((b) => b.id)),
-  };
-}
+      for (const bail of sesBaux ?? []) {
+        baux.push(mappeBail(bail as LigneBail));
+        bailIds.add(bail.id);
+      }
+    }
+  }
+
+  return { biens, lots, lotIds, baux, bailIds };
+});
 
 export async function getBiens(proprietaireId: string): Promise<Bien[]> {
   return (await perimetre(proprietaireId)).biens;
@@ -319,23 +343,33 @@ export async function getBauxByLotId(proprietaireId: string, lotId: string): Pro
 
 /* ------------------------------------------ versements et paiements (bailleur) */
 
-async function versementsDeBaux(bailIds: Set<string>): Promise<Versement[]> {
+/**
+ * Mémorisés eux aussi : `perimetre` étant en cache, il rend le **même** objet
+ * `bailIds` d'un appel à l'autre, et `cache()` compare ses arguments par
+ * référence — les deux se combinent donc naturellement.
+ *
+ * Les tableaux rendus sont partagés entre appelants : ne jamais les trier ni
+ * les modifier sur place. Chaque fonction publique en tire une copie.
+ */
+const versementsDeBaux = cache(async (bailIds: Set<string>): Promise<Versement[]> => {
   const ids = [...bailIds];
   if (!ids.length) return [];
   const { data } = await supabaseServer().from("versement").select("*").in("bail_id", ids);
   return (data ?? []).map(mappeVersement);
-}
+});
 
-async function paiementsDeBaux(bailIds: Set<string>): Promise<Paiement[]> {
+const paiementsDeBaux = cache(async (bailIds: Set<string>): Promise<Paiement[]> => {
   const ids = [...bailIds];
   if (!ids.length) return [];
   const { data } = await supabaseServer().from("paiement").select("*").in("bail_id", ids);
   return (data ?? []).map(mappePaiement);
-}
+});
 
 export async function getVersements(proprietaireId: string): Promise<Versement[]> {
   const { bailIds } = await perimetre(proprietaireId);
-  return (await versementsDeBaux(bailIds)).sort((a, b) => b.declareLe.localeCompare(a.declareLe));
+  return [...(await versementsDeBaux(bailIds))].sort((a, b) =>
+    b.declareLe.localeCompare(a.declareLe),
+  );
 }
 
 /** Les déclarations que le propriétaire doit encore pointer. */
@@ -379,6 +413,25 @@ export async function versementDuPaiement(versementId: string): Promise<Versemen
     .eq("id", versementId)
     .maybeSingle();
   return data ? mappeVersement(data) : undefined;
+}
+
+/**
+ * Les quittances de plusieurs paiements, en une seule requête.
+ *
+ * La variante unitaire ci-dessous, appelée dans une boucle sur les lignes d'un
+ * tableau, produisait un aller-retour réseau par mois affiché. Préférez celle-ci
+ * dès que vous en attendez plus d'une.
+ */
+export async function getQuittancesDesPaiements(
+  paiementIds: string[],
+): Promise<Map<string, Quittance>> {
+  if (!paiementIds.length) return new Map();
+  const { data } = await supabaseServer()
+    .from("quittance")
+    .select("*")
+    .in("paiement_id", paiementIds)
+    .is("annulee_le", null);
+  return new Map((data ?? []).map((l) => [l.paiement_id, mappeQuittance(l)]));
 }
 
 export async function getQuittanceDuPaiement(paiementId: string): Promise<Quittance | undefined> {
@@ -455,11 +508,11 @@ export async function getSignalementsByLotId(
  * Pendant exact du périmètre propriétaire. Un locataire ne voit que ses propres
  * baux, et rien d'autre — même en tapant une URL à la main.
  */
-async function perimetreLocataire(locataireId: string) {
+const perimetreLocataire = cache(async (locataireId: string) => {
   const { data } = await supabaseServer().from("bail").select("*").eq("locataire_id", locataireId);
   const baux = (data ?? []).map(mappeBail);
   return { baux, bailIds: new Set(baux.map((b) => b.id)) };
-}
+});
 
 export async function getLocataireParId(locataireId: string): Promise<Locataire | undefined> {
   const { data } = await supabaseServer()
@@ -476,40 +529,54 @@ export async function getBailDuLocataire(locataireId: string): Promise<Bail | un
 }
 
 export async function getBauxDuLocataire(locataireId: string): Promise<Bail[]> {
-  return (await perimetreLocataire(locataireId)).baux.sort((a, b) =>
+  return [...(await perimetreLocataire(locataireId)).baux].sort((a, b) =>
     b.dateDebut.localeCompare(a.dateDebut),
   );
 }
 
-/** Le logement occupé, avec son bien — sans jamais exposer le reste du parc. */
-export async function getLogementDuLocataire(locataireId: string) {
+/**
+ * Le logement occupé, avec son bien — sans jamais exposer le reste du parc.
+ *
+ * La remontée lot → bien → propriétaire se fait en **une** requête imbriquée.
+ * En trois requêtes chaînées, chaque étage attendait l'identifiant du
+ * précédent : trois allers-retours réseau pour trois lignes.
+ *
+ * Mémorisé parce que le tableau de bord et la page de paiement l'appellent
+ * tous deux, et que le propriétaire qu'il rend porte le barème des pénalités.
+ */
+export const getLogementDuLocataire = cache(async (locataireId: string) => {
   const bail = await getBailDuLocataire(locataireId);
   if (!bail) return undefined;
 
-  // Résolution en deux temps : lot → bien → propriétaire.
-  const sb = supabaseServer();
-  const { data: lot } = await sb.from("lot").select("*").eq("id", bail.lotId).maybeSingle();
+  const { data: lot } = await supabaseServer()
+    .from("lot")
+    .select("*, bien(*, proprietaire(*))")
+    .eq("id", bail.lotId)
+    .maybeSingle();
+
   if (!lot) return { bail, lot: undefined, bien: undefined, proprietaire: undefined };
 
-  const { data: bien } = await sb.from("bien").select("*").eq("id", lot.bien_id).maybeSingle();
-  const proprietaire = bien ? await getProprietaireById(bien.proprietaire_id) : undefined;
+  const { bien: sonBien, ...ligneLot } = lot;
+  const { proprietaire: sonProprietaire, ...ligneBien } = sonBien ?? { proprietaire: null };
 
   return {
     bail,
-    lot: mappeLot(lot),
-    bien: bien ? mappeBien(bien) : undefined,
-    proprietaire,
+    lot: mappeLot(ligneLot as LigneLot),
+    bien: sonBien ? mappeBien(ligneBien as LigneBien) : undefined,
+    proprietaire: sonProprietaire ? mappeProprietaire(sonProprietaire as LigneProprietaire) : undefined,
   };
-}
+});
 
 export async function getPaiementsDuLocataire(locataireId: string): Promise<Paiement[]> {
   const { bailIds } = await perimetreLocataire(locataireId);
-  return (await paiementsDeBaux(bailIds)).sort((a, b) => b.periode.localeCompare(a.periode));
+  return [...(await paiementsDeBaux(bailIds))].sort((a, b) => b.periode.localeCompare(a.periode));
 }
 
 export async function getVersementsDuLocataire(locataireId: string): Promise<Versement[]> {
   const { bailIds } = await perimetreLocataire(locataireId);
-  return (await versementsDeBaux(bailIds)).sort((a, b) => b.declareLe.localeCompare(a.declareLe));
+  return [...(await versementsDeBaux(bailIds))].sort((a, b) =>
+    b.declareLe.localeCompare(a.declareLe),
+  );
 }
 
 export async function getQuittancesDuLocataire(locataireId: string): Promise<Quittance[]> {
