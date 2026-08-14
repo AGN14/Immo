@@ -20,20 +20,22 @@ function Check() {
 }
 
 type LignePlan = {
-  id: PlanId;
+  id: string;
   nom: string;
   prix_fcfa: number;
   description: string | null;
   fonctionnalites: unknown;
+  max_baux: number | null;
 };
 
-const maxBaux: Record<PlanId, number | null> = {
-  essentiel: 3,
-  pro: 20,
-  business: null,
-};
+type Cta = { label: string; href: string; variant: "ghost" | "primary" };
 
-const cta: Record<PlanId, { label: string; href: string; variant: "ghost" | "primary" }> = {
+/**
+ * L'appel à l'action ne peut pas venir de la base : il n'y a pas de colonne
+ * pour ça. On garde donc une table locale — mais un palier inconnu doit
+ * retomber sur un lien générique, pas faire tomber la page d'accueil.
+ */
+const cta: Record<PlanId, Cta> = {
   essentiel: {
     label: "Commencer gratuitement",
     href: "/inscription/proprietaire",
@@ -55,7 +57,7 @@ const cta: Record<PlanId, { label: string; href: string; variant: "ghost" | "pri
 export async function Pricing() {
   const { data } = await supabaseServer()
     .from("plan")
-    .select("id, nom, prix_fcfa, description, fonctionnalites")
+    .select("id, nom, prix_fcfa, description, fonctionnalites, max_baux")
     .order("prix_fcfa", { ascending: true });
 
   const plans = (data ?? []) as LignePlan[];
@@ -80,7 +82,13 @@ export async function Pricing() {
             const fonctionnalites = Array.isArray(plan.fonctionnalites)
               ? (plan.fonctionnalites as string[])
               : [];
-            const bouton = cta[plan.id];
+            // La grille vient de la base ; un palier ajouté en SQL sans être
+            // déclaré ici ne doit pas casser la page, juste s'afficher sobrement.
+            const bouton: Cta = cta[plan.id as PlanId] ?? {
+              label: `Choisir ${plan.nom}`,
+              href: "/inscription/proprietaire",
+              variant: "ghost",
+            };
             const misEnAvant = plan.id === "pro";
 
             return (
@@ -114,9 +122,9 @@ export async function Pricing() {
                       <Check />
                     </span>
                     <strong className="text-ink font-semibold">
-                      {maxBaux[plan.id] === null
+                      {plan.max_baux === null
                         ? "Logements loués illimités"
-                        : `Jusqu'à ${maxBaux[plan.id]} logements loués`}
+                        : `Jusqu'à ${plan.max_baux} logements loués`}
                     </strong>
                   </li>
                   {fonctionnalites.map((f) => (
