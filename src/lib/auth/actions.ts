@@ -7,7 +7,7 @@ import {
   getProprietaireById,
   PROPRIETAIRE_DEMO,
 } from "@/lib/mock-data";
-import { PLAN_PAR_DEFAUT, type PlanId } from "@/lib/plans";
+import { PLAN_PAR_DEFAUT, PLANS, type PlanId } from "@/lib/plans";
 import { createSession, destroySession, type Session } from "@/lib/auth/mock-session";
 
 /**
@@ -64,8 +64,10 @@ export async function signup(formData: FormData) {
   const nom = String(formData.get("nom") ?? "Vous");
   const email = String(formData.get("email") ?? "");
   const codeBien = formData.get("codeBien");
-  // Le lien « Passer en Pro » de la page Tarifs transporte le palier choisi.
-  const plan: PlanId = formData.get("plan") === "pro" ? "pro" : PLAN_PAR_DEFAUT;
+  // Le lien « Passer en Pro » ou « Passer en Business » de la page Tarifs
+  // transporte le palier choisi ; tout le reste tombe sur le plan par défaut.
+  const planDemande = String(formData.get("plan") ?? "");
+  const plan: PlanId = PLANS[planDemande as PlanId] ? (planDemande as PlanId) : PLAN_PAR_DEFAUT;
 
   await createSession({
     role,

@@ -52,9 +52,9 @@ const offres = [
       "Gestion avancée des litiges",
       "Exports comptables",
     ],
-    cta: "Contacter l'équipe",
-    href: "mailto:bonjour@immo.app?subject=Offre%20Business",
-    variant: "ghost" as const,
+    cta: "Passer en Business",
+    href: "/inscription/proprietaire?plan=business",
+    variant: "primary" as const,
     misEnAvant: false,
   },
 ];
