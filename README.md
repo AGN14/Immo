@@ -38,13 +38,17 @@ src/
     ui/             primitives partagées (Button, Input, StatusPill…)
   fonts/            Source Serif 4 + Inter, auto-hébergées
   lib/
-    auth/           actions serveur et session (simulées)
-    mock-data/      biens, locataires, paiements de démonstration
+    auth/           actions serveur et session
+    actions/        écritures (Server Actions), une par domaine
+    data/           lectures, cloisonnées par propriétaire (Supabase)
+    supabase/       client serveur et types générés
+    echeances.ts    échéances, retards, pénalités — calcul pur, rien de stocké
     types.ts        types du domaine
     status-labels.ts  libellés et tons des statuts
   proxy.ts          redirections d'authentification (convention Next 16)
-docs/
-  reference-vestia/ maquettes HTML d'une itération antérieure, hors application
+supabase/
+  migrations/       schéma, RLS, quotas, pénalités
+  seed.sql          jeu de démonstration
 ```
 
 ## Design
