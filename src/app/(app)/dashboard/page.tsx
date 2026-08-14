@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { getBauxActifs, getBiens, getDashboardKpis } from "@/lib/mock-data";
+import { getBauxActifs, getBiens, getDashboardKpis, getSerieLoyers } from "@/lib/data";
 import { evaluerQuota, type PlanId } from "@/lib/plans";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/mock-session";
 import { LocataireDashboard } from "@/app/(app)/dashboard/LocataireDashboard";
 import { BienCard } from "@/components/dashboard/BienCard";
 import { QuotaBanner } from "@/components/dashboard/QuotaBanner";
+import { ChartLoyersMensuels, DonutOccupation } from "@/components/dashboard/Charts";
 import { KPICard } from "@/components/ui/KPICard";
 
 function Icon({ children }: { children: React.ReactNode }) {
@@ -24,7 +25,7 @@ function Icon({ children }: { children: React.ReactNode }) {
   );
 }
 
-function ProprietaireDashboard({
+async function ProprietaireDashboard({
   nom,
   plan,
   proprietaireId,
@@ -33,14 +34,19 @@ function ProprietaireDashboard({
   plan?: PlanId;
   proprietaireId: string;
 }) {
-  const kpis = getDashboardKpis(proprietaireId);
-  const quota = evaluerQuota(plan, getBauxActifs(proprietaireId).length);
-  const apercu = getBiens(proprietaireId).slice(0, 3);
+  const [kpis, bauxActifs, biens, serie] = await Promise.all([
+    getDashboardKpis(proprietaireId),
+    getBauxActifs(proprietaireId),
+    getBiens(proprietaireId),
+    getSerieLoyers(proprietaireId, 6),
+  ]);
+  const quota = evaluerQuota(plan, bauxActifs.length);
+  const apercu = biens.slice(0, 3);
 
   return (
     <div>
       <h1 className="font-display text-ink text-3xl font-semibold">Bienvenue, {nom}.</h1>
-      <p className="text-ink-2 mt-2">Vue d&rsquo;ensemble de votre parc locatif pour août 2026.</p>
+      <p className="text-ink-2 mt-2">Vue d&rsquo;ensemble de votre parc locatif.</p>
 
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <KPICard
@@ -73,8 +79,8 @@ function ProprietaireDashboard({
         />
         <KPICard
           label="Litiges et pannes"
-          value="0"
-          caption="Bientôt disponible"
+          value={String(kpis.signalementsOuverts)}
+          caption="Signalements ouverts"
           icon={
             <Icon>
               <path d="M14.5 3.5 20.5 9.5 9 21H3v-6Z" />
@@ -85,6 +91,28 @@ function ProprietaireDashboard({
       </div>
 
       <QuotaBanner quota={quota} />
+
+      <div className="mt-12 grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <section className="border-line bg-surface rounded-md border p-5 lg:col-span-2">
+          <div className="flex items-baseline justify-between">
+            <h2 className="font-display text-ink text-xl font-semibold">Trésorerie</h2>
+            <p className="text-ink-3 text-sm">6 derniers mois</p>
+          </div>
+          <div className="mt-4">
+            <ChartLoyersMensuels serie={serie} />
+          </div>
+        </section>
+        <section className="border-line bg-surface rounded-md border p-5">
+          <h2 className="font-display text-ink text-xl font-semibold">Occupation</h2>
+          <div className="mt-6 flex justify-center">
+            <DonutOccupation
+              taux={kpis.tauxOccupation}
+              lotsLoues={kpis.lotsLoues}
+              lotsTotal={kpis.lotsTotal}
+            />
+          </div>
+        </section>
+      </div>
 
       <div className="mt-12 flex items-baseline justify-between">
         <h2 className="font-display text-ink text-2xl font-semibold">Vos biens</h2>

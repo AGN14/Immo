@@ -1,6 +1,7 @@
-import { PLANS } from "@/lib/plans";
 import { Button } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
+import { supabaseServer } from "@/lib/supabase/server";
+import type { PlanId } from "@/lib/plans";
 
 function Check() {
   return (
@@ -18,48 +19,47 @@ function Check() {
   );
 }
 
-/**
- * Les limites viennent de PLANS : la grille affichée et le quota appliqué dans
- * l'app ne peuvent pas diverger.
- */
-const limite = (max: number | null) =>
-  max === null ? "Logements loués illimités" : `Jusqu'à ${max} logements loués`;
+type LignePlan = {
+  id: PlanId;
+  nom: string;
+  prix_fcfa: number;
+  description: string | null;
+  fonctionnalites: unknown;
+};
 
-const offres = [
-  {
-    plan: PLANS.essentiel,
-    desc: "Pour suivre vos premiers logements, sans carte bancaire.",
-    autres: ["Suivi des loyers", "Signalements de pannes", "Vos locataires ne paient jamais"],
-    cta: "Commencer gratuitement",
+const maxBaux: Record<PlanId, number | null> = {
+  essentiel: 3,
+  pro: 20,
+  business: null,
+};
+
+const cta: Record<PlanId, { label: string; href: string; variant: "ghost" | "primary" }> = {
+  essentiel: {
+    label: "Commencer gratuitement",
     href: "/inscription/proprietaire",
-    variant: "ghost" as const,
-    misEnAvant: false,
+    variant: "ghost",
   },
-  {
-    plan: PLANS.pro,
-    desc: "Pour les propriétaires qui vivent de leurs biens.",
-    autres: ["Facturation automatique", "Plan comptable mensuel", "Support prioritaire"],
-    cta: "Passer en Pro",
-    href: "/inscription/proprietaire?plan=pro",
-    variant: "primary" as const,
-    misEnAvant: true,
-  },
-  {
-    plan: PLANS.business,
-    desc: "Pour les portefeuilles multi-biens et les équipes.",
-    autres: [
-      "Multi-utilisateurs / gestionnaires",
-      "Gestion avancée des litiges",
-      "Exports comptables",
-    ],
-    cta: "Passer en Business",
+  pro: { label: "Passer en Pro", href: "/inscription/proprietaire?plan=pro", variant: "primary" },
+  business: {
+    label: "Passer en Business",
     href: "/inscription/proprietaire?plan=business",
-    variant: "primary" as const,
-    misEnAvant: false,
+    variant: "primary",
   },
-];
+};
 
-export function Pricing() {
+/**
+ * La grille est lue depuis la table `plan` : la description et les
+ * fonctionnalités affichées ici sont exactement celles de la page de choix
+ * après l'inscription. Le quota est défendu en base par le trigger.
+ */
+export async function Pricing() {
+  const { data } = await supabaseServer()
+    .from("plan")
+    .select("id, nom, prix_fcfa, description, fonctionnalites")
+    .order("prix_fcfa", { ascending: true });
+
+  const plans = (data ?? []) as LignePlan[];
+
   return (
     <section id="tarifs" className="bg-sand py-16 md:py-24">
       <div className="mx-auto max-w-[1180px] px-5 sm:px-8 lg:px-12">
@@ -76,53 +76,65 @@ export function Pricing() {
         </div>
 
         <div className="mt-12 grid grid-cols-1 items-stretch gap-6 md:grid-cols-3">
-          {offres.map((o) => (
-            <div
-              key={o.plan.id}
-              className={`border-line flex flex-col gap-6 rounded-lg border p-6 ${
-                o.misEnAvant ? "bg-highlight shadow-sm" : "bg-surface"
-              }`}
-            >
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2">
-                  <span className="font-display text-ink text-lg font-semibold">{o.plan.nom}</span>
-                  {o.misEnAvant && (
-                    <span className="bg-primary text-on-primary rounded-sm px-2 py-0.5 text-xs font-semibold">
-                      Recommandé
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-baseline gap-1.5">
-                  <span className="font-display text-primary text-4xl font-semibold" data-numeric>
-                    {o.plan.prixFcfa.toLocaleString("fr-FR")}
-                  </span>
-                  <span className="text-ink-3 text-sm">FCFA / mois</span>
-                </div>
-                <p className="text-ink-2 text-sm">{o.desc}</p>
-              </div>
+          {plans.map((plan) => {
+            const fonctionnalites = Array.isArray(plan.fonctionnalites)
+              ? (plan.fonctionnalites as string[])
+              : [];
+            const bouton = cta[plan.id];
+            const misEnAvant = plan.id === "pro";
 
-              <ul className="flex flex-1 flex-col gap-2.5 text-sm">
-                <li className="flex items-start gap-2.5">
-                  <span className="text-primary">
-                    <Check />
-                  </span>
-                  <strong className="text-ink font-semibold">{limite(o.plan.maxBaux)}</strong>
-                </li>
-                {o.autres.map((f) => (
-                  <li key={f} className="flex items-start gap-2.5">
+            return (
+              <div
+                key={plan.id}
+                className={`border-line flex flex-col gap-6 rounded-lg border p-6 ${
+                  misEnAvant ? "bg-highlight shadow-sm" : "bg-surface"
+                }`}
+              >
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="font-display text-ink text-lg font-semibold">{plan.nom}</span>
+                    {misEnAvant && (
+                      <span className="bg-primary text-on-primary rounded-sm px-2 py-0.5 text-xs font-semibold">
+                        Recommandé
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="font-display text-primary text-4xl font-semibold" data-numeric>
+                      {plan.prix_fcfa.toLocaleString("fr-FR")}
+                    </span>
+                    <span className="text-ink-3 text-sm">FCFA / mois</span>
+                  </div>
+                  <p className="text-ink-2 text-sm">{plan.description}</p>
+                </div>
+
+                <ul className="flex flex-1 flex-col gap-2.5 text-sm">
+                  <li className="flex items-start gap-2.5">
                     <span className="text-primary">
                       <Check />
                     </span>
-                    {f}
+                    <strong className="text-ink font-semibold">
+                      {maxBaux[plan.id] === null
+                        ? "Logements loués illimités"
+                        : `Jusqu'à ${maxBaux[plan.id]} logements loués`}
+                    </strong>
                   </li>
-                ))}
-              </ul>
+                  {fonctionnalites.map((f) => (
+                    <li key={f} className="flex items-start gap-2.5">
+                      <span className="text-primary">
+                        <Check />
+                      </span>
+                      {f}
+                    </li>
+                  ))}
+                </ul>
 
-              <Button href={o.href} variant={o.variant} block>
-                {o.cta}
-              </Button>
-            </div>
-          ))}
+                <Button href={bouton.href} variant={bouton.variant} block>
+                  {bouton.label}
+                </Button>
+              </div>
+            );
+          })}
         </div>
 
         <p className="border-line bg-surface text-ink-2 mt-6 rounded-md border p-4 text-sm">

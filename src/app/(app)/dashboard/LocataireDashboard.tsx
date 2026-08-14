@@ -1,14 +1,13 @@
 import Link from "next/link";
 import { dateEcheance, jourEcheance, moisAPayer, soldeDu, statutDuMois } from "@/lib/echeances";
 import {
-  donneesEcheance,
   getLogementDuLocataire,
   getPaiementsDuLocataire,
   getQuittancesDuLocataire,
   getSignalementsDuLocataire,
+  getVersementsDuLocataire,
   periodeCourante,
-  versementDuPaiement,
-} from "@/lib/mock-data";
+} from "@/lib/data";
 import {
   compositionLabel,
   methodeLabel,
@@ -21,8 +20,8 @@ import { StatusPill } from "@/components/ui/StatusPill";
 const dateFr = (iso: string | Date) =>
   new Date(iso).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
 
-export function LocataireDashboard({ nom, locataireId }: { nom: string; locataireId: string }) {
-  const logement = getLogementDuLocataire(locataireId);
+export async function LocataireDashboard({ nom, locataireId }: { nom: string; locataireId: string }) {
+  const logement = await getLogementDuLocataire(locataireId);
 
   if (!logement?.bail || !logement.lot || !logement.bien || !logement.proprietaire) {
     return (
@@ -39,7 +38,16 @@ export function LocataireDashboard({ nom, locataireId }: { nom: string; locatair
   }
 
   const { bail, lot, bien, proprietaire } = logement;
-  const { paiements, versements } = donneesEcheance();
+
+  const [paiements, versements, quittances, signalements] = await Promise.all([
+    getPaiementsDuLocataire(locataireId),
+    getVersementsDuLocataire(locataireId),
+    getQuittancesDuLocataire(locataireId),
+    getSignalementsDuLocataire(locataireId),
+  ]);
+
+  // Pour la table d'historique, un annuaire local évite une requête par ligne.
+  const versementParId = new Map(versements.map((v) => [v.id, v]));
 
   const jour = jourEcheance(bail, proprietaire);
   const periode = periodeCourante();
@@ -56,10 +64,6 @@ export function LocataireDashboard({ nom, locataireId }: { nom: string; locatair
         ? "en-retard"
         : statutDuMois(periode, bail, proprietaire, paiements, versements)
     ];
-
-  const historique = getPaiementsDuLocataire(locataireId);
-  const quittances = getQuittancesDuLocataire(locataireId);
-  const signalements = getSignalementsDuLocataire(locataireId);
 
   return (
     <div>
@@ -176,8 +180,8 @@ export function LocataireDashboard({ nom, locataireId }: { nom: string; locatair
             </tr>
           </thead>
           <tbody>
-            {historique.map((p) => {
-              const versement = versementDuPaiement(p.versementId);
+            {paiements.map((p) => {
+              const versement = versementParId.get(p.versementId);
               const quittance = quittances.find((q) => q.paiementId === p.id);
               return (
                 <tr key={p.id} className="border-line border-b last:border-0">
