@@ -21,6 +21,9 @@ function Check() {
 
 type LignePlan = {
   id: string;
+  /** L'identifiant applicatif (« pro »). Depuis la migration plan_uuid, `id`
+   *  est un UUID et c'est `slug` qui porte le sens. */
+  slug: string;
   nom: string;
   prix_fcfa: number;
   description: string | null;
@@ -57,7 +60,7 @@ const cta: Record<PlanId, Cta> = {
 export async function Pricing() {
   const { data } = await supabaseServer()
     .from("plan")
-    .select("id, nom, prix_fcfa, description, fonctionnalites, max_baux")
+    .select("id, slug, nom, prix_fcfa, description, fonctionnalites, max_baux")
     .order("prix_fcfa", { ascending: true });
 
   const plans = (data ?? []) as LignePlan[];
@@ -82,14 +85,16 @@ export async function Pricing() {
             const fonctionnalites = Array.isArray(plan.fonctionnalites)
               ? (plan.fonctionnalites as string[])
               : [];
-            // La grille vient de la base ; un palier ajouté en SQL sans être
-            // déclaré ici ne doit pas casser la page, juste s'afficher sobrement.
-            const bouton: Cta = cta[plan.id as PlanId] ?? {
+            // On indexe sur le slug, pas sur l'id : depuis la migration
+            // plan_uuid, `id` est un UUID et ne correspondrait à aucune clé.
+            // Un palier ajouté en SQL sans être déclaré ici ne doit pas casser
+            // la page, juste s'afficher sobrement.
+            const bouton: Cta = cta[plan.slug as PlanId] ?? {
               label: `Choisir ${plan.nom}`,
               href: "/inscription/proprietaire",
               variant: "ghost",
             };
-            const misEnAvant = plan.id === "pro";
+            const misEnAvant = plan.slug === "pro";
 
             return (
               <div

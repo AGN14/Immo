@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { getLocataireByEmail, getProprietaireByEmail } from "@/lib/data";
 import { supabaseServer } from "@/lib/supabase/server";
-import { PLAN_PAR_DEFAUT, PLANS, type PlanId } from "@/lib/plans";
+import { PLAN_PAR_DEFAUT, PLANS, planDepuisUuid, uuidDuPlan, type PlanId } from "@/lib/plans";
 import { createSession, destroySession, type Session } from "@/lib/auth/mock-session";
 
 /**
@@ -28,7 +28,7 @@ async function resolveUser(email: string): Promise<Session | null> {
       nom: locataire.nom,
       email: normalise,
       locataireId: locataire.id,
-      plan: proprio?.plan_id as PlanId | undefined,
+      plan: proprio ? planDepuisUuid(proprio.plan_id) : undefined,
     };
   }
 
@@ -58,11 +58,15 @@ export async function login(formData: FormData) {
 export async function signup(formData: FormData) {
   const role = formData.get("role") === "locataire" ? "locataire" : "proprietaire";
   const nom = String(formData.get("nom") ?? "Vous");
-  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const email = String(formData.get("email") ?? "")
+    .trim()
+    .toLowerCase();
   const codeBien = formData.get("codeBien");
 
   const session =
-    role === "locataire" ? await creerCompteLocataire(nom, email, codeBien) : await creerCompteProprietaire(nom, email, formData);
+    role === "locataire"
+      ? await creerCompteLocataire(nom, email, codeBien)
+      : await creerCompteProprietaire(nom, email, formData);
 
   if (!session) redirect("/inscription?erreur=1");
   await createSession(session);
@@ -85,7 +89,9 @@ async function creerCompteProprietaire(
 
   const { data, error } = await supabaseServer()
     .from("proprietaire")
-    .insert({ nom, email, plan_id: plan })
+    // La colonne attend l'UUID du palier, plus son slug : insérer « pro » ici
+    // faisait échouer l'inscription sur un type invalide.
+    .insert({ nom, email, plan_id: uuidDuPlan(plan) })
     .select("id")
     .maybeSingle();
 
@@ -109,7 +115,9 @@ async function creerCompteLocataire(
   email: string,
   codeBien: FormDataEntryValue | null,
 ): Promise<Session | null> {
-  const code = String(codeBien ?? "").trim().toUpperCase();
+  const code = String(codeBien ?? "")
+    .trim()
+    .toUpperCase();
   if (!code) return null;
 
   const { data: bien } = await supabaseServer()

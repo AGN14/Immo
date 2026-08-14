@@ -6,11 +6,14 @@ import type { PlanId } from "@/lib/plans";
 export const metadata = { title: "Choisir votre plan" };
 
 type LignePlan = {
-  id: PlanId;
+  id: string;
+  /** L'identifiant applicatif (« pro »). `id` est un UUID depuis plan_uuid. */
+  slug: string;
   nom: string;
   prix_fcfa: number;
   description: string | null;
   fonctionnalites: unknown;
+  max_baux: number | null;
 };
 
 function Check() {
@@ -35,15 +38,12 @@ export default async function PlansPage() {
 
   const { data } = await supabaseServer()
     .from("plan")
-    .select("id, nom, prix_fcfa, description, fonctionnalites")
+    .select("id, slug, nom, prix_fcfa, description, fonctionnalites, max_baux")
     .order("prix_fcfa", { ascending: true });
 
+  // max_baux vient de la base : le dupliquer ici le ferait diverger du quota
+  // réellement appliqué par le trigger.
   const plans = (data ?? []) as LignePlan[];
-  const maxBaux: Record<PlanId, number | null> = {
-    essentiel: 3,
-    pro: 20,
-    business: null,
-  };
 
   return (
     <div>
@@ -52,10 +52,9 @@ export default async function PlansPage() {
           Votre compte est prêt — choisissez votre palier
         </h1>
         <p className="text-ink-2 mt-3 leading-relaxed">
-          Vous payez uniquement sur ce qui vous rapporte : le palier dépend du
-          nombre de <strong className="text-ink font-semibold">logements loués</strong>.
-          Un logement vacant ne compte pas, et vous pouvez changer de palier à
-          tout moment.
+          Vous payez uniquement sur ce qui vous rapporte : le palier dépend du nombre de{" "}
+          <strong className="text-ink font-semibold">logements loués</strong>. Un logement vacant ne
+          compte pas, et vous pouvez changer de palier à tout moment.
         </p>
       </div>
 
@@ -64,14 +63,20 @@ export default async function PlansPage() {
           const fonctionnalites = Array.isArray(plan.fonctionnalites)
             ? (plan.fonctionnalites as string[])
             : [];
-          const estActuel = plan.id === planActuel;
-          const misEnAvant = plan.id === "pro";
+          // Comparaison sur le slug : `plan.id` est un UUID, `planActuel` un
+          // identifiant applicatif — l'égalité n'aurait jamais été vraie.
+          const estActuel = plan.slug === planActuel;
+          const misEnAvant = plan.slug === "pro";
 
           return (
             <div
               key={plan.id}
               className={`border-line flex flex-col gap-6 rounded-lg border p-6 ${
-                estActuel ? "border-primary bg-highlight" : misEnAvant ? "bg-highlight" : "bg-surface"
+                estActuel
+                  ? "border-primary bg-highlight"
+                  : misEnAvant
+                    ? "bg-highlight"
+                    : "bg-surface"
               }`}
             >
               <div className="flex flex-col gap-2">
@@ -102,9 +107,9 @@ export default async function PlansPage() {
                     <Check />
                   </span>
                   <strong className="text-ink font-semibold">
-                    {maxBaux[plan.id] === null
+                    {plan.max_baux === null
                       ? "Logements loués illimités"
-                      : `Jusqu'à ${maxBaux[plan.id]} logements loués`}
+                      : `Jusqu'à ${plan.max_baux} logements loués`}
                   </strong>
                 </li>
                 {fonctionnalites.map((f) => (
@@ -126,7 +131,9 @@ export default async function PlansPage() {
                 </a>
               ) : (
                 <form action={choisirPlan} className="w-full">
-                  <input type="hidden" name="plan" value={plan.id} />
+                  {/* Le slug, pas l'UUID : choisirPlan valide contre PLANS et
+                  reconvertit lui-même vers l'identifiant de la base. */}
+                  <input type="hidden" name="plan" value={plan.slug} />
                   <button
                     type="submit"
                     className={`w-full rounded-md px-4 py-2.5 text-sm font-semibold transition-colors ${

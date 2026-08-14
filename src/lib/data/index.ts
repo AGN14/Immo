@@ -37,7 +37,7 @@ import type {
   UrgenceSignalement,
   Versement,
 } from "@/lib/types";
-import type { PlanId } from "@/lib/plans";
+import { planDepuisUuid } from "@/lib/plans";
 
 type LigneProprietaire = Database["public"]["Tables"]["proprietaire"]["Row"];
 type LigneBien = Database["public"]["Tables"]["bien"]["Row"];
@@ -56,7 +56,9 @@ function mappeProprietaire(l: LigneProprietaire): Proprietaire {
     id: l.id,
     nom: l.nom,
     email: l.email,
-    plan: l.plan_id as PlanId,
+    // plan_id est un UUID depuis la migration plan_uuid : le caster en PlanId
+    // donnait un palier ininterprétable, sans que TypeScript puisse le voir.
+    plan: planDepuisUuid(l.plan_id),
     jourEcheanceDefaut: l.jour_echeance_defaut,
     jourReversement: l.jour_reversement,
     creeLe: l.cree_le,

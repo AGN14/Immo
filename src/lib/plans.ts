@@ -24,6 +24,34 @@ export const PLANS: Record<PlanId, Plan> = {
 
 export const PLAN_PAR_DEFAUT: PlanId = "essentiel";
 
+/**
+ * Correspondance entre le palier applicatif et sa clé en base.
+ *
+ * Depuis la migration `plan_uuid`, `plan.id` est un UUID et l'ancien
+ * identifiant vit dans `plan.slug`. Les UUID des trois paliers de base y sont
+ * fixés en dur, précisément pour que le code puisse continuer à raisonner en
+ * slugs — c'est l'intention de la migration, pas un contournement.
+ *
+ * Toute écriture vers `proprietaire.plan_id` doit passer par `uuidDuPlan`, et
+ * toute lecture par `planDepuisUuid` : la colonne n'accepte plus « pro ».
+ */
+export const PLAN_UUID: Record<PlanId, string> = {
+  essentiel: "1799276d-4950-4050-93a8-4e38c92a6320",
+  pro: "d14214f0-466d-4665-961a-821b0d2d3a6d",
+  business: "74900a30-67c8-4777-a896-7a8717833a6c",
+};
+
+export function uuidDuPlan(id: PlanId | undefined): string {
+  return PLAN_UUID[id ?? PLAN_PAR_DEFAUT];
+}
+
+/** Le palier correspondant à un UUID de base. Un identifiant inconnu retombe
+ *  sur le palier par défaut plutôt que de propager une valeur ininterprétable. */
+export function planDepuisUuid(uuid: string | null | undefined): PlanId {
+  const trouve = (Object.keys(PLAN_UUID) as PlanId[]).find((p) => PLAN_UUID[p] === uuid);
+  return trouve ?? PLAN_PAR_DEFAUT;
+}
+
 /** Ordre hiérarchique des paliers : le plus haut débloque tout ce qui est
  *  en dessous de lui. */
 const RANG: Record<PlanId, number> = { essentiel: 0, pro: 1, business: 2 };
