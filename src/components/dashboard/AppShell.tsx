@@ -97,6 +97,35 @@ const entrées: Icône[] = [
       </>,
     ),
   },
+  {
+    label: "Relances & Alertes",
+    href: "/relances",
+    planRequis: "business",
+    icône: icône(<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" />),
+  },
+  {
+    label: "Cautions",
+    href: "/cautions",
+    planRequis: "business",
+    icône: icône(<path d="M12 3l1.9 5.8H20l-4.9 3.6 1.9 5.8-5-3.6-5 3.6 1.9-5.8L4 8.8h6.1z" />),
+  },
+  {
+    label: "Gestionnaires",
+    href: "/gestionnaires",
+    planRequis: "business",
+    icône: icône(
+      <>
+        <circle cx="9" cy="8" r="3.5" />
+        <path d="M3.5 20a5.5 5.5 0 0 1 11 0" />
+      </>,
+    ),
+  },
+  {
+    label: "Rapports",
+    href: "/rapports",
+    planRequis: "business",
+    icône: icône(<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9zM14 3v6h6M8 13h8M8 17h5" />),
+  },
 ];
 
 const entréesLocataire: Icône[] = [
