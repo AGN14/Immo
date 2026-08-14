@@ -25,6 +25,17 @@ export function Header() {
     return () => document.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
+
   return (
     <header
       className={`bg-paper/90 sticky top-0 z-40 backdrop-blur-[8px] transition-colors duration-200 ${
@@ -37,11 +48,11 @@ export function Header() {
         </Link>
 
         <nav
-          className={`border-line bg-paper fixed inset-x-0 top-[68px] flex flex-col items-start border-b px-5 pt-1 pb-5 transition-opacity duration-150 sm:px-8 lg:px-12 ${
+          className={`border-line bg-paper fixed inset-x-0 top-[68px] z-50 flex flex-col items-start border-b px-5 pt-1 pb-5 shadow-lg transition-all duration-200 sm:px-8 lg:px-12 ${
             open
-              ? "pointer-events-auto opacity-100"
-              : "pointer-events-none opacity-0 md:pointer-events-auto md:opacity-100"
-          } md:static md:flex-row md:items-center md:gap-8 md:border-none md:bg-transparent md:p-0 md:opacity-100`}
+              ? "visible opacity-100 translate-y-0"
+              : "invisible opacity-0 -translate-y-2 md:visible md:opacity-100 md:translate-y-0"
+          } md:static md:flex-row md:items-center md:gap-8 md:border-none md:bg-transparent md:p-0 md:shadow-none`}
         >
           {links.map((l) => (
             <a
@@ -89,7 +100,11 @@ export function Header() {
               strokeLinecap="round"
               className="size-5"
             >
-              <path d="M4 7h16M4 12h16M4 17h16" />
+              {open ? (
+                <path d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path d="M4 7h16M4 12h16M4 17h16" />
+              )}
             </svg>
           </button>
         </div>
