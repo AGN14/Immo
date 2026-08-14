@@ -16,7 +16,9 @@ import { periodeDe, moisSuivant, statutDuMois } from "@/lib/echeances";
 import type {
   Bail,
   Bien,
+  Caution,
   CompositionLot,
+  Gestionnaire,
   Locataire,
   PieceIdentite,
   Lot,
@@ -26,6 +28,7 @@ import type {
   Quittance,
   Signalement,
   StatutBail,
+  StatutCaution,
   StatutLoyer,
   StatutSignalement,
   StatutVersement,
@@ -711,4 +714,39 @@ export async function getDashboardKpis(proprietaireId: string) {
     biensTotal: biens.length,
     signalementsOuverts,
   };
+}
+
+/** Dépôts de garantie du parc (plan Business). */
+export async function getCautions(proprietaireId: string): Promise<Caution[]> {
+  const { bailIds } = await perimetre(proprietaireId);
+  const { data } = await supabaseServer()
+    .from("caution")
+    .select("*")
+    .in("bail_id", [...bailIds])
+    .order("cree_le", { ascending: false });
+  return (data ?? []).map((c) => ({
+    id: c.id,
+    bailId: c.bail_id,
+    montantFcfa: c.montant_fcfa,
+    statut: c.statut as StatutCaution,
+    encaisseeLe: c.encaissee_le ?? undefined,
+    restitueeLe: c.restituee_le ?? undefined,
+  }));
+}
+
+/** Équipe de gestion du parc (plan Business). */
+export async function getGestionnaires(proprietaireId: string): Promise<Gestionnaire[]> {
+  const { data } = await supabaseServer()
+    .from("gestionnaire")
+    .select("*")
+    .eq("proprietaire_id", proprietaireId)
+    .order("cree_le", { ascending: false });
+  return (data ?? []).map((g) => ({
+    id: g.id,
+    proprietaireId: g.proprietaire_id,
+    nom: g.nom,
+    email: g.email ?? undefined,
+    telephone: g.telephone ?? undefined,
+    creeLe: g.cree_le,
+  }));
 }
