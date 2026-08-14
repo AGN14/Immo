@@ -53,9 +53,11 @@ export function LocataireDashboard({ nom, locataireId }: { nom: string; locatair
   // afficher « À jour » à côté d'un solde débiteur serait contradictoire.
   const statut =
     statutLoyerLabel[
-      solde.mois.length > 0
-        ? "en-retard"
-        : statutDuMois(periode, bail, proprietaire, paiements, versements)
+      solde.sousPreavis.length > 0
+        ? "preavis"
+        : solde.mois.length > 0
+          ? "en-retard"
+          : statutDuMois(periode, bail, proprietaire, paiements, versements)
     ];
 
   const historique = getPaiementsDuLocataire(locataireId);
@@ -88,6 +90,17 @@ export function LocataireDashboard({ nom, locataireId }: { nom: string; locatair
                 ? `${solde.mois.length} mois échu${solde.mois.length > 1 ? "s" : ""} : ${solde.mois.join(", ")}`
                 : `Prochaine échéance : ${prochaine}, à régler avant le ${dateFr(dateEcheance(prochaine, jour))}`}
             </p>
+            {/* Un total qui dépasse le loyer sans explication passe pour une
+                erreur : on montre d'où vient l'écart. */}
+            {solde.penalitesFcfa > 0 && (
+              <p className="text-ink-2 mt-1 text-sm" data-numeric>
+                {solde.loyerFcfa.toLocaleString("fr-FR")} F de loyer
+                <span className="text-danger font-semibold">
+                  {" "}
+                  + {solde.penalitesFcfa.toLocaleString("fr-FR")} F d&rsquo;amende de retard
+                </span>
+              </p>
+            )}
           </div>
           <div className="flex flex-col items-end gap-3">
             <StatusPill tone={statut.tone}>{statut.label}</StatusPill>

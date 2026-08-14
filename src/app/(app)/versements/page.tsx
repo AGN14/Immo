@@ -73,9 +73,22 @@ export default async function VersementsPage() {
                     </p>
                     <p className="text-ink-3 mt-1 text-sm">Déclaré le {v.declareLe}</p>
                   </div>
-                  <p className="font-display text-primary text-2xl font-semibold" data-numeric>
-                    {v.montantTotalFcfa.toLocaleString("fr-FR")} F
-                  </p>
+                  <div className="text-right">
+                    <p className="font-display text-primary text-2xl font-semibold" data-numeric>
+                      {v.montantTotalFcfa.toLocaleString("fr-FR")} F
+                    </p>
+                    {/* Le propriétaire doit savoir que la somme annoncée dépasse
+                        les loyers, sinon le pointage sur son relevé échoue. */}
+                    {v.penalitesFcfa && v.penalitesFcfa > 0 ? (
+                      <p className="text-ink-3 mt-1 text-sm" data-numeric>
+                        dont{" "}
+                        <span className="text-danger font-semibold">
+                          {v.penalitesFcfa.toLocaleString("fr-FR")} F
+                        </span>{" "}
+                        d&rsquo;amende
+                      </p>
+                    ) : null}
+                  </div>
                 </div>
 
                 <div className="border-line-soft mt-4 flex flex-wrap gap-3 border-t pt-4">

@@ -1,5 +1,6 @@
-import { moisAPayer } from "@/lib/echeances";
+import { moisAPayer, penaliteDuMois } from "@/lib/echeances";
 import { baux } from "@/lib/mock-data/baux";
+import { proprietaires } from "@/lib/mock-data/proprietaires";
 import {
   paiements,
   prochainNumeroQuittance,
@@ -54,11 +55,22 @@ export function creerVersement(declaration: DeclarationPaiement) {
   const mois = moisAPayer(bail, paiements, versements, nombre);
   if (mois.length === 0) return { erreur: "RIEN_A_PAYER" as const };
 
+  const proprietaire = proprietaires.find((p) => p.id === proprietaireDuBail(bail.id));
+  if (!proprietaire) return { erreur: "BAIL_INTROUVABLE" as const };
+
+  // L'amende est figée maintenant, mois par mois. La recalculer à la
+  // confirmation ferait grossir la note pendant que le propriétaire vérifie :
+  // le locataire doit ce qu'il devait le jour où il a payé.
+  const penalites = mois.map((periode) => penaliteDuMois(periode, bail, proprietaire));
+  const loyerFcfa = bail.loyerMensuelFcfa * mois.length;
+  const penalitesFcfa = penalites.reduce((somme, montant) => somme + montant, 0);
+
   const versementId = nouvelId("vers");
   versements.push({
     id: versementId,
     bailId: bail.id,
-    montantTotalFcfa: bail.loyerMensuelFcfa * mois.length,
+    montantTotalFcfa: loyerFcfa + penalitesFcfa,
+    penalitesFcfa: penalitesFcfa || undefined,
     methode: declaration.methode,
     referenceExterne: declaration.reference?.trim() || undefined,
     statut: "initie",
@@ -66,17 +78,24 @@ export function creerVersement(declaration: DeclarationPaiement) {
   });
 
   // Une ligne par mois : c'est ce qui permet une quittance mensuelle.
-  for (const periode of mois) {
+  mois.forEach((periode, i) => {
     paiements.push({
       id: nouvelId("pay"),
       bailId: bail.id,
       versementId,
       periode,
       montantFcfa: bail.loyerMensuelFcfa,
+      penaliteFcfa: penalites[i] || undefined,
     });
-  }
+  });
 
-  return { versementId, mois, montantFcfa: bail.loyerMensuelFcfa * mois.length };
+  return {
+    versementId,
+    mois,
+    loyerFcfa,
+    penalitesFcfa,
+    montantFcfa: loyerFcfa + penalitesFcfa,
+  };
 }
 
 /**

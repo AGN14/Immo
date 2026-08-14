@@ -14,6 +14,8 @@ export const statutLoyerLabel: Record<StatutLoyer, { label: string; tone: Tone }
   declare: { label: "Déclaré", tone: "mute" },
   "en-attente": { label: "En attente", tone: "mute" },
   "en-retard": { label: "En retard", tone: "warn" },
+  // Le délai de tolérance est dépassé : le propriétaire peut donner congé.
+  preavis: { label: "Préavis", tone: "warn" },
 };
 
 export const statutVersementLabel: Record<StatutVersement, { label: string; tone: Tone }> = {

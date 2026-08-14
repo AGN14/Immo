@@ -15,17 +15,23 @@ export function FormulairePaiement({
   mois,
   moisEnRetard,
   echeances,
+  penalites,
 }: {
   action: (formData: FormData) => void;
   loyerMensuelFcfa: number;
   mois: string[];
   moisEnRetard: string[];
   echeances: string[];
+  /** L'amende encourue pour chaque mois de `mois`, dans le même ordre. */
+  penalites: number[];
 }) {
   const [nombre, setNombre] = useState(Math.max(1, moisEnRetard.length || 1));
   const couverts = mois.slice(0, nombre);
-  const total = loyerMensuelFcfa * couverts.length;
   const retard = new Set(moisEnRetard);
+
+  const loyers = loyerMensuelFcfa * couverts.length;
+  const amendes = penalites.slice(0, nombre).reduce((somme, montant) => somme + montant, 0);
+  const total = loyers + amendes;
 
   return (
     <form action={action} className="mt-8 flex flex-col gap-6">
@@ -58,12 +64,40 @@ export function FormulairePaiement({
                 {m}
                 {retard.has(m) && <span className="text-danger ml-2 font-semibold">en retard</span>}
               </span>
-              <span className="text-ink-3" data-numeric>
-                échéance {echeances[i]}
+              <span className="text-ink-3 flex items-baseline gap-3" data-numeric>
+                {penalites[i] > 0 && (
+                  <span className="text-danger font-semibold">
+                    + {penalites[i].toLocaleString("fr-FR")} F d&rsquo;amende
+                  </span>
+                )}
+                <span>échéance {echeances[i]}</span>
               </span>
             </li>
           ))}
         </ul>
+
+        {/* Le détail n'apparaît que s'il y a une amende : sans retard, un
+            sous-total « loyers » égal au total n'apprendrait rien. */}
+        {amendes > 0 && (
+          <dl className="border-line-soft mt-4 flex flex-col gap-1.5 border-t pt-4 text-sm">
+            <div className="flex items-baseline justify-between">
+              <dt className="text-ink-2">
+                Loyers ({couverts.length} × {loyerMensuelFcfa.toLocaleString("fr-FR")} F)
+              </dt>
+              <dd className="text-ink font-semibold" data-numeric>
+                {loyers.toLocaleString("fr-FR")} F
+              </dd>
+            </div>
+            <div className="flex items-baseline justify-between">
+              <dt className="text-danger">
+                Amendes de retard ({penalites.slice(0, nombre).filter((p) => p > 0).length} mois)
+              </dt>
+              <dd className="text-danger font-semibold" data-numeric>
+                {amendes.toLocaleString("fr-FR")} F
+              </dd>
+            </div>
+          </dl>
+        )}
 
         <div className="border-line mt-4 flex items-baseline justify-between border-t pt-4">
           <span className="text-ink font-semibold">Total à payer</span>

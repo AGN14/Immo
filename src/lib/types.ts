@@ -23,6 +23,17 @@ export interface Proprietaire {
   jourEcheanceDefaut: number;
   /** Jour où Immo reverse les loyers collectés. Défini par le propriétaire. */
   jourReversement: number;
+  /**
+   * Amende forfaitaire due pour **chaque** mois réglé après son échéance.
+   * Elle ne dépend pas du montant du loyer ni de la durée du retard.
+   */
+  penaliteRetardFcfa: number;
+  /**
+   * Jours de tolérance après l'échéance. Compté en jours et non en date fixe :
+   * un bail dont l'échéance est négociée au 20 doit garder le même délai de
+   * grâce qu'un bail au 5. Passé ce délai, le mois impayé ouvre un préavis.
+   */
+  delaiToleranceJours: number;
 }
 
 export type TypeBien = "immeuble" | "residence" | "concession" | "villa" | "maison";
@@ -47,8 +58,12 @@ export type StatutVersement = "initie" | "confirme" | "echoue" | "annule";
  * Statut d'un mois de loyer. Jamais stocké : il se déduit de l'existence d'un
  * paiement, de l'état de son versement et de la date d'échéance. Un statut
  * stocké exigerait une tâche nocturne qui se désynchronise au premier incident.
+ *
+ * « preavis » n'est pas un retard plus grave : c'est le seuil au-delà duquel le
+ * propriétaire est fondé à donner congé. L'application le signale, elle ne
+ * l'envoie pas — donner congé reste un acte du propriétaire.
  */
-export type StatutLoyer = "a-jour" | "declare" | "en-attente" | "en-retard";
+export type StatutLoyer = "a-jour" | "declare" | "en-attente" | "en-retard" | "preavis";
 
 /** Une adresse : un immeuble, une résidence, une villa. */
 export interface Bien {
@@ -129,7 +144,10 @@ export interface Locataire {
 export interface Versement {
   id: string;
   bailId: string;
+  /** Loyers **et** pénalités confondus : c'est la somme réellement encaissée. */
   montantTotalFcfa: number;
+  /** Part du total imputable aux amendes de retard. Absente = aucun retard. */
+  penalitesFcfa?: number;
   methode: MethodePaiement;
   referenceExterne?: string;
   statut: StatutVersement;
@@ -148,7 +166,18 @@ export interface Paiement {
   bailId: string;
   versementId: string;
   periode: string;
+  /**
+   * Le **loyer** du mois, jamais l'amende. Tous les cumuls de revenus somment
+   * ce champ : y verser une pénalité gonflerait le chiffre d'affaires locatif
+   * d'un produit qui n'en est pas.
+   */
   montantFcfa: number;
+  /**
+   * L'amende encourue pour ce mois-là, figée au moment de la déclaration.
+   * Portée par le mois et non par le versement : l'amende est due par mois en
+   * retard, et régulariser trois mois en coûte trois.
+   */
+  penaliteFcfa?: number;
 }
 
 /** Émise dès la confirmation de l'encaissement, jamais modifiée. */

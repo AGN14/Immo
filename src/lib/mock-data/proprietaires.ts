@@ -12,6 +12,8 @@ export const proprietaires: Proprietaire[] = [
     email: "thierry@immo.app",
     plan: "essentiel",
     jourEcheanceDefaut: 5,
+    penaliteRetardFcfa: 5000,
+    delaiToleranceJours: 5,
     jourReversement: 1,
   },
   {
@@ -20,6 +22,8 @@ export const proprietaires: Proprietaire[] = [
     email: "awa.traore@example.com",
     plan: "pro",
     jourEcheanceDefaut: 5,
+    penaliteRetardFcfa: 5000,
+    delaiToleranceJours: 5,
     jourReversement: 3,
   },
 ];
