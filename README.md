@@ -43,8 +43,6 @@ src/
     types.ts        types du domaine
     status-labels.ts  libellés et tons des statuts
   proxy.ts          redirections d'authentification (convention Next 16)
-docs/
-  reference-vestia/ maquettes HTML d'une itération antérieure, hors application
 ```
 
 ## Design
