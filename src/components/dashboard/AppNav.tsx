@@ -8,6 +8,8 @@ const proprietaireLinks = [
   { href: "/biens", label: "Biens" },
   { href: "/locataires", label: "Locataires" },
   { href: "/loyers", label: "Loyers" },
+  { href: "/versements", label: "Versements" },
+  { href: "/signalements", label: "Signalements" },
 ];
 
 export function AppNav({ role }: { role: "proprietaire" | "locataire" }) {

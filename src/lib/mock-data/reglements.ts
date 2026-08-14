@@ -184,6 +184,21 @@ export const paiements: Paiement[] = [...paiementsGeneres, ...paiementsRecents];
 /** Une quittance par mois confirmé, numérotée en continu par propriétaire. */
 const compteurs = new Map<string, number>();
 
+/**
+ * Attribue le prochain numéro d'un propriétaire. La numérotation doit rester
+ * continue et sans trou : un trou dans la série invalide la comptabilité.
+ * En base, c'est `prochain_numero_quittance()` qui joue ce rôle, en
+ * verrouillant la ligne du propriétaire.
+ */
+export function prochainNumeroQuittance(proprietaireId: string): string {
+  const suivant = (compteurs.get(proprietaireId) ?? 0) + 1;
+  compteurs.set(proprietaireId, suivant);
+  return `${new Date().getFullYear()}-${String(suivant).padStart(4, "0")}`;
+}
+
+/** Le propriétaire dont relève un bail — nécessaire pour numéroter. */
+export { proprietaireDuBail };
+
 export const quittances: Quittance[] = paiements
   .filter((p) => versements.find((v) => v.id === p.versementId)?.statut === "confirme")
   .sort((a, b) => a.periode.localeCompare(b.periode))

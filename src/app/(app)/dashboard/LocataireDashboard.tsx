@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { confirmerResolution } from "@/lib/actions/locataire";
 import { dateEcheance, jourEcheance, moisAPayer, soldeDu, statutDuMois } from "@/lib/echeances";
 import {
   donneesEcheance,
@@ -152,7 +153,30 @@ export function LocataireDashboard({ nom, locataireId }: { nom: string; locatair
                     <StatusPill tone={etat.tone}>{etat.label}</StatusPill>
                   </div>
                 </div>
-                <p className="text-ink-3 mt-2 text-sm">Signalé le {dateFr(s.creeLe)}</p>
+                <p className="text-ink-3 mt-2 text-sm">
+                  Signalé le {dateFr(s.creeLe)}
+                  {s.resoluLe && ` · résolu le ${dateFr(s.resoluLe)}`}
+                </p>
+
+                {/* Sans l'accord du locataire, le propriétaire clôt seul et le
+                    désaccord devient un litige. */}
+                {s.statut === "resolu" && (
+                  <form
+                    action={confirmerResolution}
+                    className="border-line-soft mt-3 border-t pt-3"
+                  >
+                    <input type="hidden" name="signalementId" value={s.id} />
+                    <p className="text-ink-2 mb-2 text-sm">
+                      Votre propriétaire indique que c&rsquo;est réglé. Confirmez-vous ?
+                    </p>
+                    <button
+                      type="submit"
+                      className="bg-primary text-on-primary hover:bg-primary-hi rounded-md px-4 py-2 text-sm font-semibold transition-colors"
+                    >
+                      Oui, le problème est résolu
+                    </button>
+                  </form>
+                )}
               </li>
             );
           })}
