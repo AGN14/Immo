@@ -41,6 +41,41 @@ export function dateEcheance(periode: Periode, jour: number): Date {
   return new Date(annee, mois - 1, Math.min(jour, dernierJour), 23, 59, 59);
 }
 
+/**
+ * Le dernier instant où un mois peut encore être régularisé contre l'amende.
+ * Au-delà, le propriétaire est fondé à donner congé.
+ *
+ * Le délai court **en jours après l'échéance**, pas jusqu'à une date fixe :
+ * avec une échéance au 5 et 5 jours de tolérance on obtient bien le 10, et un
+ * bail dont l'échéance a été négociée plus tard garde le même délai de grâce.
+ */
+export function dateLimiteTolerance(
+  periode: Periode,
+  jour: number,
+  delaiToleranceJours: number,
+): Date {
+  const limite = dateEcheance(periode, jour);
+  limite.setDate(limite.getDate() + delaiToleranceJours);
+  return limite;
+}
+
+/**
+ * L'amende encourue pour un mois donné, à la date d'aujourd'hui.
+ *
+ * Forfaitaire et due dès le premier jour de retard : payer le 6 ou le 10 coûte
+ * la même chose. Elle ne s'applique qu'aux mois échus — régler un mois d'avance
+ * ne peut évidemment rien coûter.
+ */
+export function penaliteDuMois(
+  periode: Periode,
+  bail: Bail,
+  proprietaire: Proprietaire,
+  aujourdhui = new Date(),
+): number {
+  const enRetard = aujourdhui > dateEcheance(periode, jourEcheance(bail, proprietaire));
+  return enRetard ? proprietaire.penaliteRetardFcfa : 0;
+}
+
 /** Toutes les périodes couvertes par un bail, de son début à aujourd'hui (ou à
  *  sa fin s'il est terminé). */
 export function periodesDuBail(bail: Bail, aujourdhui = new Date()): Periode[] {
@@ -79,9 +114,14 @@ export function statutDuMois(
     if (versement?.statut === "initie") return "declare";
   }
 
-  return aujourdhui > dateEcheance(periode, jourEcheance(bail, proprietaire))
-    ? "en-retard"
-    : "en-attente";
+  const jour = jourEcheance(bail, proprietaire);
+
+  // Le seuil du préavis se teste en premier : il est plus tardif que l'échéance
+  // et doit donc l'emporter sur le simple retard.
+  if (aujourdhui > dateLimiteTolerance(periode, jour, proprietaire.delaiToleranceJours)) {
+    return "preavis";
+  }
+  return aujourdhui > dateEcheance(periode, jour) ? "en-retard" : "en-attente";
 }
 
 /**
@@ -137,17 +177,47 @@ export function moisAPayer(
   return resultat;
 }
 
-/** Ce que le locataire doit à l'instant : les mois échus et non couverts. */
+/**
+ * Ce que le locataire doit à l'instant : les mois échus et non couverts, **et**
+ * les amendes qu'ils ont fait courir.
+ *
+ * Le détail est renvoyé séparément parce qu'il ne se recompose pas : un solde
+ * global ne dit pas au locataire pourquoi il doit 30 000 pour un loyer de
+ * 25 000, et le propriétaire doit pouvoir distinguer son revenu locatif de ses
+ * pénalités.
+ */
 export function soldeDu(
   bail: Bail,
   proprietaire: Proprietaire,
   paiements: Paiement[],
   versements: Versement[],
   aujourdhui = new Date(),
-): { mois: Periode[]; montantFcfa: number } {
+): {
+  mois: Periode[];
+  loyerFcfa: number;
+  penalitesFcfa: number;
+  montantFcfa: number;
+  sousPreavis: Periode[];
+} {
   const jour = jourEcheance(bail, proprietaire);
   const echus = moisImpayes(bail, paiements, versements, aujourdhui).filter(
     (p) => aujourdhui > dateEcheance(p, jour),
   );
-  return { mois: echus, montantFcfa: echus.length * bail.loyerMensuelFcfa };
+
+  const loyerFcfa = echus.length * bail.loyerMensuelFcfa;
+  const penalitesFcfa = echus.reduce(
+    (somme, periode) => somme + penaliteDuMois(periode, bail, proprietaire, aujourdhui),
+    0,
+  );
+  const sousPreavis = echus.filter(
+    (periode) => aujourdhui > dateLimiteTolerance(periode, jour, proprietaire.delaiToleranceJours),
+  );
+
+  return {
+    mois: echus,
+    loyerFcfa,
+    penalitesFcfa,
+    montantFcfa: loyerFcfa + penalitesFcfa,
+    sousPreavis,
+  };
 }

@@ -57,6 +57,8 @@ function mappeProprietaire(l: LigneProprietaire): Proprietaire {
     jourReversement: l.jour_reversement,
     creeLe: l.cree_le,
     aMotDePasse: l.mot_de_passe_hash !== null,
+    penaliteRetardFcfa: l.penalite_retard_fcfa,
+    delaiToleranceJours: l.delai_tolerance_jours,
   };
 }
 
@@ -127,6 +129,7 @@ function mappeVersement(l: LigneVersement): Versement {
     id: l.id,
     bailId: l.bail_id,
     montantTotalFcfa: l.montant_total_fcfa,
+    penalitesFcfa: l.penalites_fcfa,
     methode: l.methode as MethodePaiement,
     referenceExterne: l.reference_externe ?? undefined,
     statut: l.statut as StatutVersement,
@@ -143,6 +146,7 @@ function mappePaiement(l: LignePaiement): Paiement {
     versementId: l.versement_id,
     periode: l.periode,
     montantFcfa: l.montant_fcfa,
+    penaliteFcfa: l.penalite_fcfa,
   };
 }
 
@@ -219,10 +223,7 @@ export async function getLocataireByEmail(email: string): Promise<Locataire | un
 async function perimetre(proprietaireId: string) {
   const sb = supabaseServer();
 
-  const { data: biens } = await sb
-    .from("bien")
-    .select("*")
-    .eq("proprietaire_id", proprietaireId);
+  const { data: biens } = await sb.from("bien").select("*").eq("proprietaire_id", proprietaireId);
   const bienIds = (biens ?? []).map((b) => b.id);
 
   const { data: lots } = bienIds.length
@@ -247,10 +248,7 @@ export async function getBiens(proprietaireId: string): Promise<Bien[]> {
   return (await perimetre(proprietaireId)).biens;
 }
 
-export async function getBienById(
-  proprietaireId: string,
-  id: string,
-): Promise<Bien | undefined> {
+export async function getBienById(proprietaireId: string, id: string): Promise<Bien | undefined> {
   return (await perimetre(proprietaireId)).biens.find((b) => b.id === id);
 }
 
@@ -258,10 +256,7 @@ export async function getLots(proprietaireId: string): Promise<Lot[]> {
   return (await perimetre(proprietaireId)).lots;
 }
 
-export async function getLotById(
-  proprietaireId: string,
-  id: string,
-): Promise<Lot | undefined> {
+export async function getLotById(proprietaireId: string, id: string): Promise<Lot | undefined> {
   return (await perimetre(proprietaireId)).lots.find((l) => l.id === id);
 }
 
@@ -303,10 +298,7 @@ export async function getBauxTermines(proprietaireId: string): Promise<Bail[]> {
   return (await getBaux(proprietaireId)).filter((b) => b.statut === "termine");
 }
 
-export async function getBailById(
-  proprietaireId: string,
-  id: string,
-): Promise<Bail | undefined> {
+export async function getBailById(proprietaireId: string, id: string): Promise<Bail | undefined> {
   return (await perimetre(proprietaireId)).baux.find((b) => b.id === id);
 }
 
@@ -320,8 +312,8 @@ export async function getBailActifByLotId(
 }
 
 export async function getBauxByLotId(proprietaireId: string, lotId: string): Promise<Bail[]> {
-  return (await perimetre(proprietaireId))
-    .baux.filter((b) => b.lotId === lotId)
+  return (await perimetre(proprietaireId)).baux
+    .filter((b) => b.lotId === lotId)
     .sort((a, b) => b.dateDebut.localeCompare(a.dateDebut));
 }
 
@@ -343,9 +335,7 @@ async function paiementsDeBaux(bailIds: Set<string>): Promise<Paiement[]> {
 
 export async function getVersements(proprietaireId: string): Promise<Versement[]> {
   const { bailIds } = await perimetre(proprietaireId);
-  return (await versementsDeBaux(bailIds)).sort((a, b) =>
-    b.declareLe.localeCompare(a.declareLe),
-  );
+  return (await versementsDeBaux(bailIds)).sort((a, b) => b.declareLe.localeCompare(a.declareLe));
 }
 
 /** Les déclarations que le propriétaire doit encore pointer. */
@@ -382,9 +372,7 @@ export async function getVersementById(
 }
 
 /** Le versement d'un paiement — porte la méthode, la référence et le statut. */
-export async function versementDuPaiement(
-  versementId: string,
-): Promise<Versement | undefined> {
+export async function versementDuPaiement(versementId: string): Promise<Versement | undefined> {
   const { data } = await supabaseServer()
     .from("versement")
     .select("*")
@@ -393,9 +381,7 @@ export async function versementDuPaiement(
   return data ? mappeVersement(data) : undefined;
 }
 
-export async function getQuittanceDuPaiement(
-  paiementId: string,
-): Promise<Quittance | undefined> {
+export async function getQuittanceDuPaiement(paiementId: string): Promise<Quittance | undefined> {
   const { data } = await supabaseServer()
     .from("quittance")
     .select("*")
@@ -431,9 +417,7 @@ export async function getSignalements(proprietaireId: string): Promise<Signaleme
   const ids = [...lotIds];
   if (!ids.length) return [];
   const { data } = await supabaseServer().from("signalement").select("*").in("lot_id", ids);
-  return (data ?? [])
-    .map(mappeSignalement)
-    .sort((a, b) => b.creeLe.localeCompare(a.creeLe));
+  return (data ?? []).map(mappeSignalement).sort((a, b) => b.creeLe.localeCompare(a.creeLe));
 }
 
 export async function getSignalementsOuverts(proprietaireId: string): Promise<Signalement[]> {
@@ -472,10 +456,7 @@ export async function getSignalementsByLotId(
  * baux, et rien d'autre — même en tapant une URL à la main.
  */
 async function perimetreLocataire(locataireId: string) {
-  const { data } = await supabaseServer()
-    .from("bail")
-    .select("*")
-    .eq("locataire_id", locataireId);
+  const { data } = await supabaseServer().from("bail").select("*").eq("locataire_id", locataireId);
   const baux = (data ?? []).map(mappeBail);
   return { baux, bailIds: new Set(baux.map((b) => b.id)) };
 }
@@ -510,14 +491,8 @@ export async function getLogementDuLocataire(locataireId: string) {
   const { data: lot } = await sb.from("lot").select("*").eq("id", bail.lotId).maybeSingle();
   if (!lot) return { bail, lot: undefined, bien: undefined, proprietaire: undefined };
 
-  const { data: bien } = await sb
-    .from("bien")
-    .select("*")
-    .eq("id", lot.bien_id)
-    .maybeSingle();
-  const proprietaire = bien
-    ? await getProprietaireById(bien.proprietaire_id)
-    : undefined;
+  const { data: bien } = await sb.from("bien").select("*").eq("id", lot.bien_id).maybeSingle();
+  const proprietaire = bien ? await getProprietaireById(bien.proprietaire_id) : undefined;
 
   return {
     bail,
@@ -534,9 +509,7 @@ export async function getPaiementsDuLocataire(locataireId: string): Promise<Paie
 
 export async function getVersementsDuLocataire(locataireId: string): Promise<Versement[]> {
   const { bailIds } = await perimetreLocataire(locataireId);
-  return (await versementsDeBaux(bailIds)).sort((a, b) =>
-    b.declareLe.localeCompare(a.declareLe),
-  );
+  return (await versementsDeBaux(bailIds)).sort((a, b) => b.declareLe.localeCompare(a.declareLe));
 }
 
 export async function getQuittancesDuLocataire(locataireId: string): Promise<Quittance[]> {
@@ -555,13 +528,8 @@ export async function getSignalementsDuLocataire(locataireId: string): Promise<S
   const { bailIds } = await perimetreLocataire(locataireId);
   const ids = [...bailIds];
   if (!ids.length) return [];
-  const { data } = await supabaseServer()
-    .from("signalement")
-    .select("*")
-    .in("bail_id", ids);
-  return (data ?? [])
-    .map(mappeSignalement)
-    .sort((a, b) => b.creeLe.localeCompare(a.creeLe));
+  const { data } = await supabaseServer().from("signalement").select("*").in("bail_id", ids);
+  return (data ?? []).map(mappeSignalement).sort((a, b) => b.creeLe.localeCompare(a.creeLe));
 }
 
 /* --------------------------------------------------------------- dashboard */
@@ -603,9 +571,7 @@ export async function getSerieLoyers(
     // Un bail ne pèse que s'il était actif pendant ce mois-là.
     const attenduFcfa = baux
       .filter(
-        (b) =>
-          new Date(b.dateDebut) <= finMois &&
-          (!b.dateFin || new Date(b.dateFin) >= debutMois),
+        (b) => new Date(b.dateDebut) <= finMois && (!b.dateFin || new Date(b.dateFin) >= debutMois),
       )
       .reduce((sum, b) => sum + b.loyerMensuelFcfa, 0);
 
@@ -649,9 +615,7 @@ export async function getSerieLoyersAnnee(
 
     const attenduFcfa = baux
       .filter(
-        (b) =>
-          new Date(b.dateDebut) <= finMois &&
-          (!b.dateFin || new Date(b.dateFin) >= debutMois),
+        (b) => new Date(b.dateDebut) <= finMois && (!b.dateFin || new Date(b.dateFin) >= debutMois),
       )
       .reduce((sum, b) => sum + b.loyerMensuelFcfa, 0);
 
@@ -672,9 +636,7 @@ export async function getLotsDisponibles(proprietaireId: string) {
     perimetre(proprietaireId),
     getBaux(proprietaireId),
   ]);
-  const lotsOccupees = new Set(
-    baux.filter((b) => b.statut === "actif").map((b) => b.lotId),
-  );
+  const lotsOccupees = new Set(baux.filter((b) => b.statut === "actif").map((b) => b.lotId));
   const bienParId = new Map(biens.map((b) => [b.id, b]));
   return lots
     .filter((l) => !lotsOccupees.has(l.id))
