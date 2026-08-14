@@ -24,6 +24,7 @@ import { requireProprietaire } from "@/lib/auth/mock-session";
 import { StatusPill } from "@/components/ui/StatusPill";
 import { ModalAjouterLot } from "@/components/biens/ModalAjouterLot";
 import { ModalModifierBien } from "@/components/biens/ModalModifierBien";
+import { ModalSupprimerBien } from "@/components/biens/ModalSupprimerBien";
 
 const th = "text-ink-2 px-4 py-2.5 text-sm font-medium";
 
@@ -110,7 +111,10 @@ export default async function BienDetailPage(props: PageProps<"/biens/[id]">) {
             })}
           </p>
         </div>
-        <ModalModifierBien bien={bien} />
+        <div className="flex items-center gap-3">
+          <ModalModifierBien bien={bien} />
+          <ModalSupprimerBien bienId={bien.id} />
+        </div>
       </div>
 
       {bien.description && (
@@ -168,7 +172,7 @@ export default async function BienDetailPage(props: PageProps<"/biens/[id]">) {
         </p>
       )}
       <div className="mt-2">
-        <ModalAjouterLot bienId={bien.id} />
+        <ModalAjouterLot bienId={bien.id} typeBien={bien.type} />
       </div>
 
       <div className="mt-4 flex flex-col gap-4">

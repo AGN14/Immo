@@ -3,12 +3,20 @@
 import { useActionState, useState } from "react";
 import { creerLot, type EtatAction } from "@/lib/actions/biens";
 import { compositionLabel } from "@/lib/status-labels";
+import type { TypeBien } from "@/lib/types";
+import { compositionsParType, selectClass } from "@/components/biens/constantes-bien";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 
 const etatInitial: EtatAction = { ok: false };
 
-export function ModalAjouterLot({ bienId }: { bienId: string }) {
+export function ModalAjouterLot({
+  bienId,
+  typeBien,
+}: {
+  bienId: string;
+  typeBien: TypeBien;
+}) {
   const [ouverture, setOuverture] = useState(0);
 
   return (
@@ -21,18 +29,28 @@ export function ModalAjouterLot({ bienId }: { bienId: string }) {
         Ajouter un lot
       </button>
 
-      {ouverture > 0 && <ModalAjouterLotInterne key={ouverture} bienId={bienId} />}
+      {ouverture > 0 && (
+        <ModalAjouterLotInterne key={ouverture} bienId={bienId} typeBien={typeBien} />
+      )}
     </>
   );
 }
 
 /** Remonté à chaque ouverture : l'action repart de zéro, le formulaire aussi. */
-function ModalAjouterLotInterne({ bienId }: { bienId: string }) {
+function ModalAjouterLotInterne({
+  bienId,
+  typeBien,
+}: {
+  bienId: string;
+  typeBien: TypeBien;
+}) {
   const [ouvert, setOuvert] = useState(true);
   const [etat, action, pendant] = useActionState(creerLot.bind(null, bienId), etatInitial);
 
   // Fermeture propre après succès : état ajusté pendant le rendu.
   if (etat.ok && ouvert) setOuvert(false);
+
+  const compositions = compositionsParType[typeBien];
 
   return (
     <Modal ouvert={ouvert} surFermer={() => setOuvert(false)} titre="Ajouter un lot">
@@ -42,12 +60,12 @@ function ModalAjouterLotInterne({ bienId }: { bienId: string }) {
           <span className="text-ink-2 text-sm font-medium">Composition</span>
           <select
             name="composition"
-            defaultValue="studio"
-            className="border-line bg-surface text-ink focus-visible:outline-primary rounded-md border px-3 py-2.5 text-base focus-visible:outline-2 focus-visible:outline-offset-1"
+            defaultValue={compositions[0]}
+            className={selectClass}
           >
-            {Object.entries(compositionLabel).map(([valeur, label]) => (
+            {compositions.map((valeur) => (
               <option key={valeur} value={valeur}>
-                {label}
+                {compositionLabel[valeur]}
               </option>
             ))}
           </select>

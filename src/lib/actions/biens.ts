@@ -114,35 +114,15 @@ export async function creerBien(
     return { ok: false, erreur: resultatPhoto.erreur };
   const imageUrl = resultatPhoto ? resultatPhoto.url : null;
 
-  const { data: bienCree, error } = await supabaseServer()
+  const { error } = await supabaseServer()
     .from("bien")
     .insert({
       proprietaire_id: proprietaireId,
       ...champs.valeurs,
       image_url: imageUrl,
-    })
-    .select("id")
-    .single();
+    });
 
   if (error) return { ok: false, erreur: `Enregistrement impossible : ${error.message}` };
-
-  // Premier lot automatique, selon la nature du bien : un bien sans logement
-  // n'est ni louable ni visible dans les filtres d'occupation.
-  const lotInitial = {
-    immeuble: { nom: "Appartement 1", composition: "appartement" },
-    residence: { nom: "Appartement 1", composition: "appartement" },
-    concession: { nom: "Studio 1", composition: "studio" },
-    villa: { nom: "Villa 1", composition: "villa" },
-    maison: { nom: "Maison 1", composition: "2-chambres-salon" },
-  } as const;
-
-  const { error: erreurLot } = await supabaseServer().from("lot").insert({
-    bien_id: bienCree.id,
-    nom: lotInitial[champs.valeurs.type].nom,
-    composition: lotInitial[champs.valeurs.type].composition,
-  });
-
-  if (erreurLot) return { ok: false, erreur: `Lot initial impossible : ${erreurLot.message}` };
 
   revalidatePath("/biens");
   revalidatePath("/dashboard");
@@ -235,6 +215,41 @@ export async function creerLot(
   if (error) return { ok: false, erreur: `Enregistrement impossible : ${error.message}` };
 
   revalidatePath(`/biens/${bienId}`);
+  revalidatePath("/biens");
+  revalidatePath("/dashboard");
+  return { ok: true };
+}
+
+/** Suppression définitive d'un bien — exigée par le mot de passe du
+ *  propriétaire. Les lots, baux et paiements du bien sont supprimés en
+ *  cascade ; le locataire, lui, reste (son historique appartient au bien). */
+export async function supprimerBien(
+  bienId: string,
+  prev: EtatAction,
+  formData: FormData,
+): Promise<EtatAction> {
+  const { proprietaireId } = await requireProprietaire();
+
+  const erreurMotDePasse = await confirmerMotDePasse(proprietaireId, formData);
+  if (erreurMotDePasse) return { ok: false, erreur: erreurMotDePasse };
+
+  // Le bien d'un autre propriétaire est introuvable, pas « interdit ».
+  const { data: bien } = await supabaseServer()
+    .from("bien")
+    .select("id")
+    .eq("id", bienId)
+    .eq("proprietaire_id", proprietaireId)
+    .maybeSingle();
+  if (!bien) return { ok: false, erreur: "Bien introuvable." };
+
+  const { error } = await supabaseServer()
+    .from("bien")
+    .delete()
+    .eq("id", bienId)
+    .eq("proprietaire_id", proprietaireId);
+
+  if (error) return { ok: false, erreur: `Suppression impossible : ${error.message}` };
+
   revalidatePath("/biens");
   revalidatePath("/dashboard");
   return { ok: true };
