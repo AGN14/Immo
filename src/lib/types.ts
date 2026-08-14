@@ -23,6 +23,10 @@ export interface Proprietaire {
   jourEcheanceDefaut: number;
   /** Jour où Immo reverse les loyers collectés. Défini par le propriétaire. */
   jourReversement: number;
+  /** Date d'ouverture du compte. */
+  creeLe: string;
+  /** Un mot de passe est exigé pour confirmer les modifications sensibles. */
+  aMotDePasse: boolean;
 }
 
 export type TypeBien = "immeuble" | "residence" | "concession" | "villa" | "maison";
@@ -60,6 +64,18 @@ export interface Bien {
   quartier: string;
   ville: string;
   dateAjout: string;
+  /** Présentation libre, affichée sur la fiche du bien. */
+  description: string | null;
+  /** URL d'une photo (hébergée ailleurs) affichée sur la carte et la fiche. */
+  imageUrl: string | null;
+  garage: boolean;
+  balcon: boolean;
+  ascenseur: boolean;
+  climatisation: boolean;
+  /** Superficie en m², renseignée par le propriétaire. */
+  superficieM2: number | null;
+  /** Nombre d'étages — pertinent pour un immeuble ou une résidence. */
+  etages: number | null;
 }
 
 /** Une unité louable à l'intérieur d'un bien. Une villa n'a qu'un seul lot. */
@@ -111,6 +127,9 @@ export interface Signalement {
   confirmeLe?: string;
 }
 
+/** Pièce d'identité retenue pour le suivi du locataire. */
+export type PieceIdentite = "cni" | "passeport" | "permis" | "carte-sejour" | "autre";
+
 /** Les coordonnées d'un locataire ne doivent jamais franchir la frontière
  *  d'un propriétaire : elles portent donc aussi son identifiant. */
 export interface Locataire {
@@ -119,6 +138,18 @@ export interface Locataire {
   nom: string;
   telephone: string;
   email: string;
+  /** Avatar, uploadé dans le stockage Immo. */
+  photoUrl: string | null;
+  /** Date de naissance, au format AAAA-MM-JJ. */
+  dateNaissance: string | null;
+  pieceType: PieceIdentite | null;
+  pieceNumero: string | null;
+  profession: string | null;
+  /** Nombre de personnes vivant dans le logement. */
+  occupants: number | null;
+  /** Personne de confiance à joindre en cas d'impayé. */
+  garantNom: string | null;
+  garantTelephone: string | null;
 }
 
 /**

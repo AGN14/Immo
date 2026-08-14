@@ -1,5 +1,6 @@
 import type {
   CompositionLot,
+  PieceIdentite,
   StatutLoyer,
   StatutSignalement,
   StatutVersement,
@@ -59,6 +60,23 @@ export const compositionLabel: Record<CompositionLot, string> = {
   appartement: "Appartement",
   villa: "Villa",
   boutique: "Boutique",
+};
+
+/** Équipements d'un bien. Les clés correspondent aux cases à cocher du formulaire. */
+export type CleEquipement = "garage" | "balcon" | "ascenseur" | "climatisation";
+export const equipementLabel: Record<CleEquipement, string> = {
+  garage: "Garage",
+  balcon: "Balcon",
+  ascenseur: "Ascenseur",
+  climatisation: "Climatisation",
+};
+
+export const pieceIdentiteLabel: Record<PieceIdentite, string> = {
+  cni: "Carte nationale d'identité",
+  passeport: "Passeport",
+  permis: "Permis de conduire",
+  "carte-sejour": "Carte de séjour",
+  autre: "Autre",
 };
 
 export const methodeLabel: Record<string, string> = {
