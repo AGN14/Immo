@@ -9,7 +9,7 @@ import {
 } from "@/lib/data";
 import { evaluerQuota, planSuffisant, type PlanId } from "@/lib/plans";
 import { redirect } from "next/navigation";
-import { getSession } from "@/lib/auth/mock-session";
+import { getSession } from "@/lib/auth/session";
 import { LocataireDashboard } from "@/app/(app)/dashboard/LocataireDashboard";
 import { BienCard } from "@/components/dashboard/BienCard";
 import { QuotaBanner } from "@/components/dashboard/QuotaBanner";

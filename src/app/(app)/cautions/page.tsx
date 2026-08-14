@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { requireProprietaire } from "@/lib/auth/mock-session";
+import { requireProprietaire } from "@/lib/auth/session";
 import { planSuffisant } from "@/lib/plans";
 import { getBaux, getBiens, getCautions, getLots, getLocataires } from "@/lib/data";
 import { StatusPill } from "@/components/ui/StatusPill";

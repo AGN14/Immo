@@ -1,8 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getSession } from "@/lib/auth/mock-session";
-import { requireProprietaire } from "@/lib/auth/mock-session";
+import { getSession } from "@/lib/auth/session";
+import { requireProprietaire } from "@/lib/auth/session";
 import {
   getLogementDuLocataire,
   getPaiementsDuLocataire,

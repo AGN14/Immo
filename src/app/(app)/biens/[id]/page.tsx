@@ -20,7 +20,7 @@ import {
   typeBienLabel,
   type CleEquipement,
 } from "@/lib/status-labels";
-import { requireProprietaire } from "@/lib/auth/mock-session";
+import { requireProprietaire } from "@/lib/auth/session";
 import { StatusPill } from "@/components/ui/StatusPill";
 import { ModalAjouterLot } from "@/components/biens/ModalAjouterLot";
 import { ModalModifierBien } from "@/components/biens/ModalModifierBien";

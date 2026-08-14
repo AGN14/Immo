@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireProprietaire } from "@/lib/auth/mock-session";
+import { requireProprietaire } from "@/lib/auth/session";
 import { getPlan, PLANS } from "@/lib/plans";
 import {
   getBauxActifs,

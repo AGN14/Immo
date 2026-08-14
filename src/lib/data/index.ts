@@ -1,17 +1,25 @@
-﻿/**
- * Couche d'accÃ¨s aux donnÃ©es â€” branchÃ©e sur la base locale Supabase.
+/**
+ * Couche d'accès aux données — branchée sur Supabase.
  *
- * MÃªme contrat que l'ancien annuaire de dÃ©monstration : aucune lecture sans
- * identifiant â€” `proprietaireId` cÃ´tÃ© bailleur, `locataireId` cÃ´tÃ© locataire â€”
- * et tout passe par la clÃ© de service, qui contourne RLS. Le cloisonnement
- * effectif est portÃ© par les filtres de ces fonctions, pas par la base.
+ * Aucune lecture sans identifiant — `proprietaireId` côté bailleur,
+ * `locataireId` côté locataire.
  *
- * Chaque fonction est asynchrone : la base est lointaine, mÃªme en local.
+ * Depuis la bascule vers Supabase Auth, ces requêtes portent le jeton de
+ * l'utilisateur : **c'est la base qui décide** de ce qu'il peut lire. Les
+ * filtres par identifiant restent en place, mais comme seconde barrière et
+ * comme confort de lecture — plus comme unique défense. Une erreur de filtre
+ * ne peut donc plus exposer le parc d'autrui, seulement en renvoyer trop peu.
+ *
+ * Les écritures, elles, passent encore par la clé de service dans
+ * `src/lib/actions` : leur bascule demande d'auditer chaque politique
+ * d'écriture, et reste à faire.
+ *
+ * Chaque fonction est asynchrone : la base est lointaine, même en local.
  */
 
 import "server-only";
 import { cache } from "react";
-import { supabaseServer } from "@/lib/supabase/server";
+import { supabaseUtilisateur } from "@/lib/supabase/utilisateur";
 import type { Database } from "@/lib/supabase/types.generated";
 import { periodeDe, moisSuivant, statutDuMois } from "@/lib/echeances";
 import type {
@@ -185,15 +193,15 @@ function mappeSignalement(l: LigneSignalement): Signalement {
 
 /* ------------------------------------------------------- lectures brutes */
 
-/** La pÃ©riode courante suit le calendrier : pas de constante Ã  mettre Ã  jour. */
+/** La période courante suit le calendrier : pas de constante à mettre à jour. */
 export function periodeCourante() {
   return periodeDe(new Date());
 }
 
-/* ---------------------------------------------------------- propriÃ©taires */
+/* ---------------------------------------------------------- propriétaires */
 
 export async function getProprietaireById(id: string): Promise<Proprietaire | undefined> {
-  const { data } = await supabaseServer()
+  const { data } = await supabaseUtilisateur()
     .from("proprietaire")
     .select("*")
     .eq("id", id)
@@ -202,49 +210,31 @@ export async function getProprietaireById(id: string): Promise<Proprietaire | un
   return data ? mappeProprietaire(data) : undefined;
 }
 
-export async function getProprietaireByEmail(email: string): Promise<Proprietaire | undefined> {
-  const { data } = await supabaseServer()
-    .from("proprietaire")
-    .select("*")
-    .eq("email", email.trim().toLowerCase())
-    .is("supprime_le", null)
-    .maybeSingle();
-  return data ? mappeProprietaire(data) : undefined;
-}
+// Les résolutions par e-mail ont disparu avec Supabase Auth : le compte est
+// désormais identifié par son jeton, et rattaché par `auth_user_id`. Chercher
+// un utilisateur par son adresse n'a plus lieu d'être — et c'était la seule
+// lecture non cloisonnée de ce fichier.
+
+/* --------------------------------------------- périmètre du propriétaire */
 
 /**
- * Seules lectures volontairement non cloisonnÃ©es : Ã  la connexion, on ne sait
- * pas encore de quel parc relÃ¨ve l'e-mail saisi. RÃ©servÃ©es Ã  l'authentification.
- */
-export async function getLocataireByEmail(email: string): Promise<Locataire | undefined> {
-  const { data } = await supabaseServer()
-    .from("locataire")
-    .select("*")
-    .eq("email", email.trim().toLowerCase())
-    .maybeSingle();
-  return data ? mappeLocataire(data) : undefined;
-}
-
-/* --------------------------------------------- pÃ©rimÃ¨tre du propriÃ©taire */
-
-/**
- * Le parc complet d'un propriÃ©taire : biens, lots et baux.
+ * Le parc complet d'un propriétaire : biens, lots et baux.
  *
  * Deux optimisations tiennent ensemble ici, et elles comptent : la base est au
- * bout du rÃ©seau, donc c'est le **nombre d'allers-retours** qui fait le temps
- * de rÃ©ponse, pas le volume de donnÃ©es.
+ * bout du réseau, donc c'est le **nombre d'allers-retours** qui fait le temps
+ * de réponse, pas le volume de données.
  *
- * 1. Une seule requÃªte au lieu de trois. Les lots et les baux sont imbriquÃ©s
- *    via les clÃ©s Ã©trangÃ¨res plutÃ´t que chaÃ®nÃ©s â€” la version sÃ©quentielle
- *    devait attendre les identifiants de l'Ã©tage prÃ©cÃ©dent Ã  chaque niveau.
+ * 1. Une seule requête au lieu de trois. Les lots et les baux sont imbriqués
+ *    via les clés étrangères plutôt que chaînés — la version séquentielle
+ *    devait attendre les identifiants de l'étage précédent à chaque niveau.
  *
- * 2. `cache()` mÃ©morise le rÃ©sultat **pour la durÃ©e d'un rendu**. Une page qui
+ * 2. `cache()` mémorise le résultat **pour la durée d'un rendu**. Une page qui
  *    demande les biens, les lots, les baux et les versements appelait cette
- *    fonction cinq fois ; elle ne l'exÃ©cute plus qu'une. Le cache ne survit pas
- *    Ã  la requÃªte HTTP : aucune donnÃ©e pÃ©rimÃ©e d'un rendu Ã  l'autre.
+ *    fonction cinq fois ; elle ne l'exécute plus qu'une. Le cache ne survit pas
+ *    à la requête HTTP : aucune donnée périmée d'un rendu à l'autre.
  */
 const perimetre = cache(async (proprietaireId: string) => {
-  const { data } = await supabaseServer()
+  const { data } = await supabaseUtilisateur()
     .from("bien")
     .select("*, lot(*, bail(*))")
     .eq("proprietaire_id", proprietaireId);
@@ -295,7 +285,7 @@ export async function getLotsByBienId(proprietaireId: string, bienId: string): P
 }
 
 export async function getLocataires(proprietaireId: string): Promise<Locataire[]> {
-  const { data } = await supabaseServer()
+  const { data } = await supabaseUtilisateur()
     .from("locataire")
     .select("*")
     .eq("proprietaire_id", proprietaireId);
@@ -306,7 +296,7 @@ export async function getLocataireById(
   proprietaireId: string,
   id: string,
 ): Promise<Locataire | undefined> {
-  const { data } = await supabaseServer()
+  const { data } = await supabaseUtilisateur()
     .from("locataire")
     .select("*")
     .eq("id", id)
@@ -319,7 +309,7 @@ export async function getBaux(proprietaireId: string): Promise<Bail[]> {
   return (await perimetre(proprietaireId)).baux;
 }
 
-/** L'unitÃ© facturÃ©e : ni les biens, ni les lots, ni les locataires. */
+/** L'unité facturée : ni les biens, ni les lots, ni les locataires. */
 export async function getBauxActifs(proprietaireId: string): Promise<Bail[]> {
   return (await getBaux(proprietaireId)).filter((b) => b.statut === "actif");
 }
@@ -350,24 +340,24 @@ export async function getBauxByLotId(proprietaireId: string, lotId: string): Pro
 /* ------------------------------------------ versements et paiements (bailleur) */
 
 /**
- * MÃ©morisÃ©s eux aussi : `perimetre` Ã©tant en cache, il rend le **mÃªme** objet
- * `bailIds` d'un appel Ã  l'autre, et `cache()` compare ses arguments par
- * rÃ©fÃ©rence â€” les deux se combinent donc naturellement.
+ * Mémorisés eux aussi : `perimetre` étant en cache, il rend le **même** objet
+ * `bailIds` d'un appel à l'autre, et `cache()` compare ses arguments par
+ * référence — les deux se combinent donc naturellement.
  *
- * Les tableaux rendus sont partagÃ©s entre appelants : ne jamais les trier ni
+ * Les tableaux rendus sont partagés entre appelants : ne jamais les trier ni
  * les modifier sur place. Chaque fonction publique en tire une copie.
  */
 const versementsDeBaux = cache(async (bailIds: Set<string>): Promise<Versement[]> => {
   const ids = [...bailIds];
   if (!ids.length) return [];
-  const { data } = await supabaseServer().from("versement").select("*").in("bail_id", ids);
+  const { data } = await supabaseUtilisateur().from("versement").select("*").in("bail_id", ids);
   return (data ?? []).map(mappeVersement);
 });
 
 const paiementsDeBaux = cache(async (bailIds: Set<string>): Promise<Paiement[]> => {
   const ids = [...bailIds];
   if (!ids.length) return [];
-  const { data } = await supabaseServer().from("paiement").select("*").in("bail_id", ids);
+  const { data } = await supabaseUtilisateur().from("paiement").select("*").in("bail_id", ids);
   return (data ?? []).map(mappePaiement);
 });
 
@@ -378,7 +368,7 @@ export async function getVersements(proprietaireId: string): Promise<Versement[]
   );
 }
 
-/** Les dÃ©clarations que le propriÃ©taire doit encore pointer. */
+/** Les déclarations que le propriétaire doit encore pointer. */
 export async function getVersementsAConfirmer(proprietaireId: string): Promise<Versement[]> {
   return (await getVersements(proprietaireId)).filter((v) => v.statut === "initie");
 }
@@ -411,9 +401,9 @@ export async function getVersementById(
   return (await getVersements(proprietaireId)).find((v) => v.id === id);
 }
 
-/** Le versement d'un paiement â€” porte la mÃ©thode, la rÃ©fÃ©rence et le statut. */
+/** Le versement d'un paiement — porte la méthode, la référence et le statut. */
 export async function versementDuPaiement(versementId: string): Promise<Versement | undefined> {
-  const { data } = await supabaseServer()
+  const { data } = await supabaseUtilisateur()
     .from("versement")
     .select("*")
     .eq("id", versementId)
@@ -422,17 +412,17 @@ export async function versementDuPaiement(versementId: string): Promise<Versemen
 }
 
 /**
- * Les quittances de plusieurs paiements, en une seule requÃªte.
+ * Les quittances de plusieurs paiements, en une seule requête.
  *
- * La variante unitaire ci-dessous, appelÃ©e dans une boucle sur les lignes d'un
- * tableau, produisait un aller-retour rÃ©seau par mois affichÃ©. PrÃ©fÃ©rez celle-ci
- * dÃ¨s que vous en attendez plus d'une.
+ * La variante unitaire ci-dessous, appelée dans une boucle sur les lignes d'un
+ * tableau, produisait un aller-retour réseau par mois affiché. Préférez celle-ci
+ * dès que vous en attendez plus d'une.
  */
 export async function getQuittancesDesPaiements(
   paiementIds: string[],
 ): Promise<Map<string, Quittance>> {
   if (!paiementIds.length) return new Map();
-  const { data } = await supabaseServer()
+  const { data } = await supabaseUtilisateur()
     .from("quittance")
     .select("*")
     .in("paiement_id", paiementIds)
@@ -441,7 +431,7 @@ export async function getQuittancesDesPaiements(
 }
 
 export async function getQuittanceDuPaiement(paiementId: string): Promise<Quittance | undefined> {
-  const { data } = await supabaseServer()
+  const { data } = await supabaseUtilisateur()
     .from("quittance")
     .select("*")
     .eq("paiement_id", paiementId)
@@ -475,7 +465,7 @@ export async function getSignalements(proprietaireId: string): Promise<Signaleme
   const { lotIds } = await perimetre(proprietaireId);
   const ids = [...lotIds];
   if (!ids.length) return [];
-  const { data } = await supabaseServer().from("signalement").select("*").in("lot_id", ids);
+  const { data } = await supabaseUtilisateur().from("signalement").select("*").in("lot_id", ids);
   return (data ?? []).map(mappeSignalement).sort((a, b) => b.creeLe.localeCompare(a.creeLe));
 }
 
@@ -485,13 +475,13 @@ export async function getSignalementsOuverts(proprietaireId: string): Promise<Si
   );
 }
 
-/** Les photos d'une sÃ©rie de signalements, indexÃ©es par identifiant. */
+/** Les photos d'une série de signalements, indexées par identifiant. */
 export async function getPhotosDeSignalements(
   signalementIds: string[],
 ): Promise<Record<string, string[]>> {
   const ids = [...new Set(signalementIds)];
   if (!ids.length) return {};
-  const { data } = await supabaseServer()
+  const { data } = await supabaseUtilisateur()
     .from("signalement_photo")
     .select("signalement_id, chemin")
     .in("signalement_id", ids)
@@ -508,26 +498,17 @@ export async function getSignalementsByLotId(
   return (await getSignalements(proprietaireId)).filter((s) => s.lotId === lotId);
 }
 
-/* ============================================ pÃ©rimÃ¨tre du locataire ==== */
+/* ============================================ périmètre du locataire ==== */
 
 /**
- * Pendant exact du pÃ©rimÃ¨tre propriÃ©taire. Un locataire ne voit que ses propres
- * baux, et rien d'autre â€” mÃªme en tapant une URL Ã  la main.
+ * Pendant exact du périmètre propriétaire. Un locataire ne voit que ses propres
+ * baux, et rien d'autre — même en tapant une URL à la main.
  */
 const perimetreLocataire = cache(async (locataireId: string) => {
-  const { data } = await supabaseServer().from("bail").select("*").eq("locataire_id", locataireId);
+  const { data } = await supabaseUtilisateur().from("bail").select("*").eq("locataire_id", locataireId);
   const baux = (data ?? []).map(mappeBail);
   return { baux, bailIds: new Set(baux.map((b) => b.id)) };
 });
-
-export async function getLocataireParId(locataireId: string): Promise<Locataire | undefined> {
-  const { data } = await supabaseServer()
-    .from("locataire")
-    .select("*")
-    .eq("id", locataireId)
-    .maybeSingle();
-  return data ? mappeLocataire(data) : undefined;
-}
 
 /** Le bail en cours du locataire. Absent s'il est sorti. */
 export async function getBailDuLocataire(locataireId: string): Promise<Bail | undefined> {
@@ -541,37 +522,53 @@ export async function getBauxDuLocataire(locataireId: string): Promise<Bail[]> {
 }
 
 /**
- * Le logement occupÃ©, avec son bien â€” sans jamais exposer le reste du parc.
+ * Le logement occupé, avec son bien — sans jamais exposer le reste du parc.
  *
- * La remontÃ©e lot â†’ bien â†’ propriÃ©taire se fait en **une** requÃªte imbriquÃ©e.
- * En trois requÃªtes chaÃ®nÃ©es, chaque Ã©tage attendait l'identifiant du
- * prÃ©cÃ©dent : trois allers-retours rÃ©seau pour trois lignes.
+ * Deux requêtes, et non une : le lot avec son bien imbriqué, puis les réglages
+ * du bailleur. On ne peut pas les joindre, parce que la table `proprietaire`
+ * est fermée au locataire — elle porte l'e-mail et l'empreinte de mot de passe
+ * du bailleur. Seule la vue `proprietaire_reglages` lui est ouverte, et elle ne
+ * publie que le nom et les trois réglages nécessaires au calcul d'échéance.
  *
- * MÃ©morisÃ© parce que le tableau de bord et la page de paiement l'appellent
- * tous deux, et que le propriÃ©taire qu'il rend porte le barÃ¨me des pÃ©nalitÃ©s.
+ * La vue filtre déjà sur le locataire connecté : pas de clause de plus à poser
+ * ici, une seule ligne peut en sortir.
+ *
+ * Mémorisé parce que le tableau de bord et la page de paiement l'appellent
+ * tous deux.
  */
 export const getLogementDuLocataire = cache(async (locataireId: string) => {
   const bail = await getBailDuLocataire(locataireId);
   if (!bail) return undefined;
 
-  const { data: lot } = await supabaseServer()
-    .from("lot")
-    .select("*, bien(*, proprietaire(*))")
-    .eq("id", bail.lotId)
-    .maybeSingle();
+  const sb = supabaseUtilisateur();
+  const [{ data: lot }, { data: reglages }] = await Promise.all([
+    sb.from("lot").select("*, bien(*)").eq("id", bail.lotId).maybeSingle(),
+    sb
+      .from("proprietaire_reglages")
+      .select("id, nom, jour_echeance_defaut, jour_reversement, penalite_retard_fcfa, delai_tolerance_jours")
+      .maybeSingle(),
+  ]);
 
-  if (!lot) return { bail, lot: undefined, bien: undefined, proprietaire: undefined };
+  const proprietaire = reglages
+    ? {
+        id: reglages.id ?? "",
+        nom: reglages.nom ?? "",
+        jourEcheanceDefaut: reglages.jour_echeance_defaut ?? 5,
+        jourReversement: reglages.jour_reversement ?? 1,
+        penaliteRetardFcfa: reglages.penalite_retard_fcfa ?? 0,
+        delaiToleranceJours: reglages.delai_tolerance_jours ?? 0,
+      }
+    : undefined;
+
+  if (!lot) return { bail, lot: undefined, bien: undefined, proprietaire };
 
   const { bien: sonBien, ...ligneLot } = lot;
-  const { proprietaire: sonProprietaire, ...ligneBien } = sonBien ?? { proprietaire: null };
 
   return {
     bail,
     lot: mappeLot(ligneLot as LigneLot),
-    bien: sonBien ? mappeBien(ligneBien as LigneBien) : undefined,
-    proprietaire: sonProprietaire
-      ? mappeProprietaire(sonProprietaire as LigneProprietaire)
-      : undefined,
+    bien: sonBien ? mappeBien(sonBien as LigneBien) : undefined,
+    proprietaire,
   };
 });
 
@@ -591,7 +588,7 @@ export async function getQuittancesDuLocataire(locataireId: string): Promise<Qui
   const paiements = await getPaiementsDuLocataire(locataireId);
   const paiementIds = paiements.map((p) => p.id);
   if (!paiementIds.length) return [];
-  const { data } = await supabaseServer()
+  const { data } = await supabaseUtilisateur()
     .from("quittance")
     .select("*")
     .in("paiement_id", paiementIds)
@@ -603,16 +600,16 @@ export async function getSignalementsDuLocataire(locataireId: string): Promise<S
   const { bailIds } = await perimetreLocataire(locataireId);
   const ids = [...bailIds];
   if (!ids.length) return [];
-  const { data } = await supabaseServer().from("signalement").select("*").in("bail_id", ids);
+  const { data } = await supabaseUtilisateur().from("signalement").select("*").in("bail_id", ids);
   return (data ?? []).map(mappeSignalement).sort((a, b) => b.creeLe.localeCompare(a.creeLe));
 }
 
 /* --------------------------------------------------------------- dashboard */
 
 /**
- * L'historique de trÃ©sorerie des N derniers mois, pour le graphique de la vue
- * d'ensemble : ce qui a Ã©tÃ© encaissÃ© (versements confirmÃ©s) face Ã  ce qui
- * Ã©tait attendu (baux actifs sur la pÃ©riode).
+ * L'historique de trésorerie des N derniers mois, pour le graphique de la vue
+ * d'ensemble : ce qui a été encaissé (versements confirmés) face à ce qui
+ * était attendu (baux actifs sur la période).
  */
 export async function getSerieLoyers(
   proprietaireId: string,
@@ -643,7 +640,7 @@ export async function getSerieLoyers(
       .filter((p) => p.periode === mois && versementConfirme.has(p.versementId))
       .reduce((sum, p) => sum + p.montantFcfa, 0);
 
-    // Un bail ne pÃ¨se que s'il Ã©tait actif pendant ce mois-lÃ .
+    // Un bail ne pèse que s'il était actif pendant ce mois-là.
     const attenduFcfa = baux
       .filter(
         (b) => new Date(b.dateDebut) <= finMois && (!b.dateFin || new Date(b.dateFin) >= debutMois),
@@ -661,7 +658,7 @@ export async function getSerieLoyers(
   return serie;
 }
 
-/** SÃ©rie sur les 12 mois d'une annÃ©e civile donnÃ©e â€” historique antÃ©rieur. */
+/** Série sur les 12 mois d'une année civile donnée — historique antérieur. */
 export async function getSerieLoyersAnnee(
   proprietaireId: string,
   annee: number,
@@ -705,7 +702,7 @@ export async function getSerieLoyersAnnee(
   return serie;
 }
 
-/** Les lots libres de tout bail actif â€” candidats pour une nouvelle location. */
+/** Les lots libres de tout bail actif — candidats pour une nouvelle location. */
 export async function getLotsDisponibles(proprietaireId: string) {
   const [{ biens, lots }, baux] = await Promise.all([
     perimetre(proprietaireId),
@@ -750,10 +747,10 @@ export async function getDashboardKpis(proprietaireId: string) {
   };
 }
 
-/** DÃ©pÃ´ts de garantie du parc (plan Business). */
+/** Dépôts de garantie du parc (plan Business). */
 export async function getCautions(proprietaireId: string): Promise<Caution[]> {
   const { bailIds } = await perimetre(proprietaireId);
-  const { data } = await supabaseServer()
+  const { data } = await supabaseUtilisateur()
     .from("caution")
     .select("*")
     .in("bail_id", [...bailIds])
@@ -768,9 +765,9 @@ export async function getCautions(proprietaireId: string): Promise<Caution[]> {
   }));
 }
 
-/** Ã‰quipe de gestion du parc (plan Business). */
+/** Équipe de gestion du parc (plan Business). */
 export async function getGestionnaires(proprietaireId: string): Promise<Gestionnaire[]> {
-  const { data } = await supabaseServer()
+  const { data } = await supabaseUtilisateur()
     .from("gestionnaire")
     .select("*")
     .eq("proprietaire_id", proprietaireId)

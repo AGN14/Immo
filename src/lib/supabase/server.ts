@@ -42,9 +42,3 @@ export function supabaseServer(): SupabaseClient<Database> {
 
   return client;
 }
-
-/** Vrai si la base est configurée — permet de retomber sur les données de
- *  démonstration tant que le projet Supabase n'existe pas. */
-export function supabaseConfigure(): boolean {
-  return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
-}

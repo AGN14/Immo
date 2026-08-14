@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
-import { supabaseServer } from "@/lib/supabase/server";
+import { supabaseUtilisateur } from "@/lib/supabase/utilisateur";
 import type { PlanId } from "@/lib/plans";
 
 function Check() {
@@ -58,7 +58,7 @@ const cta: Record<PlanId, Cta> = {
  * après l'inscription. Le quota est défendu en base par le trigger.
  */
 export async function Pricing() {
-  const { data } = await supabaseServer()
+  const { data } = await supabaseUtilisateur()
     .from("plan")
     .select("id, slug, nom, prix_fcfa, description, fonctionnalites, max_baux")
     .order("prix_fcfa", { ascending: true });

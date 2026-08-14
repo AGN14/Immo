@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireProprietaire } from "@/lib/auth/mock-session";
+import { requireProprietaire } from "@/lib/auth/session";
 import { supabaseServer } from "@/lib/supabase/server";
 import { verifierMotDePasse } from "@/lib/mot-de-passe";
 import type { CompositionLot, TypeBien } from "@/lib/types";

@@ -1,6 +1,6 @@
-import { requireProprietaire } from "@/lib/auth/mock-session";
+import { requireProprietaire } from "@/lib/auth/session";
 import { choisirPlan } from "@/lib/actions/plans";
-import { supabaseServer } from "@/lib/supabase/server";
+import { supabaseUtilisateur } from "@/lib/supabase/utilisateur";
 import type { PlanId } from "@/lib/plans";
 
 export const metadata = { title: "Choisir votre plan" };
@@ -36,7 +36,7 @@ function Check() {
 export default async function PlansPage() {
   const { plan: planActuel } = await requireProprietaire();
 
-  const { data } = await supabaseServer()
+  const { data } = await supabaseUtilisateur()
     .from("plan")
     .select("id, slug, nom, prix_fcfa, description, fonctionnalites, max_baux")
     .order("prix_fcfa", { ascending: true });

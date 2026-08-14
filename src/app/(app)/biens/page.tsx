@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getBauxActifs, getBiens, getLots } from "@/lib/data";
 import { evaluerQuota } from "@/lib/plans";
-import { requireProprietaire } from "@/lib/auth/mock-session";
+import { requireProprietaire } from "@/lib/auth/session";
 import { BienCard } from "@/components/dashboard/BienCard";
 import { QuotaBanner } from "@/components/dashboard/QuotaBanner";
 import { ModalAjouterBien } from "@/components/biens/ModalAjouterBien";

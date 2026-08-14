@@ -30,10 +30,39 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# =============================================================================
+# Secrets — rien de ce qui suit ne doit atteindre le dépôt.
+#
+# Rappel utile : .gitignore ne protège que ce qui n'est PAS encore suivi. Un
+# fichier déjà commité continue de l'être malgré une règle ajoutée après coup —
+# il faut alors `git rm --cached`, et considérer le secret comme compromis.
+# =============================================================================
+
+# Variables d'environnement, sous toutes leurs formes.
 .env*
 # Le gabarit ne contient aucun secret et doit être versionné.
 !.env.example
+
+# Clés et certificats, quel que soit l'emplacement.
+*.pem
+*.key
+*.p12
+*.pfx
+*.cer
+# Clés de signature JWT — supabase/config.toml y fait référence.
+signing_keys.json
+
+# Comptes de service (Google, Firebase…), souvent nommés ainsi.
+service-account*.json
+*-credentials.json
+
+# Supabase : état local du lien au projet, propre à chaque machine.
+supabase/.temp/
+supabase/.branches/
+
+# Instantané SQL généré pour amorcer un projet : contient l'intégralité du
+# schéma et devient faux à chaque migration. Se régénère à la demande.
+supabase/_installation_complete.sql
 
 # vercel
 .vercel

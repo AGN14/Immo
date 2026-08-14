@@ -1,3 +1,4 @@
+import { DefilementAncres } from "@/components/marketing/DefilementAncres";
 import { Footer } from "@/components/marketing/Footer";
 import { Header } from "@/components/marketing/Header";
 
@@ -8,6 +9,7 @@ import { Header } from "@/components/marketing/Header";
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
+      <DefilementAncres />
       <Header />
       <main id="top">{children}</main>
       <Footer />

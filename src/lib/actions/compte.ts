@@ -1,14 +1,14 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireProprietaire } from "@/lib/auth/mock-session";
-import { createSession, destroySession } from "@/lib/auth/mock-session";
+import { destroySession, requireProprietaire } from "@/lib/auth/session";
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
 import { hacherMotDePasse, verifierMotDePasse as verifierHash } from "@/lib/mot-de-passe";
 import type { EtatAction } from "@/lib/actions/biens";
 
-/** Renomme le compte. La session porte le nom : elle est réécrite aussi. */
+/** Renomme le compte. Le nom étant relu depuis la base à chaque requête, la
+ *  revalidation suffit à le propager. */
 export async function majNom(prev: EtatAction, formData: FormData): Promise<EtatAction> {
   const session = await requireProprietaire();
 
@@ -22,7 +22,8 @@ export async function majNom(prev: EtatAction, formData: FormData): Promise<Etat
 
   if (error) return { ok: false, erreur: `Enregistrement impossible : ${error.message}` };
 
-  await createSession({ ...session, nom });
+  // Plus de session à réécrire : le nom est relu depuis la base à chaque
+  // requête, donc le changement s'applique dès la revalidation.
   revalidatePath("/profil");
   return { ok: true };
 }

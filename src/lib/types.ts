@@ -11,33 +11,38 @@
 import type { PlanId } from "@/lib/plans";
 
 /**
+ * Ce que le calcul d'échéance a besoin de savoir du propriétaire — et rien de
+ * plus.
+ *
+ * Ces trois réglages sont les seuls que le locataire est autorisé à lire, via
+ * la vue `proprietaire_reglages` : sa fiche complète lui est fermée par RLS,
+ * elle porterait son e-mail et son empreinte de mot de passe. D'où ce type
+ * étroit, que les fonctions d'échéance acceptent à la place de `Proprietaire`.
+ */
+export interface ReglagesEcheance {
+  /** Jour du mois où le loyer est dû. Surchargeable par bail. */
+  jourEcheanceDefaut: number;
+  /** Amende forfaitaire due pour chaque mois réglé après son échéance. */
+  penaliteRetardFcfa: number;
+  /** Jours de tolérance après l'échéance. Au-delà, le mois ouvre un préavis. */
+  delaiToleranceJours: number;
+}
+
+/**
  * Le propriétaire est la racine du cloisonnement : toute requête est filtrée
  * par son identifiant. Rien ne doit pouvoir être lu sans passer par lui.
  */
-export interface Proprietaire {
+export interface Proprietaire extends ReglagesEcheance {
   id: string;
   nom: string;
   email: string;
   plan: PlanId;
-  /** Jour du mois où le loyer est dû. Surchargeable par bail. */
-  jourEcheanceDefaut: number;
   /** Jour où Immo reverse les loyers collectés. Défini par le propriétaire. */
   jourReversement: number;
   /** Date d'ouverture du compte. */
   creeLe: string;
   /** Un mot de passe est exigé pour confirmer les modifications sensibles. */
   aMotDePasse: boolean;
-  /**
-   * Amende forfaitaire due pour **chaque** mois réglé après son échéance.
-   * Elle ne dépend ni du montant du loyer ni de la durée du retard.
-   */
-  penaliteRetardFcfa: number;
-  /**
-   * Jours de tolérance après l'échéance. Compté en jours et non en date fixe :
-   * un bail dont l'échéance est négociée au 20 doit garder le même délai de
-   * grâce qu'un bail au 5. Passé ce délai, le mois impayé ouvre un préavis.
-   */
-  delaiToleranceJours: number;
 }
 
 export type TypeBien = "immeuble" | "residence" | "concession" | "villa" | "maison";

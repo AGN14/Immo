@@ -9,7 +9,7 @@ import {
   statutLoyerDuBail,
 } from "@/lib/data";
 import { statutLoyerLabel } from "@/lib/status-labels";
-import { requireProprietaire } from "@/lib/auth/mock-session";
+import { requireProprietaire } from "@/lib/auth/session";
 import { StatusPill } from "@/components/ui/StatusPill";
 import { KPICard } from "@/components/ui/KPICard";
 import { ModalAjouterLocataire } from "@/components/locataires/ModalAjouterLocataire";

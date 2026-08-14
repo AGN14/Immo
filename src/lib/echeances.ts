@@ -1,4 +1,4 @@
-import type { Bail, Paiement, Proprietaire, StatutLoyer, Versement } from "@/lib/types";
+import type { Bail, Paiement, ReglagesEcheance, StatutLoyer, Versement } from "@/lib/types";
 
 /**
  * Calcul des échéances de loyer.
@@ -27,7 +27,7 @@ export function moisSuivant(periode: Periode, pas = 1): Periode {
 
 /** Le jour d'échéance applicable : celui du bail s'il a été négocié, sinon la
  *  règle du propriétaire. */
-export function jourEcheance(bail: Bail, proprietaire: Proprietaire): number {
+export function jourEcheance(bail: Bail, proprietaire: ReglagesEcheance): number {
   return bail.jourEcheance ?? proprietaire.jourEcheanceDefaut;
 }
 
@@ -69,7 +69,7 @@ export function dateLimiteTolerance(
 export function penaliteDuMois(
   periode: Periode,
   bail: Bail,
-  proprietaire: Proprietaire,
+  proprietaire: ReglagesEcheance,
   aujourdhui = new Date(),
 ): number {
   const enRetard = aujourdhui > dateEcheance(periode, jourEcheance(bail, proprietaire));
@@ -101,7 +101,7 @@ function versementDe(paiement: Paiement, versements: Versement[]) {
 export function statutDuMois(
   periode: Periode,
   bail: Bail,
-  proprietaire: Proprietaire,
+  proprietaire: ReglagesEcheance,
   paiements: Paiement[],
   versements: Versement[],
   aujourdhui = new Date(),
@@ -188,7 +188,7 @@ export function moisAPayer(
  */
 export function soldeDu(
   bail: Bail,
-  proprietaire: Proprietaire,
+  proprietaire: ReglagesEcheance,
   paiements: Paiement[],
   versements: Versement[],
   aujourdhui = new Date(),

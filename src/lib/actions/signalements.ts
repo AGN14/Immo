@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireLocataire, requireProprietaire } from "@/lib/auth/mock-session";
+import { requireLocataire, requireProprietaire } from "@/lib/auth/session";
 import { supabaseServer } from "@/lib/supabase/server";
 import { getBailDuLocataire } from "@/lib/data";
 import { uploaderImage } from "@/lib/actions/stockage";

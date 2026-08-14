@@ -1,4 +1,4 @@
-import { requireProprietaire } from "@/lib/auth/mock-session";
+import { requireProprietaire } from "@/lib/auth/session";
 import { redirect } from "next/navigation";
 import { planSuffisant } from "@/lib/plans";
 import { supabaseServer } from "@/lib/supabase/server";

@@ -17,7 +17,7 @@ import {
   statutLoyerLabel,
   statutVersementLabel,
 } from "@/lib/status-labels";
-import { requireProprietaire } from "@/lib/auth/mock-session";
+import { requireProprietaire } from "@/lib/auth/session";
 import { StatusPill } from "@/components/ui/StatusPill";
 import { FormulaireTerminerBail } from "@/components/locataires/FormulaireTerminerBail";
 import { ModalAttribuerLogement } from "@/components/locataires/ModalAttribuerLogement";

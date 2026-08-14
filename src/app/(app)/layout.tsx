@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getSession } from "@/lib/auth/mock-session";
+import { getSession } from "@/lib/auth/session";
 import { PLANS } from "@/lib/plans";
 import { AppShell } from "@/components/dashboard/AppShell";
 

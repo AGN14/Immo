@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireProprietaire } from "@/lib/auth/mock-session";
+import { requireProprietaire } from "@/lib/auth/session";
 import { supabaseServer } from "@/lib/supabase/server";
 import type { EtatAction } from "@/lib/actions/biens";
 import type { PieceIdentite } from "@/lib/types";

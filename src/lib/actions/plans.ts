@@ -2,14 +2,14 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { createSession, requireProprietaire } from "@/lib/auth/mock-session";
+import { requireProprietaire } from "@/lib/auth/session";
 import { supabaseServer } from "@/lib/supabase/server";
 import { PLANS, uuidDuPlan, type PlanId } from "@/lib/plans";
 
 /** Après l'inscription (ou depuis la page Tarifs), le propriétaire choisit
  *  son palier. C'est la seule écriture possible sur le plan d'un compte.
- *  La session est réécrite pour que le nouveau palier soit appliqué dès la
- *  redirection — pas seulement à la prochaine connexion. */
+ *  Le palier étant relu depuis la base à chaque requête, il s'applique dès la
+ *  redirection — sans reconnexion. */
 export async function choisirPlan(formData: FormData) {
   const session = await requireProprietaire();
 
@@ -24,8 +24,8 @@ export async function choisirPlan(formData: FormData) {
 
   if (error) redirect("/plans?erreur=1");
 
-  await createSession({ ...session, plan: plan as PlanId });
-
+  // Le palier est relu depuis la base à chaque requête : plus besoin de
+  // réécrire la session pour qu'il s'applique avant la prochaine connexion.
   revalidatePath("/dashboard");
   revalidatePath("/plans");
   revalidatePath("/biens");

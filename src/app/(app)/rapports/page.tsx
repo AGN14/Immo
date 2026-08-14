@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { requireProprietaire } from "@/lib/auth/mock-session";
+import { requireProprietaire } from "@/lib/auth/session";
 import { planSuffisant } from "@/lib/plans";
 import { getBaux, getPaiements } from "@/lib/data";
 

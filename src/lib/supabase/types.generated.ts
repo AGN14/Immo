@@ -704,7 +704,17 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      proprietaire_reglages: {
+        Row: {
+          delai_tolerance_jours: number | null
+          id: string | null
+          jour_echeance_defaut: number | null
+          jour_reversement: number | null
+          nom: string | null
+          penalite_retard_fcfa: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       baux_actifs_du_proprietaire: {

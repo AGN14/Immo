@@ -1,4 +1,4 @@
-import { requireProprietaire } from "@/lib/auth/mock-session";
+import { requireProprietaire } from "@/lib/auth/session";
 import { supabaseServer } from "@/lib/supabase/server";
 import { methodeLabel, statutVersementLabel } from "@/lib/status-labels";
 
