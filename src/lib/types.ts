@@ -91,6 +91,8 @@ export interface Bien {
   superficieM2: number | null;
   /** Nombre d'étages — pertinent pour un immeuble ou une résidence. */
   etages: number | null;
+  /** Code de jointure transmis aux locataires pour rejoindre le parc. */
+  code: string | null;
 }
 
 /** Une unité louable à l'intérieur d'un bien. Une villa n'a qu'un seul lot. */

@@ -25,6 +25,7 @@ import { StatusPill } from "@/components/ui/StatusPill";
 import { ModalAjouterLot } from "@/components/biens/ModalAjouterLot";
 import { ModalModifierBien } from "@/components/biens/ModalModifierBien";
 import { ModalSupprimerBien } from "@/components/biens/ModalSupprimerBien";
+import { CodeBien } from "@/components/biens/CodeBien";
 
 const th = "text-ink-2 px-4 py-2.5 text-sm font-medium";
 
@@ -87,13 +88,20 @@ export default async function BienDetailPage(props: PageProps<"/biens/[id]">) {
         ← Tous les biens
       </Link>
 
-      {bien.imageUrl && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={bien.imageUrl}
-          alt={`${bien.nom} — ${bien.quartier}, ${bien.ville}`}
-          className="mt-4 h-56 w-full rounded-md object-cover"
-        />
+      {bien.imageUrl ? (
+        <div className="relative">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={bien.imageUrl}
+            alt={`${bien.nom} — ${bien.quartier}, ${bien.ville}`}
+            className="mt-4 h-56 w-full rounded-md object-cover"
+          />
+          <CodeBien code={bien.code} />
+        </div>
+      ) : (
+        <div className="relative">
+          <CodeBien code={bien.code} />
+        </div>
       )}
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-4">

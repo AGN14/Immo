@@ -83,6 +83,7 @@ function mappeBien(l: LigneBien): Bien {
     climatisation: l.climatisation,
     superficieM2: l.superficie_m2,
     etages: l.etages,
+    code: l.code,
   };
 }
 

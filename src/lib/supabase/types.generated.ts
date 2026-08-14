@@ -329,6 +329,7 @@ export type Database = {
           cree_le: string
           id: string
           montant_fcfa: number
+          penalite_fcfa: number
           periode: string
           versement_id: string
         }
@@ -337,6 +338,7 @@ export type Database = {
           cree_le?: string
           id?: string
           montant_fcfa: number
+          penalite_fcfa?: number
           periode: string
           versement_id: string
         }
@@ -345,6 +347,7 @@ export type Database = {
           cree_le?: string
           id?: string
           montant_fcfa?: number
+          penalite_fcfa?: number
           periode?: string
           versement_id?: string
         }
@@ -403,6 +406,8 @@ export type Database = {
           jour_reversement: number
           mot_de_passe_hash: string | null
           nom: string
+          penalite_retard_fcfa: number
+          delai_tolerance_jours: number
           plan_id: string
           supprime_le: string | null
         }
@@ -416,6 +421,8 @@ export type Database = {
           jour_reversement?: number
           mot_de_passe_hash?: string | null
           nom: string
+          penalite_retard_fcfa?: number
+          delai_tolerance_jours?: number
           plan_id?: string
           supprime_le?: string | null
         }
@@ -429,6 +436,8 @@ export type Database = {
           jour_reversement?: number
           mot_de_passe_hash?: string | null
           nom?: string
+          penalite_retard_fcfa?: number
+          delai_tolerance_jours?: number
           plan_id?: string
           supprime_le?: string | null
         }
@@ -667,6 +676,7 @@ export type Database = {
           id: string
           methode: string
           montant_total_fcfa: number
+          penalites_fcfa: number
           reference_externe: string | null
           reversement_id: string | null
           statut: string
@@ -679,6 +689,7 @@ export type Database = {
           id?: string
           methode: string
           montant_total_fcfa: number
+          penalites_fcfa?: number
           reference_externe?: string | null
           reversement_id?: string | null
           statut: string
@@ -691,6 +702,7 @@ export type Database = {
           id?: string
           methode?: string
           montant_total_fcfa?: number
+          penalites_fcfa?: number
           reference_externe?: string | null
           reversement_id?: string | null
           statut?: string
