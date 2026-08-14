@@ -1,11 +1,11 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import {
   getBaux,
   getBiens,
   getLocataires,
   getLots,
   getPaiementsPeriodeCourante,
-  getQuittanceDuPaiement,
+  getQuittancesDesPaiements,
   getVersements,
   periodeCourante,
 } from "@/lib/data";
@@ -61,14 +61,9 @@ export default async function LoyersPage() {
   const attendu = bauxActifs.reduce((sum, b) => sum + b.loyerMensuelFcfa, 0);
   const tauxEncaissement = attendu === 0 ? null : Math.round((encaisse / attendu) * 100);
 
-  // Quittances chargées en parallèle, une requête par paiement.
-  const quittanceParPaiement = new Map(
-    (
-      await Promise.all(
-        paiements.map((p) => getQuittanceDuPaiement(p.id).then((q) => [p.id, q] as const)),
-      )
-    ).filter(([, q]) => q !== undefined),
-  );
+  // Une seule requÃªte pour toutes les quittances de la pÃ©riode : en boucle,
+  // c'Ã©tait un aller-retour rÃ©seau par ligne du tableau.
+  const quittanceParPaiement = await getQuittancesDesPaiements(paiements.map((p) => p.id));
 
   return (
     <div>
@@ -76,11 +71,11 @@ export default async function LoyersPage() {
         <div>
           <h1 className="font-display text-ink text-3xl font-semibold">Loyers</h1>
           <p className="text-ink-2 mt-2">
-            Période {periode} —{" "}
+            PÃ©riode {periode} â€”{" "}
             <span className="text-primary font-semibold" data-numeric>
               {encaisse.toLocaleString("fr-FR")} / {total.toLocaleString("fr-FR")} F
             </span>{" "}
-            confirmés.
+            confirmÃ©s.
           </p>
         </div>
         <Link
@@ -93,9 +88,9 @@ export default async function LoyersPage() {
 
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <KPICard
-          label="Encaissé ce mois"
+          label="EncaissÃ© ce mois"
           value={`${encaisse.toLocaleString("fr-FR")} F`}
-          caption="Versements confirmés"
+          caption="Versements confirmÃ©s"
           icon={
             <Icon>
               <path d="M4 19V10M10 19V5M16 19v-7M4 19h16" />
@@ -103,9 +98,9 @@ export default async function LoyersPage() {
           }
         />
         <KPICard
-          label="Déclaré, à confirmer"
+          label="DÃ©clarÃ©, Ã  confirmer"
           value={`${enAttente.toLocaleString("fr-FR")} F`}
-          caption="Versements initiés"
+          caption="Versements initiÃ©s"
           icon={
             <Icon>
               <circle cx="12" cy="12" r="9" />
@@ -126,8 +121,8 @@ export default async function LoyersPage() {
         />
         <KPICard
           label="Taux d'encaissement"
-          value={tauxEncaissement === null ? "—" : `${tauxEncaissement}%`}
-          caption="Encaissé vs attendu"
+          value={tauxEncaissement === null ? "â€”" : `${tauxEncaissement}%`}
+          caption="EncaissÃ© vs attendu"
           icon={
             <Icon>
               <path d="M12 3v18M8.5 6.5A3 3 0 0 1 11 5.5h2a2.5 2.5 0 0 1 0 5h-3a2.5 2.5 0 0 0 0 5h3a3 3 0 0 0 2.5-1.5" />
@@ -153,8 +148,8 @@ export default async function LoyersPage() {
             {paiements.length === 0 && (
               <tr>
                 <td colSpan={7} className="text-ink-3 px-4 py-12 text-center">
-                  Aucun paiement déclaré sur cette période. Les versements de vos locataires
-                  apparaîtront ici.
+                  Aucun paiement dÃ©clarÃ© sur cette pÃ©riode. Les versements de vos locataires
+                  apparaÃ®tront ici.
                 </td>
               </tr>
             )}
@@ -172,10 +167,10 @@ export default async function LoyersPage() {
                   <td className="px-4 py-3">
                     {bien && lot ? (
                       <Link href={`/biens/${bien.id}`} className="text-primary no-underline">
-                        {bien.nom} — {lot.nom}
+                        {bien.nom} â€” {lot.nom}
                       </Link>
                     ) : (
-                      "—"
+                      "â€”"
                     )}
                   </td>
                   <td className="px-4 py-3">
@@ -187,15 +182,15 @@ export default async function LoyersPage() {
                         {locataire.nom}
                       </Link>
                     ) : (
-                      "—"
+                      "â€”"
                     )}
                   </td>
                   <td className="px-4 py-3">
                     <span className="text-primary font-semibold">
                       {p.montantFcfa.toLocaleString("fr-FR")} F
                     </span>
-                    {/* L'amende est annoncée à part : le loyer reste le loyer,
-                        mais le relevé bancaire porte la somme des deux. */}
+                    {/* L'amende est annoncÃ©e Ã  part : le loyer reste le loyer,
+                        mais le relevÃ© bancaire porte la somme des deux. */}
                     {p.penaliteFcfa > 0 && (
                       <span className="text-danger block text-xs font-semibold" data-numeric>
                         + {p.penaliteFcfa.toLocaleString("fr-FR")} F d&rsquo;amende
@@ -203,13 +198,13 @@ export default async function LoyersPage() {
                     )}
                   </td>
                   <td className="text-ink-2 px-4 py-3">
-                    {versement ? methodeLabel[versement.methode] : "—"}
+                    {versement ? methodeLabel[versement.methode] : "â€”"}
                   </td>
                   <td className="px-4 py-3">
                     {statut && <StatusPill tone={statut.tone}>{statut.label}</StatusPill>}
                   </td>
                   <td className="text-ink-2 px-4 py-3" data-numeric>
-                    {quittance ? quittance.numero : "—"}
+                    {quittance ? quittance.numero : "â€”"}
                   </td>
                   <td className="px-4 py-3">
                     {versement?.statut === "initie" && (
@@ -224,8 +219,8 @@ export default async function LoyersPage() {
       </div>
 
       <p className="text-ink-3 mt-4 text-sm">
-        Un mois sans ligne n&rsquo;a pas été payé : son retard se déduit de la date
-        d&rsquo;échéance, rien n&rsquo;est stocké.
+        Un mois sans ligne n&rsquo;a pas Ã©tÃ© payÃ© : son retard se dÃ©duit de la date
+        d&rsquo;Ã©chÃ©ance, rien n&rsquo;est stockÃ©.
       </p>
     </div>
   );
