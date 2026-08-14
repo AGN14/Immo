@@ -43,7 +43,7 @@ begin
     (id, nom, email, plan_id, jour_echeance_defaut, jour_reversement,
      penalite_retard_fcfa, delai_tolerance_jours)
   values
-    (v_prop, 'Thierry Yerima', 'thierry@immo.app', 'pro', 5, 1, 5000, 5);
+    (v_prop, 'Thierry Yerima', 'thierry@immo.app', 'd14214f0-466d-4665-961a-821b0d2d3a6d', 5, 1, 5000, 5);
 
   insert into public.bien (id, proprietaire_id, nom, type, adresse, quartier, ville)
   values (v_bien, v_prop, 'Résidence Les Baobabs', 'residence',
