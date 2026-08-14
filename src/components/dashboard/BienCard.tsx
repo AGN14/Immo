@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getBailActifByLotId, getLotsByBienId } from "@/lib/data";
 import { equipementLabel, type CleEquipement, typeBienLabel } from "@/lib/status-labels";
+import { CodeBien } from "@/components/biens/CodeBien";
 import type { Bien } from "@/lib/types";
 
 const equipements = Object.keys(equipementLabel) as CleEquipement[];
@@ -40,14 +41,20 @@ export async function BienCard({ bien, proprietaireId }: { bien: Bien; proprieta
       className="border-line bg-surface hover:border-primary group flex flex-col overflow-hidden rounded-md border no-underline transition-colors"
     >
       {bien.imageUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={bien.imageUrl}
-          alt={`${bien.nom} — ${bien.quartier}, ${bien.ville}`}
-          className="h-36 w-full object-cover"
-        />
+        <div className="relative">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={bien.imageUrl}
+            alt={`${bien.nom} — ${bien.quartier}, ${bien.ville}`}
+            className="h-36 w-full object-cover"
+          />
+          <CodeBien code={bien.code} />
+        </div>
       ) : (
-        <PhotoPlaceholder />
+        <div className="relative">
+          <PhotoPlaceholder />
+          <CodeBien code={bien.code} />
+        </div>
       )}
 
       <div className="flex flex-1 flex-col gap-2 p-5">

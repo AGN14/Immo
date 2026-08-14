@@ -1,5 +1,12 @@
 import Link from "next/link";
-import { getBauxActifs, getBiens, getDashboardKpis, getSerieLoyers } from "@/lib/data";
+import {
+  getBauxActifs,
+  getBiens,
+  getDashboardKpis,
+  getSerieLoyers,
+  getCautions,
+  getGestionnaires,
+} from "@/lib/data";
 import { evaluerQuota, planSuffisant, type PlanId } from "@/lib/plans";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/mock-session";
@@ -34,14 +41,18 @@ async function ProprietaireDashboard({
   plan?: PlanId;
   proprietaireId: string;
 }) {
-  const [kpis, bauxActifs, biens, serie] = await Promise.all([
+  const [kpis, bauxActifs, biens, serie, cautions, gestionnaires] = await Promise.all([
     getDashboardKpis(proprietaireId),
     getBauxActifs(proprietaireId),
     getBiens(proprietaireId),
     getSerieLoyers(proprietaireId, 6),
+    planSuffisant(plan, "business") ? getCautions(proprietaireId) : Promise.resolve([]),
+    planSuffisant(plan, "business") ? getGestionnaires(proprietaireId) : Promise.resolve([]),
   ]);
   const quota = evaluerQuota(plan, bauxActifs.length);
   const apercu = biens.slice(0, 3);
+
+  const cautionsEnAttente = cautions.filter((c) => c.statut === "due");
 
   return (
     <div>
@@ -91,6 +102,44 @@ async function ProprietaireDashboard({
       </div>
 
       <QuotaBanner quota={quota} />
+
+      {planSuffisant(plan, "business") && (
+        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Link
+            href="/cautions"
+            className="border-line bg-surface hover:bg-highlight group flex items-center justify-between rounded-md border p-4 no-underline transition-colors"
+          >
+            <div>
+              <p className="text-ink-3 text-xs font-semibold uppercase tracking-wider">Cautions</p>
+              <p className="text-ink mt-1 font-semibold">
+                {cautionsEnAttente.length} en attente d&rsquo;encaissement
+              </p>
+            </div>
+            <div className="text-ink-3 group-hover:text-primary transition-colors">
+              <Icon>
+                <path d="m9 18 6-6-6-6" />
+              </Icon>
+            </div>
+          </Link>
+          <Link
+            href="/gestionnaires"
+            className="border-line bg-surface hover:bg-highlight group flex items-center justify-between rounded-md border p-4 no-underline transition-colors"
+          >
+            <div>
+              <p className="text-ink-3 text-xs font-semibold uppercase tracking-wider">Équipe</p>
+              <p className="text-ink mt-1 font-semibold">
+                {gestionnaires.length} gestionnaire{gestionnaires.length > 1 ? "s" : ""} actif
+                {gestionnaires.length > 1 ? "s" : ""}
+              </p>
+            </div>
+            <div className="text-ink-3 group-hover:text-primary transition-colors">
+              <Icon>
+                <path d="m9 18 6-6-6-6" />
+              </Icon>
+            </div>
+          </Link>
+        </div>
+      )}
 
       {planSuffisant(plan, "pro") ? (
         <div className="mt-12 grid grid-cols-1 gap-4 lg:grid-cols-3">

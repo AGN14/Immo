@@ -113,8 +113,17 @@ function ModalAttribuerLogementInterne({
           required
           placeholder="Ex. 75000"
         />
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Input label="Date de début" name="dateDebut" type="date" required />
+          <Input
+            label="Caution (F CFA)"
+            name="cautionFcfa"
+            type="number"
+            min="0"
+            step="1"
+            placeholder="Ex. 75000"
+            hint="Facultatif — dépôt de garantie."
+          />
           <Input
             label="Jour d'échéance"
             name="jourEcheance"

@@ -39,7 +39,7 @@ export default function InscriptionLocatairePage() {
             label="Téléphone"
             type="tel"
             name="telephone"
-            placeholder="+225 07 00 00 00"
+            placeholder="+229 01 23 45 67"
             required
           />
           <Input label="Mot de passe" type="password" name="password" required />

@@ -81,6 +81,7 @@ export async function creerBail(prev: EtatAction, formData: FormData): Promise<E
   const locataireId = String(formData.get("locataireId") ?? "");
   const lotId = String(formData.get("lotId") ?? "");
   const loyer = Number(formData.get("loyerMensuelFcfa") ?? "NaN");
+  const cautionFcfa = String(formData.get("cautionFcfa") ?? "").trim();
   const dateDebut = String(formData.get("dateDebut") ?? "");
   const jourEcheance = String(formData.get("jourEcheance") ?? "").trim();
 
@@ -117,14 +118,22 @@ export async function creerBail(prev: EtatAction, formData: FormData): Promise<E
   if (jour !== null && (!Number.isInteger(jour) || jour < 1 || jour > 31))
     return { ok: false, erreur: "Le jour d'échéance doit être compris entre 1 et 31." };
 
-  const { error } = await supabaseServer().from("bail").insert({
-    lot_id: lotId,
-    locataire_id: locataireId,
-    loyer_mensuel_fcfa: loyer,
-    date_debut: dateDebut,
-    statut: "actif",
-    jour_echeance: jour,
-  });
+  const caution = cautionFcfa === "" ? null : Number(cautionFcfa);
+  if (caution !== null && (!Number.isInteger(caution) || caution < 1))
+    return { ok: false, erreur: "La caution doit être un montant positif." };
+
+  const { data: bail, error } = await supabaseServer()
+    .from("bail")
+    .insert({
+      lot_id: lotId,
+      locataire_id: locataireId,
+      loyer_mensuel_fcfa: loyer,
+      date_debut: dateDebut,
+      statut: "actif",
+      jour_echeance: jour,
+    })
+    .select("id")
+    .single();
 
   if (error) {
     if (error.message.includes("QUOTA_ATTEINT"))
@@ -138,9 +147,20 @@ export async function creerBail(prev: EtatAction, formData: FormData): Promise<E
     return { ok: false, erreur: `Enregistrement impossible : ${error.message}` };
   }
 
+  if (caution !== null) {
+    const { error: erreurCaution } = await supabaseServer().from("caution").insert({
+      bail_id: bail.id,
+      montant_fcfa: caution,
+      statut: "due",
+    });
+    if (erreurCaution)
+      return { ok: false, erreur: `Bail créé mais caution impossible : ${erreurCaution.message}` };
+  }
+
   revalidatePath("/locataires");
   revalidatePath("/loyers");
   revalidatePath("/dashboard");
+  revalidatePath("/cautions");
   return { ok: true };
 }
 
