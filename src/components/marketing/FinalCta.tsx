@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/Button";
 export function FinalCta() {
   return (
     <section id="demo" className="py-16 md:py-24">
-      <div className="mx-auto max-w-[1180px] px-5 sm:px-8 lg:px-12">
+      <div className="mx-auto px-5 sm:px-8 lg:px-12">
         <div className="bg-panel text-on-primary flex flex-col items-start gap-6 rounded-lg p-8 md:flex-row md:items-center md:justify-between md:p-12">
           <div className="flex flex-col gap-2">
             <h2 className="font-display text-on-primary max-w-[16em] text-3xl font-semibold text-balance">

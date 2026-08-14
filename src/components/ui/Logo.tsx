@@ -1,30 +1,37 @@
-export function Logo({ onDark = false }: { onDark?: boolean }) {
-  return (
-    <>
+import logoImmo from "@/assets/logo_immo.png";
+
+export function Logo({
+  onDark = false,
+  compact = false,
+}: {
+  onDark?: boolean;
+  /** Variante du rail de la sidebar repliée : la pastille seule, sans texte
+   *  ni largeur fixe. */
+  compact?: boolean;
+}) {
+  if (compact) {
+    return (
       <span
-        className={`text-on-primary grid size-8 shrink-0 place-items-center rounded-sm ${
-          onDark ? "bg-on-primary/15" : "bg-primary"
-        }`}
-      >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.6"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="size-4"
-        >
-          <path d="M4 11.5 12 4l8 7.5" />
-          <path d="M6 10v9h12v-9" />
-          <path d="M10 19v-5h4v5" />
-        </svg>
-      </span>
+        className={`block size-9 shrink-0 rounded-md bg-cover bg-center ${onDark ? "opacity-90" : ""}`}
+        style={{ backgroundImage: `url(${logoImmo.src})` }}
+        role="img"
+        aria-label="Logo Xwégán"
+      />
+    );
+  }
+  return (
+    <span className="relative -left-6 flex w-[170.442px] cursor-move items-center">
+      <span
+        className={`block size-25 shrink-0 rounded-md bg-cover bg-center ${onDark ? "opacity-90" : ""}`}
+        style={{ backgroundImage: `url(${logoImmo.src})` }}
+        role="img"
+        aria-label="Logo Xwégán"
+      />
       <span
         className={`font-display text-xl font-semibold ${onDark ? "text-on-primary" : "text-ink"}`}
       >
-        Immo
+        Xwégán
       </span>
-    </>
+    </span>
   );
 }

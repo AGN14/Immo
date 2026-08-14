@@ -1,5 +1,6 @@
 import "server-only";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/lib/supabase/types.generated";
 
 /**
  * Client Supabase côté serveur.
@@ -14,7 +15,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
  * porteur du jeton de l'utilisateur, et RLS deviendra la garantie principale.
  */
 
-let client: SupabaseClient | null = null;
+let client: SupabaseClient<Database> | null = null;
 
 function lireVariable(nom: string): string {
   const valeur = process.env[nom];
@@ -28,10 +29,10 @@ function lireVariable(nom: string): string {
   return valeur;
 }
 
-export function supabaseServer(): SupabaseClient {
+export function supabaseServer(): SupabaseClient<Database> {
   if (client) return client;
 
-  client = createClient(
+  client = createClient<Database>(
     lireVariable("NEXT_PUBLIC_SUPABASE_URL"),
     lireVariable("SUPABASE_SERVICE_ROLE_KEY"),
     {

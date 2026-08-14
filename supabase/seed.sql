@@ -1,167 +1,170 @@
 -- =============================================================================
--- Données de démonstration — reprise exacte du jeu de src/lib/mock-data.
+-- Jeu de démonstration.
 --
--- Deux propriétaires, volontairement : avec un seul, le cloisonnement des
--- données ne serait pas vérifiable.
---   Thierry — 5 biens, 7 lots, 3 baux actifs → pile à la limite d'Essentiel
---   Awa     — 1 immeuble, 2 lots, 2 baux actifs → palier Pro
+-- Il existe pour rendre les règles d'échéance *visibles* : un parc où tout le
+-- monde est à jour ne montre ni amende ni préavis. Les trois locataires ci-
+-- dessous couvrent les trois états que le calcul sait produire.
 --
--- Les identifiants sont fixes pour que le seed soit rejouable et que les URL
--- restent stables (/biens/…).
+-- Les dates sont ancrées sur août 2026 (échéance au 5, tolérance de 5 jours,
+-- donc limite au 10). Rejoué plus tard, le jeu vieillit : les mois impayés
+-- restent impayés et le préavis ne fait que s'aggraver, ce qui reste cohérent.
+--
+-- Idempotent : relancer le seed sur une base déjà peuplée ne fait rien.
 -- =============================================================================
 
-begin;
+do $$
+declare
+  v_prop      uuid := '11111111-1111-1111-1111-111111111111';
+  v_bien      uuid := '22222222-2222-2222-2222-222222222222';
+  v_lot_3b    uuid := '33333333-3333-3333-3333-333333333301';
+  v_lot_1a    uuid := '33333333-3333-3333-3333-333333333302';
+  v_lot_2c    uuid := '33333333-3333-3333-3333-333333333303';
+  v_ibrahima  uuid := '44444444-4444-4444-4444-444444444401';
+  v_fatou     uuid := '44444444-4444-4444-4444-444444444402';
+  v_awa       uuid := '44444444-4444-4444-4444-444444444403';
+  v_bail_3b   uuid := '55555555-5555-5555-5555-555555555501';
+  v_bail_1a   uuid := '55555555-5555-5555-5555-555555555502';
+  v_bail_2c   uuid := '55555555-5555-5555-5555-555555555503';
 
-delete from public.signalement_message;
-delete from public.signalement_photo;
-delete from public.signalement;
-delete from public.quittance;
-delete from public.paiement;
-delete from public.versement;
-delete from public.reversement;
-delete from public.bail;
-delete from public.lot;
-delete from public.locataire;
-delete from public.bien;
-delete from public.proprietaire;
+  v_mois      date;
+  v_versement uuid;
+  v_paiement  uuid;
+  v_numero    integer := 0;
+begin
+  if exists (select 1 from public.proprietaire where email = 'thierry@immo.app') then
+    raise notice 'Jeu de démonstration déjà présent — seed ignoré.';
+    return;
+  end if;
 
--- ------------------------------------------------------------ propriétaires
-insert into public.proprietaire (id, nom, email, plan_id) values
-  ('11111111-1111-4111-8111-000000000001', 'Thierry Yerima', 'thierry@immo.app', 'essentiel'),
-  ('11111111-1111-4111-8111-000000000002', 'Awa Traoré', 'awa.traore@example.com', 'pro');
+  -- --------------------------------------------------------------- le parc
+  -- Palier Pro : le quota d'Essentiel (3 baux) serait atteint pile, et toute
+  -- création manuelle depuis l'interface se heurterait au mur.
+  insert into public.proprietaire
+    (id, nom, email, plan_id, jour_echeance_defaut, jour_reversement,
+     penalite_retard_fcfa, delai_tolerance_jours)
+  values
+    (v_prop, 'Thierry Yerima', 'thierry@immo.app', 'pro', 5, 1, 5000, 5);
 
--- -------------------------------------------------------------------- biens
-insert into public.bien (id, proprietaire_id, nom, type, adresse, quartier, ville) values
-  ('22222222-2222-4222-8222-000000000001', '11111111-1111-4111-8111-000000000001',
-   'Résidence Baobab', 'immeuble', '12 Rue des Almadies', 'Almadies', 'Dakar'),
-  ('22222222-2222-4222-8222-000000000002', '11111111-1111-4111-8111-000000000001',
-   'Cité Fleurs', 'residence', 'Rue des Jardins, Lot 12', 'Cocody', 'Abidjan'),
-  ('22222222-2222-4222-8222-000000000003', '11111111-1111-4111-8111-000000000001',
-   'Studio Bonanjo', 'maison', 'Avenue de la Liberté', 'Bonanjo', 'Douala'),
-  ('22222222-2222-4222-8222-000000000004', '11111111-1111-4111-8111-000000000001',
-   'Immeuble Akwa', 'immeuble', 'Boulevard de la Liberté', 'Akwa', 'Douala'),
-  ('22222222-2222-4222-8222-000000000005', '11111111-1111-4111-8111-000000000001',
-   'Concession Fidjrossè', 'concession', 'Rue 412', 'Fidjrossè', 'Cotonou'),
-  ('22222222-2222-4222-8222-000000000006', '11111111-1111-4111-8111-000000000002',
-   'Résidence Keur Massar', 'immeuble', 'Route de Boune', 'Keur Massar', 'Dakar');
+  insert into public.bien (id, proprietaire_id, nom, type, adresse, quartier, ville)
+  values (v_bien, v_prop, 'Résidence Les Baobabs', 'residence',
+          'Rue 12 x Avenue Bourguiba', 'Sacré-Cœur', 'Dakar');
 
--- ---------------------------------------------------------------------- lots
--- La Concession Fidjrossè illustre le cas courant : une même adresse, cinq
--- unités de compositions et de prix différents, toutes encore vacantes — d'où
--- un potentiel locatif visible et un manque à gagner chiffré.
-insert into public.lot (id, bien_id, nom, composition, loyer_reference_fcfa) values
-  ('33333333-3333-4333-8333-000000000001', '22222222-2222-4222-8222-000000000001', 'Appt 3B', 'appartement', 85000),
-  ('33333333-3333-4333-8333-000000000002', '22222222-2222-4222-8222-000000000001', 'Appt 1A', 'appartement', 70000),
-  ('33333333-3333-4333-8333-000000000003', '22222222-2222-4222-8222-000000000001', 'Appt 2C', '2-chambres-salon', 60000),
-  ('33333333-3333-4333-8333-000000000004', '22222222-2222-4222-8222-000000000002', 'Villa 12', 'villa', 140000),
-  ('33333333-3333-4333-8333-000000000005', '22222222-2222-4222-8222-000000000003', 'Studio', 'studio', 45000),
-  ('33333333-3333-4333-8333-000000000006', '22222222-2222-4222-8222-000000000004', 'Appt 2C', 'appartement', 92000),
+  insert into public.lot (id, bien_id, nom, composition, loyer_reference_fcfa) values
+    (v_lot_3b, v_bien, 'Appt 3B', 'appartement',      75000),
+    (v_lot_1a, v_bien, 'Appt 1A', '2-chambres-salon', 60000),
+    (v_lot_2c, v_bien, 'Appt 2C', 'chambre-salon',    50000);
 
-  ('33333333-3333-4333-8333-00000000000a', '22222222-2222-4222-8222-000000000005', 'Chambre 1', 'chambre-salon', 35000),
-  ('33333333-3333-4333-8333-00000000000b', '22222222-2222-4222-8222-000000000005', 'Chambre 2', '2-chambres-salon', 60000),
-  ('33333333-3333-4333-8333-00000000000c', '22222222-2222-4222-8222-000000000005', 'Chambre 3', 'entrer-coucher', 25000),
-  ('33333333-3333-4333-8333-00000000000d', '22222222-2222-4222-8222-000000000005', 'Chambre 4', 'chambre-salon', 40000),
-  ('33333333-3333-4333-8333-00000000000e', '22222222-2222-4222-8222-000000000005', 'Chambre 5', 'entrer-coucher', 25000),
+  insert into public.locataire (id, proprietaire_id, nom, telephone, email) values
+    (v_ibrahima, v_prop, 'Ibrahima Diallo', '+221 77 512 44 09', 'ibrahima.diallo@example.com'),
+    (v_fatou,    v_prop, 'Fatou Ndiaye',    '+221 77 145 22 08', 'fatou.ndiaye@example.com'),
+    (v_awa,      v_prop, 'Awa Traoré',      '+221 78 331 07 66', 'awa.traore@example.com');
 
-  ('33333333-3333-4333-8333-000000000008', '22222222-2222-4222-8222-000000000006', 'Appt A1', 'chambre-salon', 55000),
-  ('33333333-3333-4333-8333-000000000009', '22222222-2222-4222-8222-000000000006', 'Appt B2', '2-chambres-salon', 60000);
+  -- Ibrahima : échéance héritée du propriétaire (le 5).
+  insert into public.bail (id, lot_id, locataire_id, loyer_mensuel_fcfa, date_debut, statut)
+  values (v_bail_3b, v_lot_3b, v_ibrahima, 75000, '2026-01-01', 'actif');
 
--- --------------------------------------------------------------- locataires
-insert into public.locataire (id, proprietaire_id, nom, telephone, email) values
-  ('44444444-4444-4444-8444-000000000001', '11111111-1111-4111-8111-000000000001',
-   'Fatou Ndiaye', '+221 77 145 22 08', 'fatou.ndiaye@example.com'),
-  ('44444444-4444-4444-8444-000000000002', '11111111-1111-4111-8111-000000000001',
-   'Moussa Sarr', '+221 76 302 91 44', 'moussa.sarr@example.com'),
-  ('44444444-4444-4444-8444-000000000003', '11111111-1111-4111-8111-000000000001',
-   'Yves Kouassi', '+225 07 08 12 34 56', 'yves.kouassi@example.com'),
-  ('44444444-4444-4444-8444-000000000004', '11111111-1111-4111-8111-000000000001',
-   'Chantal Mbarga', '+237 6 77 12 34 56', 'chantal.mbarga@example.com'),
-  ('44444444-4444-4444-8444-000000000005', '11111111-1111-4111-8111-000000000001',
-   'Paul Mvondo', '+237 6 90 45 67 89', 'paul.mvondo@example.com'),
-  ('44444444-4444-4444-8444-000000000006', '11111111-1111-4111-8111-000000000002',
-   'Ousmane Fall', '+221 77 610 45 12', 'ousmane.fall@example.com'),
-  ('44444444-4444-4444-8444-000000000007', '11111111-1111-4111-8111-000000000002',
-   'Aminata Bâ', '+221 78 224 90 37', 'aminata.ba@example.com');
+  -- Fatou : échéance négociée au 12. C'est ce décalage qui la laisse « en
+  -- retard » sans préavis le 14 août, là où Ibrahima a déjà franchi sa limite.
+  insert into public.bail
+    (id, lot_id, locataire_id, loyer_mensuel_fcfa, date_debut, statut, jour_echeance)
+  values (v_bail_1a, v_lot_1a, v_fatou, 60000, '2026-03-01', 'actif', 12);
 
--- --------------------------------------------------------------------- baux
--- Trois actifs chez Thierry (limite d'Essentiel atteinte), deux terminés dont
--- l'historique subsiste, et deux lots jamais loués qui ne coûtent rien.
-insert into public.bail (id, lot_id, locataire_id, loyer_mensuel_fcfa, date_debut, date_fin, statut) values
-  ('55555555-5555-4555-8555-000000000001', '33333333-3333-4333-8333-000000000001',
-   '44444444-4444-4444-8444-000000000001', 85000, '2025-02-15', null, 'actif'),
-  ('55555555-5555-4555-8555-000000000002', '33333333-3333-4333-8333-000000000002',
-   '44444444-4444-4444-8444-000000000002', 65000, '2025-02-15', null, 'actif'),
-  ('55555555-5555-4555-8555-000000000003', '33333333-3333-4333-8333-000000000004',
-   '44444444-4444-4444-8444-000000000003', 140000, '2025-06-05', null, 'actif'),
-  ('55555555-5555-4555-8555-000000000004', '33333333-3333-4333-8333-000000000005',
-   '44444444-4444-4444-8444-000000000004', 45000, '2025-09-20', '2026-06-30', 'termine'),
-  ('55555555-5555-4555-8555-000000000005', '33333333-3333-4333-8333-000000000006',
-   '44444444-4444-4444-8444-000000000005', 92000, '2024-11-25', '2026-05-31', 'termine'),
-  ('55555555-5555-4555-8555-000000000006', '33333333-3333-4333-8333-000000000008',
-   '44444444-4444-4444-8444-000000000006', 55000, '2025-11-10', null, 'actif'),
-  ('55555555-5555-4555-8555-000000000007', '33333333-3333-4333-8333-000000000009',
-   '44444444-4444-4444-8444-000000000007', 60000, '2026-01-05', null, 'actif');
+  insert into public.bail (id, lot_id, locataire_id, loyer_mensuel_fcfa, date_debut, statut)
+  values (v_bail_2c, v_lot_2c, v_awa, 50000, '2026-04-01', 'actif');
 
--- --------------------------------------------------------------- versements
--- V1 illustre le paiement groupé : Fatou règle juillet et août en une seule
--- opération Mobile Money. V3 illustre l'attente de confirmation : Moussa a
--- déclaré son paiement, le propriétaire ne l'a pas encore pointé.
-insert into public.versement
-  (id, bail_id, montant_total_fcfa, methode, reference_externe, statut, confirme_par, declare_le, confirme_le)
-values
-  ('66666666-6666-4666-8666-000000000001', '55555555-5555-4555-8555-000000000001',
-   170000, 'mobile-money', 'MP260702.1431.A72910', 'confirme', 'proprietaire',
-   '2026-07-02 09:14+00', '2026-07-02 17:02+00'),
-  ('66666666-6666-4666-8666-000000000002', '55555555-5555-4555-8555-000000000002',
-   65000, 'mobile-money', 'MP260704.0908.B10254', 'confirme', 'proprietaire',
-   '2026-07-04 08:31+00', '2026-07-04 12:20+00'),
-  ('66666666-6666-4666-8666-000000000003', '55555555-5555-4555-8555-000000000002',
-   65000, 'mobile-money', 'MP260803.1102.C88431', 'initie', null,
-   '2026-08-03 11:05+00', null),
-  ('66666666-6666-4666-8666-000000000004', '55555555-5555-4555-8555-000000000003',
-   280000, 'virement', 'VIR-2026-0713', 'confirme', 'proprietaire',
-   '2026-07-03 10:00+00', '2026-07-03 16:40+00'),
-  ('66666666-6666-4666-8666-000000000005', '55555555-5555-4555-8555-000000000004',
-   45000, 'especes', null, 'confirme', 'proprietaire',
-   '2026-06-04 08:00+00', '2026-06-04 08:00+00'),
-  ('66666666-6666-4666-8666-000000000006', '55555555-5555-4555-8555-000000000005',
-   92000, 'mobile-money', 'MP260502.0730.D55120', 'confirme', 'proprietaire',
-   '2026-05-02 07:32+00', '2026-05-02 09:15+00'),
-  ('66666666-6666-4666-8666-000000000007', '55555555-5555-4555-8555-000000000006',
-   55000, 'mobile-money', 'MP260801.0645.E20038', 'confirme', 'proprietaire',
-   '2026-08-01 06:47+00', '2026-08-01 07:10+00');
+  -- ------------------------------------------------------- historique payé
+  -- Un versement confirmé par mois, réglé avant l'échéance — donc sans amende.
+  -- C'est l'historique « propre » sur lequel le retard récent se détache.
+  --
+  -- On boucle sur les mois plutôt que sur les baux : la quittance doit être
+  -- numérotée dans l'ordre chronologique du propriétaire, et une numérotation
+  -- bail par bail entrelacerait les dates.
+  for v_mois in
+    select generate_series(date '2026-01-01', date '2026-08-01', interval '1 month')
+  loop
+    -- Ibrahima : payé de janvier à mai, puis plus rien.
+    if v_mois between date '2026-01-01' and date '2026-05-01' then
+      v_versement := gen_random_uuid();
+      v_paiement  := gen_random_uuid();
+      v_numero    := v_numero + 1;
 
--- ---------------------------------------------------------------- paiements
--- Une ligne par mois couvert : c'est ce qui permet une quittance mensuelle.
-insert into public.paiement (id, bail_id, periode, montant_fcfa, versement_id) values
-  ('77777777-7777-4777-8777-000000000001', '55555555-5555-4555-8555-000000000001', '2026-07', 85000, '66666666-6666-4666-8666-000000000001'),
-  ('77777777-7777-4777-8777-000000000002', '55555555-5555-4555-8555-000000000001', '2026-08', 85000, '66666666-6666-4666-8666-000000000001'),
-  ('77777777-7777-4777-8777-000000000003', '55555555-5555-4555-8555-000000000002', '2026-07', 65000, '66666666-6666-4666-8666-000000000002'),
-  ('77777777-7777-4777-8777-000000000004', '55555555-5555-4555-8555-000000000002', '2026-08', 65000, '66666666-6666-4666-8666-000000000003'),
-  ('77777777-7777-4777-8777-000000000005', '55555555-5555-4555-8555-000000000003', '2026-07', 140000, '66666666-6666-4666-8666-000000000004'),
-  ('77777777-7777-4777-8777-000000000006', '55555555-5555-4555-8555-000000000003', '2026-08', 140000, '66666666-6666-4666-8666-000000000004'),
-  ('77777777-7777-4777-8777-000000000007', '55555555-5555-4555-8555-000000000004', '2026-06', 45000, '66666666-6666-4666-8666-000000000005'),
-  ('77777777-7777-4777-8777-000000000008', '55555555-5555-4555-8555-000000000005', '2026-05', 92000, '66666666-6666-4666-8666-000000000006'),
-  ('77777777-7777-4777-8777-000000000009', '55555555-5555-4555-8555-000000000006', '2026-08', 55000, '66666666-6666-4666-8666-000000000007');
+      insert into public.versement
+        (id, bail_id, montant_total_fcfa, penalites_fcfa, methode, reference_externe,
+         statut, confirme_par, declare_le, confirme_le)
+      values (v_versement, v_bail_3b, 75000, 0, 'mobile-money',
+              'MP' || to_char(v_mois, 'YYMM') || '03.HIST', 'confirme', 'proprietaire',
+              v_mois + 2, v_mois + 2);
 
--- Appt B2 chez Awa n'a aucune ligne pour août : un mois non payé n'existe pas
--- en base, il se déduit de l'absence. Passée l'échéance, il devient « en retard ».
+      insert into public.paiement (id, bail_id, versement_id, periode, montant_fcfa, penalite_fcfa)
+      values (v_paiement, v_bail_3b, v_versement, to_char(v_mois, 'YYYY-MM'), 75000, 0);
 
--- --------------------------------------------------------------- quittances
--- Émises pour les seuls mois dont le versement est confirmé.
-insert into public.quittance (paiement_id, proprietaire_id, numero, emise_le) values
-  ('77777777-7777-4777-8777-000000000001', '11111111-1111-4111-8111-000000000001', '2026-0001', '2026-07-02 17:02+00'),
-  ('77777777-7777-4777-8777-000000000002', '11111111-1111-4111-8111-000000000001', '2026-0002', '2026-07-02 17:02+00'),
-  ('77777777-7777-4777-8777-000000000003', '11111111-1111-4111-8111-000000000001', '2026-0003', '2026-07-04 12:20+00'),
-  ('77777777-7777-4777-8777-000000000005', '11111111-1111-4111-8111-000000000001', '2026-0004', '2026-07-03 16:40+00'),
-  ('77777777-7777-4777-8777-000000000006', '11111111-1111-4111-8111-000000000001', '2026-0005', '2026-07-03 16:40+00'),
-  ('77777777-7777-4777-8777-000000000007', '11111111-1111-4111-8111-000000000001', '2026-0006', '2026-06-04 08:00+00'),
-  ('77777777-7777-4777-8777-000000000008', '11111111-1111-4111-8111-000000000001', '2026-0007', '2026-05-02 09:15+00'),
-  ('77777777-7777-4777-8777-000000000009', '11111111-1111-4111-8111-000000000002', '2026-0001', '2026-08-01 07:10+00');
+      insert into public.quittance (paiement_id, proprietaire_id, numero, emise_le)
+      values (v_paiement, v_prop, '2026-' || lpad(v_numero::text, 4, '0'), v_mois + 2);
+    end if;
 
--- Le compteur doit refléter les numéros déjà attribués, sinon la prochaine
--- quittance réutiliserait un numéro existant.
-update public.proprietaire set compteur_quittance = 7 where id = '11111111-1111-4111-8111-000000000001';
-update public.proprietaire set compteur_quittance = 1 where id = '11111111-1111-4111-8111-000000000002';
+    -- Fatou : payé de mars à juillet. Août reste dû.
+    if v_mois between date '2026-03-01' and date '2026-07-01' then
+      v_versement := gen_random_uuid();
+      v_paiement  := gen_random_uuid();
+      v_numero    := v_numero + 1;
 
-commit;
+      insert into public.versement
+        (id, bail_id, montant_total_fcfa, penalites_fcfa, methode, reference_externe,
+         statut, confirme_par, declare_le, confirme_le)
+      values (v_versement, v_bail_1a, 60000, 0, 'mobile-money',
+              'MP' || to_char(v_mois, 'YYMM') || '09.HIST', 'confirme', 'proprietaire',
+              v_mois + 8, v_mois + 8);
+
+      insert into public.paiement (id, bail_id, versement_id, periode, montant_fcfa, penalite_fcfa)
+      values (v_paiement, v_bail_1a, v_versement, to_char(v_mois, 'YYYY-MM'), 60000, 0);
+
+      insert into public.quittance (paiement_id, proprietaire_id, numero, emise_le)
+      values (v_paiement, v_prop, '2026-' || lpad(v_numero::text, 4, '0'), v_mois + 8);
+    end if;
+
+    -- Awa : payé d'avril à juillet, à jour.
+    if v_mois between date '2026-04-01' and date '2026-07-01' then
+      v_versement := gen_random_uuid();
+      v_paiement  := gen_random_uuid();
+      v_numero    := v_numero + 1;
+
+      insert into public.versement
+        (id, bail_id, montant_total_fcfa, penalites_fcfa, methode, reference_externe,
+         statut, confirme_par, declare_le, confirme_le)
+      values (v_versement, v_bail_2c, 50000, 0, 'virement',
+              'VIR-' || to_char(v_mois, 'YYYY-MM'), 'confirme', 'proprietaire',
+              v_mois + 2, v_mois + 2);
+
+      insert into public.paiement (id, bail_id, versement_id, periode, montant_fcfa, penalite_fcfa)
+      values (v_paiement, v_bail_2c, v_versement, to_char(v_mois, 'YYYY-MM'), 50000, 0);
+
+      insert into public.quittance (paiement_id, proprietaire_id, numero, emise_le)
+      values (v_paiement, v_prop, '2026-' || lpad(v_numero::text, 4, '0'), v_mois + 2);
+    end if;
+  end loop;
+
+  -- Le compteur doit refléter les quittances émises, sinon la prochaine
+  -- émission réutiliserait un numéro déjà pris.
+  update public.proprietaire set compteur_quittance = v_numero where id = v_prop;
+
+  -- ------------------------------------------------- déclaration en attente
+  -- Awa a déclaré août le 3, avant son échéance : aucune amende. Le versement
+  -- reste « initié » — c'est le cas qui alimente le bouton de confirmation.
+  v_versement := gen_random_uuid();
+  insert into public.versement
+    (id, bail_id, montant_total_fcfa, penalites_fcfa, methode, reference_externe,
+     statut, declare_le)
+  values (v_versement, v_bail_2c, 50000, 0, 'mobile-money',
+          'MP260803.1147.K21908', 'initie', '2026-08-03');
+
+  insert into public.paiement (bail_id, versement_id, periode, montant_fcfa, penalite_fcfa)
+  values (v_bail_2c, v_versement, '2026-08', 50000, 0);
+
+  -- ------------------------------------------------------------ signalement
+  insert into public.signalement (lot_id, bail_id, titre, description, urgence, statut)
+  values (v_lot_3b, v_bail_3b, 'Fuite sous l''évier de la cuisine',
+          'L''eau coule dès qu''on ouvre le robinet. Le placard commence à gonfler.',
+          'haute', 'pris-en-charge');
+
+  raise notice 'Jeu de démonstration chargé : % quittances émises.', v_numero;
+end $$;

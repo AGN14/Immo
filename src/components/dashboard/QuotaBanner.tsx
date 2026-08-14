@@ -51,7 +51,7 @@ export function QuotaBanner({ quota }: { quota: Quota }) {
           {niveau === "atteint"
             ? "Pour mettre un logement de plus en location, passez au palier supérieur."
             : "Vous approchez de la limite de votre palier."}{" "}
-          <Link href="/#tarifs" className="text-primary font-semibold no-underline">
+          <Link href="/plans" className="text-primary font-semibold no-underline">
             Passer en {suivant.nom}
             {suivant.maxBaux === null ? " (illimité)" : ` (jusqu'à ${suivant.maxBaux} logements)`}
           </Link>

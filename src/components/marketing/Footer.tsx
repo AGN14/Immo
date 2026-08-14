@@ -25,7 +25,7 @@ const columns = [
 export function Footer() {
   return (
     <footer className="border-line border-t py-12">
-      <div className="mx-auto max-w-[1180px] px-5 sm:px-8 lg:px-12">
+      <div className="mx-auto px-5 sm:px-8 lg:px-12">
         <div className="flex flex-wrap justify-between gap-10">
           <div className="flex max-w-[22em] flex-col gap-3">
             <Link href="/" className="flex items-center gap-2.5 no-underline">
