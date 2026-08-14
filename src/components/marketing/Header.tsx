@@ -5,11 +5,13 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Logo } from "@/components/ui/Logo";
 
+/* Ancres absolues : ces liens doivent aussi fonctionner depuis /a-propos ou /contact,
+   où les sections visées n'existent pas. */
 const links = [
-  { href: "#fonctionnalites", label: "Fonctionnalités" },
-  { href: "#comment-ca-marche", label: "Comment ça marche" },
-  { href: "#temoignages", label: "Témoignages" },
-  { href: "#tarifs", label: "Tarifs" },
+  { href: "/#fonctionnalites", label: "Fonctionnalités" },
+  { href: "/#comment-ca-marche", label: "Comment ça marche" },
+  { href: "/#temoignages", label: "Témoignages" },
+  { href: "/#tarifs", label: "Tarifs" },
 ];
 
 export function Header() {
@@ -25,45 +27,43 @@ export function Header() {
 
   return (
     <header
-      className={`bg-paper/86 sticky top-0 z-40 backdrop-blur-[10px] transition-[border-color,box-shadow] duration-300 ${
-        scrolled
-          ? "border-line border-b shadow-[0_8px_24px_rgba(32,27,61,0.06)]"
-          : "border-b border-transparent"
+      className={`bg-paper/90 sticky top-0 z-40 backdrop-blur-[8px] transition-colors duration-200 ${
+        scrolled ? "border-line border-b" : "border-b border-transparent"
       }`}
     >
-      <div className="mx-auto flex h-[76px] max-w-[1180px] items-center justify-between gap-6 px-5 sm:px-8 lg:px-12">
-        <Link href="#top" className="flex items-center gap-[0.65rem] no-underline">
+      <div className="mx-auto flex h-[68px] max-w-[1180px] items-center justify-between gap-6 px-5 sm:px-8 lg:px-12">
+        <Link href="/" className="flex items-center gap-2.5 no-underline">
           <Logo />
         </Link>
 
         <nav
-          className={`border-line bg-paper fixed inset-x-0 top-[76px] flex flex-col items-start gap-0 border-b px-5 pt-2 pb-5 opacity-0 transition-[opacity,transform] duration-200 sm:px-8 lg:px-12 ${
+          className={`border-line bg-paper fixed inset-x-0 top-[68px] flex flex-col items-start border-b px-5 pt-1 pb-5 transition-opacity duration-150 sm:px-8 lg:px-12 ${
             open
-              ? "pointer-events-auto translate-y-0 opacity-100"
-              : "pointer-events-none -translate-y-2 opacity-0"
-          } md:pointer-events-auto md:static md:translate-y-0 md:flex-row md:items-center md:gap-[2.1rem] md:border-none md:bg-transparent md:p-0 md:opacity-100`}
+              ? "pointer-events-auto opacity-100"
+              : "pointer-events-none opacity-0 md:pointer-events-auto md:opacity-100"
+          } md:static md:flex-row md:items-center md:gap-8 md:border-none md:bg-transparent md:p-0 md:opacity-100`}
         >
           {links.map((l) => (
             <a
               key={l.href}
               href={l.href}
               onClick={() => setOpen(false)}
-              className="border-line text-ink-2 hover:text-ink w-full border-b py-[0.85rem] text-[0.92rem] font-semibold no-underline transition-colors md:w-auto md:border-none md:py-0"
+              className="border-line text-ink-2 hover:text-ink w-full border-b py-3 text-sm font-medium no-underline transition-colors md:w-auto md:border-none md:py-0"
             >
               {l.label}
             </a>
           ))}
-          <div className="mt-4 flex w-full flex-col gap-3 md:hidden">
-            <Button href="/connexion" variant="ghost" block onClick={() => setOpen(false)}>
+          <div className="mt-4 flex w-full flex-col gap-2.5 md:hidden">
+            <Button href="/connexion" variant="ghost" block>
               Se connecter
             </Button>
-            <Button href="/inscription" variant="primary" block onClick={() => setOpen(false)}>
+            <Button href="/inscription" variant="primary" block>
               Commencer gratuitement
             </Button>
           </div>
         </nav>
 
-        <div className="flex items-center gap-[0.9rem]">
+        <div className="flex items-center gap-2.5">
           <span className="hidden md:block">
             <Button href="/connexion" variant="ghost">
               Se connecter
@@ -79,13 +79,13 @@ export function Header() {
             aria-label="Ouvrir le menu"
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
-            className="border-line bg-surface flex size-[42px] items-center justify-center rounded-xl border md:hidden"
+            className="border-line bg-surface text-ink flex size-10 items-center justify-center rounded-md border md:hidden"
           >
             <svg
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              strokeWidth="1.8"
+              strokeWidth="1.6"
               strokeLinecap="round"
               className="size-5"
             >

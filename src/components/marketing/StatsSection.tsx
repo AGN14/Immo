@@ -1,44 +1,55 @@
 import { ArrowRightIcon } from "@/components/ui/ArrowRightIcon";
 import { Button } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
-import { Reveal } from "@/components/ui/Reveal";
 
-const stats = [
-  { num: "72h", lbl: "délai moyen de résolution d'une panne signalée" },
-  { num: "100%", lbl: "des paiements de loyer horodatés et tracés" },
-  { num: "0 FCFA", lbl: "l'accès locataire, toujours gratuit" },
-  { num: "3 étapes", lbl: "pour démarrer, sans formation ni paperasse" },
+/* Des faits produit vérifiables, pas des indicateurs de performance inventés. */
+const engagements = [
+  {
+    valeur: "0 FCFA",
+    libelle: "L'accès locataire, sans limite de durée ni de fonctionnalités.",
+  },
+  {
+    valeur: "2 min",
+    libelle: "Pour créer un compte, ajouter un bien et inviter son locataire.",
+  },
+  {
+    valeur: "100 %",
+    libelle: "Des paiements horodatés et tracés, consultables des deux côtés.",
+  },
 ];
 
 export function StatsSection() {
   return (
-    <section className="py-[clamp(1rem,3vw,2rem)_clamp(3rem,6vw,5.5rem)]">
-      <div className="mx-auto grid max-w-[1180px] grid-cols-1 items-center gap-[clamp(2rem,5vw,4rem)] px-5 sm:px-8 md:grid-cols-[0.95fr_1.05fr] lg:px-12">
-        <Reveal className="flex flex-col gap-[1.1rem]">
+    <section className="py-16 md:py-24">
+      <div className="mx-auto grid max-w-[1180px] grid-cols-1 items-start gap-10 px-5 sm:px-8 md:grid-cols-2 md:gap-16 lg:px-12">
+        <div className="flex flex-col items-start gap-4">
           <Eyebrow>Conçu pour durer</Eyebrow>
-          <h2 className="font-display text-ink mt-1 text-[clamp(1.7rem,1.35rem+1.6vw,2.5rem)] leading-[1.1] font-bold tracking-tight text-balance">
-            Pensé pour tenir la charge d&rsquo;un vrai parc locatif.
+          <h2 className="font-display text-ink text-3xl font-semibold text-balance md:text-4xl">
+            Pensé pour tenir la charge d&rsquo;un vrai parc locatif
           </h2>
-          <p className="text-ink-2 max-w-[40em] text-[clamp(1.02rem,0.96rem+0.3vw,1.15rem)]">
+          <p className="text-ink-2 max-w-[38em]">
             Immo n&rsquo;est pas un tableur qu&rsquo;on abandonne au bout d&rsquo;un mois. Chaque
-            chiffre ci-contre est une promesse tenue par le produit, pas un objectif marketing.
+            engagement ci-contre est tenu par le produit lui-même, pas par une promesse marketing.
           </p>
-          <Button href="#comment-ca-marche" variant="ghost" className="mt-2 w-fit">
+          <Button href="/#comment-ca-marche" variant="ghost" className="mt-2">
             Voir comment ça marche
             <ArrowRightIcon />
           </Button>
-        </Reveal>
+        </div>
 
-        <Reveal className="grid grid-cols-2 gap-4">
-          {stats.map((s) => (
-            <div key={s.num} className="border-line bg-surface rounded-md border p-[1.4rem_1.3rem]">
-              <span className="text-primary block font-mono text-2xl font-semibold">{s.num}</span>
-              <span className="text-ink-3 mt-[0.4rem] block text-[0.82rem] leading-[1.4]">
-                {s.lbl}
-              </span>
+        <dl className="border-line divide-line divide-y border-t border-b">
+          {engagements.map((e) => (
+            <div key={e.valeur} className="flex items-baseline gap-6 py-5">
+              <dt
+                className="font-display text-ink w-28 shrink-0 text-2xl font-semibold"
+                data-numeric
+              >
+                {e.valeur}
+              </dt>
+              <dd className="text-ink-2 text-sm">{e.libelle}</dd>
             </div>
           ))}
-        </Reveal>
+        </dl>
       </div>
     </section>
   );

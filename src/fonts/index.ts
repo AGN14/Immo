@@ -1,26 +1,17 @@
 import localFont from "next/font/local";
 
-export const fraunces = localFont({
-  src: "./fraunces.woff2",
-  weight: "500 800",
+export const sourceSerif = localFont({
+  src: "./source-serif-4.woff2",
+  weight: "200 900",
   style: "normal",
-  variable: "--font-fraunces",
+  variable: "--font-source-serif",
   display: "swap",
 });
 
-export const manrope = localFont({
-  src: "./manrope.woff2",
-  weight: "300 800",
+export const inter = localFont({
+  src: "./inter.woff2",
+  weight: "100 900",
   style: "normal",
-  variable: "--font-manrope",
-  display: "swap",
-});
-
-export const plexMono = localFont({
-  src: [
-    { path: "./plexmono-500.woff2", weight: "500", style: "normal" },
-    { path: "./plexmono-600.woff2", weight: "600", style: "normal" },
-  ],
-  variable: "--font-plex-mono",
+  variable: "--font-inter",
   display: "swap",
 });

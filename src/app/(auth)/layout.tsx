@@ -1,36 +1,37 @@
 import Link from "next/link";
 import { Logo } from "@/components/ui/Logo";
 
+/**
+ * Composition « guichet » : même mise en page sur téléphone et sur bureau.
+ * Le formulaire vit dans une carte, comme tout autre bloc de contenu du site,
+ * et le header maintient le lien avec la landing.
+ */
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="grid min-h-dvh grid-cols-1 md:grid-cols-[1fr_1.1fr]">
-      <div className="bg-primary-deep relative hidden flex-col justify-between overflow-hidden p-10 text-white md:flex">
-        <Link href="/" className="relative z-10 flex items-center gap-[0.65rem] no-underline">
-          <Logo onDark />
-        </Link>
-        <div className="relative z-10 flex flex-col gap-4">
-          <p className="font-display max-w-[20em] text-[1.7rem] leading-[1.2] font-bold text-balance">
-            Le loyer, les pannes et les litiges — enfin sous contrôle.
-          </p>
-          <p className="max-w-[24em] text-[0.95rem] text-[#A9C9BE]">
-            Immo réunit propriétaires et locataires sur une seule plateforme. L&rsquo;accès
-            locataire est et restera toujours gratuit.
-          </p>
-        </div>
-        <div
-          className="pointer-events-none absolute -right-24 -bottom-24 size-[380px] rounded-full bg-white/5"
-          aria-hidden="true"
-        />
-      </div>
-
-      <div className="bg-paper flex items-center justify-center p-6 sm:p-10">
-        <div className="w-full max-w-[420px]">
-          <Link href="/" className="mb-8 flex items-center gap-[0.65rem] no-underline md:hidden">
+    <div className="bg-paper flex min-h-dvh flex-col">
+      <header className="border-line bg-surface border-b">
+        <div className="mx-auto flex h-[68px] max-w-[1180px] items-center justify-between gap-4 px-5 sm:px-8 lg:px-12">
+          <Link href="/" className="flex items-center gap-2.5 no-underline">
             <Logo />
           </Link>
-          {children}
+          <Link
+            href="/"
+            className="text-ink-2 hover:text-ink text-sm font-medium no-underline transition-colors"
+          >
+            ← Retour au site
+          </Link>
         </div>
-      </div>
+      </header>
+
+      <main className="flex flex-1 items-center justify-center px-5 py-12 sm:px-8">
+        <div className="w-full max-w-[420px]">{children}</div>
+      </main>
+
+      <footer className="border-line border-t py-5">
+        <p className="text-ink-2 mx-auto max-w-[1180px] px-5 text-center text-sm sm:px-8">
+          L&rsquo;accès locataire est et restera toujours gratuit.
+        </p>
+      </footer>
     </div>
   );
 }

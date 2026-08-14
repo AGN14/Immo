@@ -1,5 +1,4 @@
 import { Eyebrow } from "@/components/ui/Eyebrow";
-import { Reveal } from "@/components/ui/Reveal";
 
 const ownerFeatures = [
   {
@@ -8,7 +7,7 @@ const ownerFeatures = [
     icon: <path d="M4 19V10M10 19V5M16 19v-7M4 19h16" />,
   },
   {
-    title: "Facturation automatique & plan comptable",
+    title: "Facturation automatique et plan comptable",
     body: "Une facture générée à chaque paiement, un récapitulatif comptable prêt chaque mois pour votre gestionnaire.",
     icon: (
       <>
@@ -29,7 +28,7 @@ const ownerFeatures = [
   },
   {
     title: "Résolution des litiges entre locataires",
-    body: "Un espace commun pour documenter, échanger des preuves et trancher — sans que tout retombe sur vous par téléphone.",
+    body: "Un espace commun pour documenter, échanger des preuves et trancher, sans que tout retombe sur vous par téléphone.",
     icon: <path d="M12 3v18M6 7l-3 6a3.2 3.2 0 0 0 6 0ZM21 13a3.2 3.2 0 0 1-6 0l3-6ZM6 7h12" />,
   },
 ];
@@ -85,10 +84,10 @@ function Icon({ children }: { children: React.ReactNode }) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.8"
+      strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="size-[19px]"
+      className="size-[18px]"
     >
       {children}
     </svg>
@@ -97,65 +96,60 @@ function Icon({ children }: { children: React.ReactNode }) {
 
 export function FeatureTracks() {
   return (
-    <section id="fonctionnalites" className="py-[clamp(3rem,6vw,5.5rem)]">
+    <section id="fonctionnalites" className="py-16 md:py-24">
       <div className="mx-auto max-w-[1180px] px-5 sm:px-8 lg:px-12">
-        <Reveal className="mb-[clamp(2rem,4vw,3rem)] flex max-w-[46em] flex-col gap-[0.9rem]">
+        <div className="flex max-w-[42em] flex-col items-start gap-4">
           <Eyebrow>Une plateforme, deux expériences</Eyebrow>
-          <h2 className="font-display text-ink mt-1 text-[clamp(1.7rem,1.35rem+1.6vw,2.5rem)] leading-[1.1] font-bold tracking-tight text-balance">
+          <h2 className="font-display text-ink text-3xl font-semibold text-balance md:text-4xl">
             Pensé pour parler le langage de chacun
           </h2>
-          <p className="text-ink-2 max-w-[40em] text-[clamp(1.02rem,0.96rem+0.3vw,1.15rem)]">
+          <p className="text-ink-2">
             Le propriétaire pilote son parc comme une petite entreprise. Le locataire, lui, veut
             juste que ça marche en deux clics. Immo tient les deux promesses.
           </p>
-        </Reveal>
+        </div>
 
-        <div className="grid grid-cols-1 items-start gap-[1.6rem] md:grid-cols-2">
-          <Reveal className="bg-primary-deep flex flex-col gap-[1.3rem] rounded-lg p-[clamp(1.6rem,3vw,2.2rem)] text-white">
-            <div>
-              <span className="font-mono text-[0.72rem] font-semibold tracking-[0.1em] text-[#A9C9BE] uppercase">
-                Propriétaire
-              </span>
-              <h3 className="font-display text-[1.5rem] font-bold text-white">
-                Piloter son parc locatif
-              </h3>
-            </div>
-            {ownerFeatures.map((f) => (
-              <div key={f.title} className="flex gap-[0.9rem] rounded-sm bg-white/7 p-4">
-                <span className="grid size-[38px] shrink-0 place-items-center rounded-[11px] bg-white/14 text-white">
-                  <Icon>{f.icon}</Icon>
-                </span>
-                <div>
-                  <h4 className="mb-[0.3rem] font-sans text-[0.98rem] font-bold">{f.title}</h4>
-                  <p className="text-[0.86rem] text-[#A9C9BE]">{f.body}</p>
-                </div>
-              </div>
-            ))}
-          </Reveal>
+        <div className="mt-12 grid grid-cols-1 items-start gap-6 md:grid-cols-2">
+          {/* Panneau mis en avant (#eadbc0) : le côté propriétaire est celui qu'on souligne. */}
+          <div className="bg-highlight border-line rounded-lg border p-6 md:p-8">
+            <span className="text-primary text-sm font-semibold">Propriétaire</span>
+            <h3 className="font-display text-ink mt-1 text-2xl font-semibold">
+              Piloter son parc locatif
+            </h3>
+            <ul className="divide-line-soft border-line-soft mt-6 flex flex-col divide-y border-t">
+              {ownerFeatures.map((f) => (
+                <li key={f.title} className="flex gap-3.5 py-4">
+                  <span className="text-primary mt-0.5 shrink-0">
+                    <Icon>{f.icon}</Icon>
+                  </span>
+                  <div>
+                    <h4 className="text-ink font-sans text-base font-semibold">{f.title}</h4>
+                    <p className="text-ink-2 mt-1 text-sm">{f.body}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-          <Reveal className="border-line bg-surface flex flex-col gap-[1.3rem] rounded-lg border p-[clamp(1.6rem,3vw,2.2rem)]">
-            <div>
-              <span className="text-ink-3 font-mono text-[0.72rem] font-semibold tracking-[0.1em] uppercase">
-                Locataire
-              </span>
-              <h3 className="font-display text-ink text-[1.5rem] font-bold">
-                Gérer sa location au quotidien
-              </h3>
-            </div>
-            {tenantFeatures.map((f) => (
-              <div key={f.title} className="bg-lilac flex gap-[0.9rem] rounded-sm p-4">
-                <span className="bg-surface text-primary grid size-[38px] shrink-0 place-items-center rounded-[11px]">
-                  <Icon>{f.icon}</Icon>
-                </span>
-                <div>
-                  <h4 className="text-ink mb-[0.3rem] font-sans text-[0.98rem] font-bold">
-                    {f.title}
-                  </h4>
-                  <p className="text-ink-2 text-[0.86rem]">{f.body}</p>
-                </div>
-              </div>
-            ))}
-          </Reveal>
+          <div className="border-line bg-surface rounded-lg border p-6 md:p-8">
+            <span className="text-ink-3 text-sm font-semibold">Locataire</span>
+            <h3 className="font-display text-ink mt-1 text-2xl font-semibold">
+              Gérer sa location au quotidien
+            </h3>
+            <ul className="divide-line border-line mt-6 flex flex-col divide-y border-t">
+              {tenantFeatures.map((f) => (
+                <li key={f.title} className="flex gap-3.5 py-4">
+                  <span className="text-primary mt-0.5 shrink-0">
+                    <Icon>{f.icon}</Icon>
+                  </span>
+                  <div>
+                    <h4 className="text-ink font-sans text-base font-semibold">{f.title}</h4>
+                    <p className="text-ink-2 mt-1 text-sm">{f.body}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
     </section>

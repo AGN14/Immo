@@ -1,78 +1,145 @@
 @import "tailwindcss";
 
+/* --------------------------------------------------------------------------
+   Palette beige / terracotta — un seul monde, partagé par la landing et l'app.
+   Valeurs brutes ici, mapping vers Tailwind dans @theme.
+   -------------------------------------------------------------------------- */
 :root {
-  --color-ink: #161d1b;
-  --color-ink-2: #39443f;
-  --color-ink-3: #6e7973;
-  --color-primary: #0e6b55;
-  --color-primary-hi: #128568;
-  --color-primary-deep: #0a3d31;
-  --color-primary-soft: rgba(14, 107, 85, 0.08);
-  --color-paper: #fafaf7;
-  --color-lilac: #f2f3ef;
-  --color-surface: #ffffff;
-  --color-coral: #c14a32;
-  --color-coral-soft: rgba(193, 74, 50, 0.08);
-  --color-line: rgba(22, 29, 27, 0.14);
-  --color-on-primary: #f2fbf8;
+  /* La palette n'existe qu'en clair : on l'annonce au navigateur pour que les
+     contrôles de formulaire et les ascenseurs ne basculent pas en sombre. */
+  color-scheme: light;
 
-  --shadow-token-sm: 0 8px 22px rgba(32, 27, 61, 0.08);
-  --shadow-token-md: 0 20px 45px rgba(32, 27, 61, 0.16), 0 6px 16px rgba(32, 27, 61, 0.1);
-}
+  /* Fonds & surfaces */
+  --paper: #ece0c8; /* fond de page (beige sable) */
+  --sand: #e4d6b8; /* sections alternées, en-têtes de panneaux */
+  --surface: #f2e9d5; /* cartes / registre / guichet */
+  --highlight: #eadbc0; /* panneaux mis en avant (plan Pro, côté propriétaire) */
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-ink: #edefea;
-    --color-ink-2: #b9c0b9;
-    --color-ink-3: #838c86;
-    --color-primary: #34b693;
-    --color-primary-hi: #4fcba8;
-    --color-primary-deep: #1f8f71;
-    --color-primary-soft: rgba(52, 182, 147, 0.14);
-    --color-paper: #12140f;
-    --color-lilac: #1b1f17;
-    --color-surface: #20241a;
-    --color-coral: #e2735a;
-    --color-coral-soft: rgba(226, 115, 90, 0.14);
-    --color-line: rgba(237, 239, 234, 0.14);
-    --color-on-primary: #0a1410;
+  /* Texte (encre) */
+  --ink: #2a2319;
+  --ink-2: #5b5041;
+  --ink-3: #6d6048;
 
-    --shadow-token-sm: 0 8px 22px rgba(0, 0, 0, 0.32);
-    --shadow-token-md: 0 20px 45px rgba(0, 0, 0, 0.45), 0 6px 16px rgba(0, 0, 0, 0.28);
-  }
+  /* Accent terracotta */
+  --primary: #a4431d; /* actions, liens, logo, montants */
+  --primary-hi: #8e3a18; /* dérivé : survol, un cran plus foncé */
+  --primary-soft: rgba(164, 67, 29, 0.08); /* fonds d'icônes */
+  --on-primary: #fdf6ec; /* texte crème sur terracotta */
+  --panel: #7a3114; /* panneaux d'encre foncée */
+  --panel-muted: rgba(253, 246, 236, 0.75); /* dérivé : texte secondaire sur panneau */
+  --panel-line: rgba(253, 246, 236, 0.18);
+
+  /* Accents secondaires */
+  --rose: #a53f56; /* rose encre */
+  --amber: #a5661b; /* ambre (fiches travaux) */
+
+  /* Statuts */
+  --success: #356b42; /* encaissé, « RÉGLÉ », système en ligne */
+  --success-soft: rgba(53, 107, 66, 0.1);
+  --danger: #ab3430; /* en retard */
+  --danger-soft: rgba(171, 52, 48, 0.1);
+
+  /* Bordures & ombres */
+  --line: rgba(42, 35, 25, 0.16);
+  --line-soft: rgba(42, 35, 25, 0.09);
+
+  --shadow-token-sm: 0 1px 2px rgba(42, 35, 25, 0.1);
+  --shadow-token-md: 0 4px 14px rgba(42, 35, 25, 0.14), 0 1px 3px rgba(42, 35, 25, 0.1);
+  --shadow-token-cta: 0 2px 6px rgba(164, 67, 29, 0.05), 0 8px 22px rgba(164, 67, 29, 0.22);
 }
 
 @theme inline {
-  --color-ink: var(--color-ink);
-  --color-ink-2: var(--color-ink-2);
-  --color-ink-3: var(--color-ink-3);
-  --color-primary: var(--color-primary);
-  --color-primary-hi: var(--color-primary-hi);
-  --color-primary-deep: var(--color-primary-deep);
-  --color-primary-soft: var(--color-primary-soft);
-  --color-paper: var(--color-paper);
-  --color-lilac: var(--color-lilac);
-  --color-surface: var(--color-surface);
-  --color-coral: var(--color-coral);
-  --color-coral-soft: var(--color-coral-soft);
-  --color-line: var(--color-line);
-  --color-on-primary: var(--color-on-primary);
+  --color-paper: var(--paper);
+  --color-sand: var(--sand);
+  --color-surface: var(--surface);
+  --color-highlight: var(--highlight);
 
-  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
-  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, monospace;
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
 
-  --radius-sm: 14px;
-  --radius-md: 20px;
-  --radius-lg: 28px;
+  --color-primary: var(--primary);
+  --color-primary-hi: var(--primary-hi);
+  --color-primary-soft: var(--primary-soft);
+  --color-on-primary: var(--on-primary);
+  --color-panel: var(--panel);
+  --color-panel-muted: var(--panel-muted);
+  --color-panel-line: var(--panel-line);
+
+  --color-rose: var(--rose);
+  --color-amber: var(--amber);
+
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+
+  /* Deux familles, pas trois. Le serif porte les titres, l'Inter fait le reste. */
+  --font-display: var(--font-source-serif), ui-serif, Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  /* Échelle typographique : 8 pas fixes, plus aucune valeur arbitraire.
+     Les hauteurs de ligne se resserrent à mesure que la taille augmente. */
+  --text-xs: 0.75rem; /* 12 — mentions légales */
+  --text-xs--line-height: 1.45;
+  --text-sm: 0.875rem; /* 14 — méta, libellés, cellules */
+  --text-sm--line-height: 1.5;
+  --text-base: 1rem; /* 16 — texte courant */
+  --text-base--line-height: 1.6;
+  --text-lg: 1.125rem; /* 18 — chapô */
+  --text-lg--line-height: 1.55;
+  --text-xl: 1.25rem; /* 20 — titre de carte */
+  --text-xl--line-height: 1.35;
+  --text-xl--letter-spacing: -0.01em;
+  --text-2xl: 1.5rem; /* 24 — titre de bloc */
+  --text-2xl--line-height: 1.25;
+  --text-2xl--letter-spacing: -0.015em;
+  --text-3xl: 1.875rem; /* 30 — titre de page */
+  --text-3xl--line-height: 1.2;
+  --text-3xl--letter-spacing: -0.02em;
+  --text-4xl: 2.25rem; /* 36 — titre de section */
+  --text-4xl--line-height: 1.15;
+  --text-4xl--letter-spacing: -0.022em;
+  --text-5xl: 3rem; /* 48 — hero */
+  --text-5xl--line-height: 1.08;
+  --text-5xl--letter-spacing: -0.025em;
+
+  /* Rayons resserrés : un outil de gestion, pas une app de messagerie. */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
   --radius-pill: 999px;
 
   --shadow-sm: var(--shadow-token-sm);
   --shadow-md: var(--shadow-token-md);
+  --shadow-cta: var(--shadow-token-cta);
 }
 
-body {
-  background: var(--color-paper);
-  color: var(--color-ink);
-  font-family: var(--font-sans);
+@layer base {
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  /* Les titres passent au serif par défaut : plus besoin de le répéter partout. */
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-source-serif), ui-serif, Georgia, serif;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  /* Les montants et les colonnes de chiffres s'alignent sans passer par du mono. */
+  table,
+  [data-numeric] {
+    font-variant-numeric: tabular-nums;
+  }
 }

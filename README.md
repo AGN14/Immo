@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Immo
 
-## Getting Started
+Plateforme de gestion locative pour l'Afrique de l'Ouest. Elle réunit **propriétaires** et
+**locataires** au même endroit : loyers suivis à la FCFA près, pannes signalées avec photos,
+litiges documentés, factures générées automatiquement.
 
-First, run the development server:
+L'accès locataire est gratuit ; seuls les propriétaires souscrivent un abonnement.
+
+## Démarrer
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Le site tourne sur http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Commande            | Effet                       |
+| ------------------- | --------------------------- |
+| `npm run dev`       | serveur de développement    |
+| `npm run build`     | build de production         |
+| `npm run start`     | sert le build de production |
+| `npm run lint`      | ESLint                      |
+| `npm run typecheck` | TypeScript sans émission    |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Structure
 
-## Learn More
+```
+src/
+  app/
+    (app)/          espace connecté : dashboard, biens, locataires, loyers
+    (auth)/         connexion et inscription
+    page.tsx        landing publique
+    globals.css     palette, échelle typographique, rayons
+  components/
+    marketing/      sections de la landing
+    dashboard/      composants de l'espace connecté
+    ui/             primitives partagées (Button, Input, StatusPill…)
+  fonts/            Source Serif 4 + Inter, auto-hébergées
+  lib/
+    auth/           actions serveur et session (simulées)
+    mock-data/      biens, locataires, paiements de démonstration
+    types.ts        types du domaine
+    status-labels.ts  libellés et tons des statuts
+  proxy.ts          redirections d'authentification (convention Next 16)
+docs/
+  reference-vestia/ maquettes HTML d'une itération antérieure, hors application
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Design
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**Typographie** — Source Serif 4 pour les titres, Inter pour le texte et les chiffres.
+Aucune taille arbitraire : une échelle de 8 pas définie dans `globals.css`. Les montants
+s'alignent via `font-variant-numeric: tabular-nums`, pas via une police monospace.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Palette** — beige et terracotta, un seul thème clair partagé par la landing et l'espace
+connecté. Toutes les valeurs sont des tokens dans `globals.css` ; aucune couleur n'est écrite
+en dur dans les composants.
 
-## Deploy on Vercel
+## État actuel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Les données sont **simulées** (`src/lib/mock-data`) et l'authentification aussi : la session
+vit dans un cookie et `login` résout le rôle depuis l'annuaire des locataires connus. Cette
+résolution est le seul endroit à remplacer le jour où un vrai backend arrive.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Les témoignages, chiffres et montants affichés sont des données de démonstration.

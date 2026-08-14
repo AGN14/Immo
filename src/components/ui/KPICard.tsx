@@ -13,16 +13,14 @@ export function KPICard({
 }) {
   return (
     <div className="border-line bg-surface rounded-md border p-5">
-      <div className="flex items-center gap-3">
-        <span className="bg-primary-soft text-primary grid size-9 shrink-0 place-items-center rounded-[10px]">
-          {icon}
-        </span>
-        <span className="text-ink-3 font-mono text-[0.72rem] font-semibold tracking-[0.08em] uppercase">
-          {label}
-        </span>
+      <div className="flex items-center gap-2.5">
+        <span className="text-ink-3">{icon}</span>
+        <span className="text-ink-3 text-sm font-medium">{label}</span>
       </div>
-      <div className="text-ink mt-3 font-mono text-[1.5rem] font-semibold">{value}</div>
-      {caption && <div className="text-ink-3 mt-1 text-[0.78rem]">{caption}</div>}
+      <div className="text-primary mt-3 text-3xl font-semibold" data-numeric>
+        {value}
+      </div>
+      {caption && <div className="text-ink-3 mt-1 text-sm">{caption}</div>}
     </div>
   );
 }

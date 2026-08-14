@@ -2,6 +2,10 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
+/**
+ * Apparition discrète au scroll. Réservée aux blocs de section : le texte courant
+ * ne doit jamais dépendre du JS pour être lisible.
+ */
 export function Reveal({ children, className = "" }: { children: ReactNode; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -16,7 +20,7 @@ export function Reveal({ children, className = "" }: { children: ReactNode; clas
           io.unobserve(el);
         }
       },
-      { threshold: 0.15, rootMargin: "0px 0px -40px 0px" },
+      { threshold: 0, rootMargin: "0px 0px -80px 0px" },
     );
     io.observe(el);
     return () => io.disconnect();
@@ -25,8 +29,8 @@ export function Reveal({ children, className = "" }: { children: ReactNode; clas
   return (
     <div
       ref={ref}
-      className={`transition-[opacity,transform] duration-700 ease-out motion-reduce:transition-none ${
-        visible ? "translate-y-0 opacity-100" : "translate-y-[18px] opacity-0"
+      className={`transition-[opacity,transform] duration-500 ease-out motion-reduce:transition-none ${
+        visible ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
       } ${className}`}
     >
       {children}

@@ -2,18 +2,18 @@ export function Logo({ onDark = false }: { onDark?: boolean }) {
   return (
     <>
       <span
-        className={`grid size-[34px] shrink-0 place-items-center rounded-[10px] ${
-          onDark ? "bg-white/15" : "bg-primary"
+        className={`text-on-primary grid size-8 shrink-0 place-items-center rounded-sm ${
+          onDark ? "bg-on-primary/15" : "bg-primary"
         }`}
       >
         <svg
           viewBox="0 0 24 24"
           fill="none"
-          stroke="white"
-          strokeWidth="1.8"
+          stroke="currentColor"
+          strokeWidth="1.6"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="size-[18px]"
+          className="size-4"
         >
           <path d="M4 11.5 12 4l8 7.5" />
           <path d="M6 10v9h12v-9" />
@@ -21,7 +21,7 @@ export function Logo({ onDark = false }: { onDark?: boolean }) {
         </svg>
       </span>
       <span
-        className={`font-display text-[1.28rem] font-bold ${onDark ? "text-white" : "text-ink"}`}
+        className={`font-display text-xl font-semibold ${onDark ? "text-on-primary" : "text-ink"}`}
       >
         Immo
       </span>

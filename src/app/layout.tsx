@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { fraunces, manrope, plexMono } from "@/fonts";
+import { inter, sourceSerif } from "@/fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -10,10 +10,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="fr"
-      className={`${fraunces.variable} ${manrope.variable} ${plexMono.variable} antialiased`}
-    >
+    <html lang="fr" className={`${sourceSerif.variable} ${inter.variable} antialiased`}>
       <body>{children}</body>
     </html>
   );

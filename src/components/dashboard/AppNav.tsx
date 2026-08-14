@@ -24,7 +24,7 @@ export function AppNav({ role }: { role: "proprietaire" | "locataire" }) {
             <Link
               key={l.href}
               href={l.href}
-              className={`border-b-2 py-3 text-[0.86rem] font-semibold no-underline transition-colors ${
+              className={`-mb-px border-b-2 py-3 text-sm font-medium no-underline transition-colors ${
                 active ? "border-primary text-ink" : "text-ink-3 hover:text-ink border-transparent"
               }`}
             >

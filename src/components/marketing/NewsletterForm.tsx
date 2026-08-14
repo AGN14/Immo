@@ -12,22 +12,19 @@ export function NewsletterForm() {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className={`mt-1 flex flex-col gap-[0.6rem] sm:flex-row sm:gap-[0.6rem] ${done ? "opacity-60" : ""}`}
-    >
+    <form onSubmit={handleSubmit} className="mt-1 flex flex-col gap-2 sm:flex-row">
       <input
         type="email"
         placeholder="vous@exemple.com"
         aria-label="Adresse e-mail"
         required
         disabled={done}
-        className="rounded-pill border-line bg-surface text-ink focus-visible:outline-primary min-w-0 flex-1 border px-[1.1em] py-[0.75em] font-sans text-[0.9rem] focus-visible:outline-2 focus-visible:outline-offset-2"
+        className="border-line bg-surface text-ink placeholder:text-ink-3 focus-visible:outline-primary min-w-0 flex-1 rounded-md border px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-offset-1 disabled:opacity-60"
       />
       <button
         type="submit"
         disabled={done}
-        className="rounded-pill bg-primary text-on-primary hover:bg-primary-hi w-full px-[1.6em] py-[0.9em] font-sans text-[0.96rem] font-bold shadow-sm transition-colors sm:w-auto"
+        className="bg-primary text-on-primary hover:bg-primary-hi rounded-md px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-60"
       >
         {done ? "Merci !" : "S'abonner"}
       </button>

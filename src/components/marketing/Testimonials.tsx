@@ -1,67 +1,56 @@
 import { Eyebrow } from "@/components/ui/Eyebrow";
-import { Reveal } from "@/components/ui/Reveal";
 
 const testimonials = [
   {
     quote:
       "Je gérais mes quatre appartements dans un cahier. Aujourd'hui je sais qui a payé avant même d'ouvrir Immo. Le plan comptable du mois, c'est ma comptable qui me remercie.",
-    initials: "AD",
-    colorClass: "bg-primary",
     name: "Aïssatou Diallo",
-    role: "Propriétaire — Dakar, Sénégal",
+    role: "Propriétaire, Dakar",
   },
   {
     quote:
       "J'ai signalé une fuite avec deux photos un dimanche soir. Le lundi matin, le plombier était déjà prévenu. Avant, j'aurais rappelé trois fois pour rien.",
-    initials: "KY",
-    colorClass: "bg-primary-hi",
     name: "Kouadio Yves",
-    role: "Locataire — Abidjan, Côte d'Ivoire",
+    role: "Locataire, Abidjan",
   },
   {
     quote:
       "Deux locataires en désaccord sur le bruit, tout est resté documenté dans Immo au lieu de dégénérer sur le groupe WhatsApp de l'immeuble.",
-    initials: "BF",
-    colorClass: "bg-primary-deep",
     name: "Brice Fotso",
-    role: "Propriétaire — Douala, Cameroun",
+    role: "Propriétaire, Douala",
   },
 ];
 
 export function Testimonials() {
   return (
-    <section id="temoignages" className="py-[clamp(3rem,6vw,5.5rem)]">
+    <section id="temoignages" className="py-16 md:py-24">
       <div className="mx-auto max-w-[1180px] px-5 sm:px-8 lg:px-12">
-        <Reveal className="mb-[clamp(2rem,4vw,3rem)] flex max-w-[46em] flex-col gap-[0.9rem]">
+        <div className="flex max-w-[42em] flex-col items-start gap-4">
           <Eyebrow>Ils utilisent Immo</Eyebrow>
-          <h2 className="font-display text-ink mt-1 text-[clamp(1.7rem,1.35rem+1.6vw,2.5rem)] leading-[1.1] font-bold tracking-tight text-balance">
+          <h2 className="font-display text-ink text-3xl font-semibold text-balance md:text-4xl">
             Ce que ça change, au quotidien
           </h2>
-        </Reveal>
+        </div>
 
-        <div className="grid grid-cols-1 gap-[1.4rem] md:grid-cols-3">
+        <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-10">
           {testimonials.map((t) => (
-            <Reveal
-              key={t.name}
-              className="border-line bg-surface flex flex-col gap-[1.2rem] rounded-md border p-[1.8rem]"
-            >
-              <blockquote className="font-display text-ink text-[1.05rem] leading-[1.45]">
+            <figure key={t.name} className="border-line flex h-full flex-col gap-4 border-t pt-5">
+              <blockquote className="font-display text-ink text-xl">
                 &laquo;&nbsp;{t.quote}&nbsp;&raquo;
               </blockquote>
-              <div className="flex items-center gap-3">
-                <span
-                  className={`${t.colorClass} grid size-[42px] shrink-0 place-items-center rounded-full font-mono text-[0.85rem] font-semibold text-white`}
-                >
-                  {t.initials}
-                </span>
-                <div>
-                  <div className="text-[0.92rem] font-bold">{t.name}</div>
-                  <div className="text-ink-3 text-[0.78rem]">{t.role}</div>
-                </div>
-              </div>
-            </Reveal>
+              {/* mt-auto : les attributions s'alignent en bas quelle que soit la longueur de la citation */}
+              <figcaption className="mt-auto text-sm">
+                <span className="text-ink block font-semibold">{t.name}</span>
+                <span className="text-ink-3">{t.role}</span>
+              </figcaption>
+            </figure>
           ))}
         </div>
+
+        {/* Le produit n'a pas encore de clients : on le dit au lieu de le masquer. */}
+        <p className="text-ink-3 mt-10 text-xs">
+          Témoignages illustratifs, représentatifs des usages visés par Immo.
+        </p>
       </div>
     </section>
   );
