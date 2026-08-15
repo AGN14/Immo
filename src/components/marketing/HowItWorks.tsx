@@ -3,14 +3,14 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 const steps = [
   {
     title: "Créez votre compte",
-    body: "Propriétaire ou locataire, votre compte Immo est prêt en deux minutes, sans paperasse.",
+    body: "Propriétaire ou locataire, votre compte Xwégán est prêt en deux minutes, sans paperasse.",
   },
   {
     title: "Ajoutez ou rejoignez un bien",
     body: "Le propriétaire ajoute son bien et ses unités. Le locataire le rejoint avec un simple code.",
   },
   {
-    title: "Gérez tout depuis Immo",
+    title: "Gérez tout depuis Xwégán",
     body: "Loyers, pannes, litiges, factures : au même endroit, à jour en permanence, des deux côtés.",
   },
 ];

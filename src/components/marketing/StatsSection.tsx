@@ -28,7 +28,7 @@ export function StatsSection() {
             Pensé pour tenir la charge d&rsquo;un vrai parc locatif
           </h2>
           <p className="text-ink-2 max-w-[38em]">
-            Immo n&rsquo;est pas un tableur qu&rsquo;on abandonne au bout d&rsquo;un mois. Chaque
+            Xwégán n&rsquo;est pas un tableur qu&rsquo;on abandonne au bout d&rsquo;un mois. Chaque
             engagement ci-contre est tenu par le produit lui-même, pas par une promesse marketing.
           </p>
           <Button href="/#comment-ca-marche" variant="ghost" className="mt-2">

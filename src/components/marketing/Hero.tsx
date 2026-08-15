@@ -14,7 +14,7 @@ export function Hero() {
             Le loyer, les pannes et les litiges, enfin sous contrôle.
           </h1>
           <p className="text-ink-2 max-w-[36em] text-lg">
-            Immo réunit propriétaires et locataires sur une seule plateforme : paiements suivis à la
+            Xwégán réunit propriétaires et locataires sur une seule plateforme : paiements suivis à la
             FCFA près, pannes signalées avec photos, litiges documentés, factures générées
             automatiquement.
           </p>

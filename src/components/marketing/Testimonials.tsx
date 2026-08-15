@@ -3,7 +3,7 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 const testimonials = [
   {
     quote:
-      "Je gérais mes quatre appartements dans un cahier. Aujourd'hui je sais qui a payé avant même d'ouvrir Immo. Le plan comptable du mois, c'est ma comptable qui me remercie.",
+      "Je gérais mes quatre appartements dans un cahier. Aujourd'hui je sais qui a payé avant même d'ouvrir Xwégán. Le plan comptable du mois, c'est ma comptable qui me remercie.",
     name: "Aïssatou Diallo",
     role: "Propriétaire, Cotonou",
   },
@@ -15,7 +15,7 @@ const testimonials = [
   },
   {
     quote:
-      "Deux locataires en désaccord sur le bruit, tout est resté documenté dans Immo au lieu de dégénérer sur le groupe WhatsApp de l'immeuble.",
+      "Deux locataires en désaccord sur le bruit, tout est resté documenté dans Xwégán au lieu de dégénérer sur le groupe WhatsApp de l'immeuble.",
     name: "Brice Fotso",
     role: "Propriétaire, Douala",
   },
@@ -26,7 +26,7 @@ export function Testimonials() {
     <section id="temoignages" className="py-16 md:py-24">
       <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
         <div className="flex max-w-[42em] flex-col items-start gap-4">
-          <Eyebrow>Ils utilisent Immo</Eyebrow>
+          <Eyebrow>Ils utilisent Xwégán</Eyebrow>
           <h2 className="font-display text-ink text-3xl font-semibold text-balance md:text-4xl">
             Ce que ça change, au quotidien
           </h2>
@@ -49,7 +49,7 @@ export function Testimonials() {
 
         {/* Le produit n'a pas encore de clients : on le dit au lieu de le masquer. */}
         <p className="text-ink-3 mt-10 text-xs">
-          Témoignages illustratifs, représentatifs des usages visés par Immo.
+          Témoignages illustratifs, représentatifs des usages visés par Xwégán.
         </p>
       </div>
     </section>

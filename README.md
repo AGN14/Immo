@@ -1,4 +1,4 @@
-# Immo
+# Xwégán
 
 Plateforme de gestion locative pour l'Afrique de l'Ouest. Elle réunit **propriétaires** et
 **locataires** au même endroit : loyers suivis à la FCFA près, pannes signalées avec photos,

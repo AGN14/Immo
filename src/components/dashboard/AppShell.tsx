@@ -181,7 +181,7 @@ const roleLabels = {
   locataire: "Locataire",
 } as const;
 
-const cleLocalStorage = "immo:sidebar:ouvert";
+const cleLocalStorage = "xwegan:sidebar:ouvert";
 
 /** Coquille de l'application. Sur bureau, tout vit dans la sidebar (logo,
  *  navigation, session) : l'écran est entièrement dédié aux données. La
@@ -343,7 +343,7 @@ export function AppShell({
               <Logo />
             </Link>
           ) : (
-            <Link href="/dashboard" aria-label="Immo" className="no-underline" title="Immo">
+            <Link href="/dashboard" aria-label="Xwégán" className="no-underline" title="Xwégán">
               <Logo compact />
             </Link>
           )}

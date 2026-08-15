@@ -105,7 +105,7 @@ export function FeatureTracks() {
           </h2>
           <p className="text-ink-2">
             Le propriétaire pilote son parc comme une petite entreprise. Le locataire, lui, veut
-            juste que ça marche en deux clics. Immo tient les deux promesses.
+            juste que ça marche en deux clics. Xwégán tient les deux promesses.
           </p>
         </div>
 

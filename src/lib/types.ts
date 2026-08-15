@@ -40,7 +40,7 @@ export interface Proprietaire extends ReglagesEcheance {
   plan: PlanId;
   /** Fin de la période payée. Null pour un palier gratuit, qui n'expire pas. */
   planExpireLe: string | null;
-  /** Jour où Immo reverse les loyers collectés. Défini par le propriétaire. */
+  /** Jour où Xwégán reverse les loyers collectés. Défini par le propriétaire. */
   jourReversement: number;
   /** Date d'ouverture du compte. */
   creeLe: string;
@@ -172,7 +172,7 @@ export interface Locataire {
   nom: string;
   telephone: string;
   email: string;
-  /** Avatar, uploadé dans le stockage Immo. */
+  /** Avatar, uploadé dans le stockage Xwégán. */
   photoUrl: string | null;
   /** Date de naissance, au format AAAA-MM-JJ. */
   dateNaissance: string | null;

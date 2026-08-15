@@ -3,9 +3,9 @@ import { Button } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 
 export const metadata: Metadata = {
-  title: "À propos — Immo",
+  title: "À propos — Xwégán",
   description:
-    "Pourquoi Immo existe : réunir propriétaires et locataires sur un registre commun, en FCFA, avec une trace de chaque loyer, panne et litige.",
+    "Pourquoi Xwégán existe : réunir propriétaires et locataires sur un registre commun, en FCFA, avec une trace de chaque loyer, panne et litige.",
 };
 
 const principes = [
@@ -47,7 +47,7 @@ export default function AProposPage() {
               il faut prouver qui a payé quoi, ou retrouver quand une fuite a été signalée.
             </p>
             <p className="text-ink-2">
-              Immo réunit le propriétaire et son locataire sur le même registre. Les loyers sont
+              Xwégán réunit le propriétaire et son locataire sur le même registre. Les loyers sont
               suivis à la FCFA près, les pannes remontent avec leurs photos, les litiges restent
               documentés. Chacun voit la même chose, au même moment.
             </p>
@@ -76,7 +76,7 @@ export default function AProposPage() {
           <div className="border-line bg-surface flex max-w-[42em] flex-col items-start gap-4 rounded-lg border p-6 md:p-8">
             <h2 className="font-display text-ink text-2xl font-semibold">Où en est le produit</h2>
             <p className="text-ink-2 text-sm">
-              Immo est en construction. Les biens, locataires et montants visibles sur ce site sont
+              Xwégán est en construction. Les biens, locataires et montants visibles sur ce site sont
               des données de démonstration, et les témoignages sont illustratifs : le produit
               n&rsquo;a pas encore de clients dont nous pourrions citer les mots. Nous préférons le
               dire plutôt que de gonfler des chiffres.
