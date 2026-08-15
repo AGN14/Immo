@@ -74,3 +74,10 @@ next-env.d.ts
 # IntelliJ — fichiers spécifiques à la machine (le reste de .idea est versionné)
 .idea/workspace.xml
 .idea/vcs.xml
+
+# Sauvegardes de changements non commités (IntelliJ) — artefacts locaux
+.idea/shelf/
+
+# Python
+__pycache__/
+*.pyc
