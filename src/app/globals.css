@@ -77,8 +77,8 @@
   --color-line: var(--line);
   --color-line-soft: var(--line-soft);
 
-  /* Deux familles, pas trois. Le serif porte les titres, l'Inter fait le reste. */
-  --font-display: var(--font-source-serif), ui-serif, Georgia, "Times New Roman", serif;
+  /* Une seule famille : Inter porte les titres et le reste. */
+  --font-display: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
 
   /* Échelle typographique : 8 pas fixes, plus aucune valeur arbitraire.
@@ -127,12 +127,12 @@
     line-height: 1.6;
   }
 
-  /* Les titres passent au serif par défaut : plus besoin de le répéter partout. */
+  /* Les titres restent en Inter, juste plus appuyés : plus besoin de le répéter partout. */
   h1,
   h2,
   h3,
   h4 {
-    font-family: var(--font-source-serif), ui-serif, Georgia, serif;
+    font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
     font-weight: 600;
     color: var(--ink);
   }

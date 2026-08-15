@@ -97,7 +97,7 @@ function Icon({ children }: { children: React.ReactNode }) {
 export function FeatureTracks() {
   return (
     <section id="fonctionnalites" className="py-16 md:py-24">
-      <div className="mx-auto px-5 sm:px-8 lg:px-12">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
         <div className="flex max-w-[42em] flex-col items-start gap-4">
           <Eyebrow>Une plateforme, deux expériences</Eyebrow>
           <h2 className="font-display text-ink text-3xl font-semibold text-balance md:text-4xl">

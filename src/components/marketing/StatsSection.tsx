@@ -21,7 +21,7 @@ const engagements = [
 export function StatsSection() {
   return (
     <section className="py-16 md:py-24">
-      <div className="mx-auto grid grid-cols-1 items-start gap-10 px-5 sm:px-8 md:grid-cols-2 md:gap-16 lg:px-12">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 items-start gap-10 px-5 sm:px-8 md:grid-cols-2 md:gap-16 lg:px-12">
         <div className="flex flex-col items-start gap-4">
           <Eyebrow>Conçu pour durer</Eyebrow>
           <h2 className="font-display text-ink text-3xl font-semibold text-balance md:text-4xl">
