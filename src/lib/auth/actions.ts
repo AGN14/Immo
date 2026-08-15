@@ -51,9 +51,17 @@ export async function login(formData: FormData) {
   redirect("/dashboard");
 }
 
+/**
+ * Se déconnecter ramène à l'accueil, pas au formulaire de connexion.
+ *
+ * Renvoyer vers `/connexion` proposait de se reconnecter à quelqu'un qui vient
+ * justement de partir — et sur un poste partagé, laissait à l'écran un
+ * formulaire pré-cadré pour le compte qu'on venait de quitter. L'accueil est
+ * l'endroit neutre : on peut fermer l'onglet, ou se reconnecter en un clic.
+ */
 export async function logout() {
   await destroySession();
-  redirect("/connexion");
+  redirect("/");
 }
 
 /**

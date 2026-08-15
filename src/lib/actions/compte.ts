@@ -41,7 +41,9 @@ export async function supprimerCompte(): Promise<void> {
   if (error) return;
 
   await destroySession();
-  redirect("/connexion");
+  // Vers l'accueil, et non vers la connexion : proposer un formulaire à qui
+  // vient de supprimer son compte l'inviterait à une tentative vouée à échouer.
+  redirect("/");
 }
 
 /** Jour du mois où les loyers collectés sont reversés au propriétaire. */
