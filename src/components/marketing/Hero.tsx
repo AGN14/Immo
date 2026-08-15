@@ -6,9 +6,9 @@ import { StatusPill } from "@/components/ui/StatusPill";
 import Villa_immo from "@/assets/Villa_immo.jpg";
 
 const confiance = [
-  { valeur: "0 FCFA", libelle: "pour le premier bien" },
-  { valeur: "2 min", libelle: "pour inviter un locataire" },
-  { valeur: "100 %", libelle: "des paiements tracés" },
+  { valeur: "0 F", libelle: "accès locataire, à vie" },
+  { valeur: "3 baux", libelle: "gratuits, sans carte bancaire" },
+  { valeur: "24 h/24", libelle: "paiement par Mobile Money" },
 ];
 
 export function Hero() {
@@ -18,15 +18,16 @@ export function Hero() {
         <div className="border-line bg-surface overflow-hidden rounded-lg border shadow-md">
           <div className="flex flex-col gap-6 p-6 sm:p-8 md:flex-row md:items-end md:justify-between lg:p-12">
             <div className="flex flex-col items-start gap-4">
-              <Eyebrow>Gestion locative</Eyebrow>
+              <Eyebrow>Gestion locative · Bénin</Eyebrow>
               <h1 className="font-display text-ink max-w-xl text-4xl font-bold text-balance md:text-5xl">
-                Le loyer, les pannes et les litiges, enfin sous contrôle.
+                Le loyer rentre, la quittance part. Sans cahier, sans rappel.
               </h1>
             </div>
             <div className="flex flex-col items-start gap-4 md:max-w-xs md:items-end md:text-right">
               <p className="text-ink-2 text-base">
-                Paiements suivis à la FCFA près, pannes signalées avec photos, litiges documentés,
-                factures générées automatiquement.
+                Xwégán réunit le propriétaire et son locataire sur un même registre. Le locataire
+                paie par Mobile Money depuis son téléphone&nbsp;; sa quittance numérotée est émise
+                dans la seconde. Vous savez qui a payé, qui doit, et combien — au franc près.
               </p>
               <Button href="/inscription" variant="primary" className="md:self-end">
                 Commencer gratuitement
@@ -37,7 +38,7 @@ export function Hero() {
           <div className="relative aspect-[4/3] w-full sm:aspect-[16/9] lg:aspect-[21/9]">
             <Image
               src={Villa_immo}
-              alt="Résidence gérée sur Immo"
+              alt="Résidence gérée sur Xwégán"
               fill
               className="object-cover"
               priority
@@ -73,13 +74,20 @@ export function Hero() {
               </div>
 
               <Link
-                href="/#demo"
-                aria-label="Voir la démo"
+                href="/#comment-ca-marche"
+                aria-label="Comment ça marche"
                 className="bg-surface text-ink hover:bg-sand flex size-11 shrink-0 items-center justify-center rounded-full shadow-md transition-colors"
               >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-4">
-                  <circle cx="12" cy="12" r="9" />
-                  <path d="M10 8.5v7l6-3.5-6-3.5Z" strokeLinejoin="round" />
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="size-4"
+                >
+                  <path d="M9 6l6 6-6 6" />
                 </svg>
               </Link>
             </div>
@@ -98,7 +106,8 @@ export function Hero() {
         </div>
 
         <p className="text-ink-3 mt-4 text-sm">
-          Gratuit pour un premier bien. L&rsquo;accès locataire est toujours gratuit.
+          Gratuit jusqu&rsquo;à trois baux. L&rsquo;accès locataire est gratuit, sans limite de
+          durée.
         </p>
       </div>
     </section>

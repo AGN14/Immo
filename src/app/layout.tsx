@@ -3,9 +3,9 @@ import { inter } from "@/fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Immo",
+  title: "Xwégán",
   description:
-    "Immo réunit propriétaires et locataires sur une seule plateforme : loyers suivis, pannes signalées avec photos, litiges documentés, factures générées automatiquement.",
+    "Xwégán réunit propriétaires et locataires sur une seule plateforme : loyers suivis, pannes signalées avec photos, quittances numérotées automatiquement.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

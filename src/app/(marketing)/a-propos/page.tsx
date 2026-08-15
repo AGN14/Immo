@@ -3,21 +3,21 @@ import { Button } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 
 export const metadata: Metadata = {
-  title: "À propos — Immo",
+  title: "À propos — Xwégán",
   description:
-    "Pourquoi Immo existe : réunir propriétaires et locataires sur un registre commun, en FCFA, avec une trace de chaque loyer, panne et litige.",
+    "Pourquoi Xwégán existe : réunir propriétaires et locataires sur un registre commun, en FCFA, avec une trace de chaque loyer et chaque panne.",
 };
 
 const principes = [
   {
     titre: "Une seule source de vérité",
     corps:
-      "Chaque bien, loyer, panne et litige vit à un endroit, visible des deux côtés. Personne n'a « sa » version des faits.",
+      "Chaque bien, loyer et panne vit à un endroit, visible des deux côtés. Personne n'a « sa » version des faits.",
   },
   {
     titre: "La trace avant la promesse",
     corps:
-      "Un paiement horodaté, une panne datée avec ses photos, un litige documenté. Ce qui compte le jour d'un désaccord, c'est la preuve.",
+      "Un paiement horodaté, une panne datée avec ses photos, une quittance numérotée. Ce qui compte le jour d'un désaccord, c'est la preuve.",
   },
   {
     titre: "Le locataire ne paie jamais",
@@ -47,9 +47,9 @@ export default function AProposPage() {
               il faut prouver qui a payé quoi, ou retrouver quand une fuite a été signalée.
             </p>
             <p className="text-ink-2">
-              Immo réunit le propriétaire et son locataire sur le même registre. Les loyers sont
-              suivis à la FCFA près, les pannes remontent avec leurs photos, les litiges restent
-              documentés. Chacun voit la même chose, au même moment.
+              Xwégán réunit le propriétaire et son locataire sur le même registre. Les loyers sont
+              suivis à la FCFA près, les pannes remontent avec leurs photos, les quittances
+              partent dès le paiement confirmé. Chacun voit la même chose, au même moment.
             </p>
           </div>
         </div>
@@ -76,10 +76,9 @@ export default function AProposPage() {
           <div className="border-line bg-surface flex max-w-[42em] flex-col items-start gap-4 rounded-lg border p-6 md:p-8">
             <h2 className="font-display text-ink text-2xl font-semibold">Où en est le produit</h2>
             <p className="text-ink-2 text-sm">
-              Immo est en construction. Les biens, locataires et montants visibles sur ce site sont
-              des données de démonstration, et les témoignages sont illustratifs : le produit
-              n&rsquo;a pas encore de clients dont nous pourrions citer les mots. Nous préférons le
-              dire plutôt que de gonfler des chiffres.
+              Xwégán est en construction. Les biens, locataires et montants visibles sur ce site
+              sont des données de démonstration : le produit n&rsquo;a pas encore de clients dont
+              nous pourrions citer les mots. Nous préférons le dire plutôt que d&rsquo;en inventer.
             </p>
             <div className="mt-2 flex flex-wrap gap-3">
               <Button href="/inscription" variant="primary">

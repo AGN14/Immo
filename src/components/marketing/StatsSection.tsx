@@ -5,16 +5,16 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 /* Des faits produit vérifiables, pas des indicateurs de performance inventés. */
 const engagements = [
   {
-    valeur: "0 FCFA",
+    valeur: "0 F",
     libelle: "L'accès locataire, sans limite de durée ni de fonctionnalités.",
   },
   {
-    valeur: "2 min",
-    libelle: "Pour créer un compte, ajouter un bien et inviter son locataire.",
+    valeur: "3 baux",
+    libelle: "Gratuits, sans carte bancaire ni engagement.",
   },
   {
-    valeur: "100 %",
-    libelle: "Des paiements horodatés et tracés, consultables des deux côtés.",
+    valeur: "24 h/24",
+    libelle: "Le locataire paie quand il peut, pas quand vous êtes disponible.",
   },
 ];
 
@@ -28,7 +28,7 @@ export function StatsSection() {
             Pensé pour tenir la charge d&rsquo;un vrai parc locatif
           </h2>
           <p className="text-ink-2 max-w-[38em]">
-            Immo n&rsquo;est pas un tableur qu&rsquo;on abandonne au bout d&rsquo;un mois. Chaque
+            Xwégán n&rsquo;est pas un tableur qu&rsquo;on abandonne au bout d&rsquo;un mois. Chaque
             engagement ci-contre est tenu par le produit lui-même, pas par une promesse marketing.
           </p>
           <Button href="/#comment-ca-marche" variant="ghost" className="mt-2">

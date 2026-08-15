@@ -2,13 +2,13 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 
 const ownerFeatures = [
   {
-    title: "Suivi des loyers en temps réel",
-    body: "Qui a payé, qui est en retard, bien par bien — visible en un coup d'œil, sans relance manuelle.",
+    title: "Qui a payé, qui doit, au franc près",
+    body: "Bien par bien, mois par mois. Les arriérés remontent en tête, sans relance manuelle.",
     icon: <path d="M4 19V10M10 19V5M16 19v-7M4 19h16" />,
   },
   {
-    title: "Facturation automatique et plan comptable",
-    body: "Une facture générée à chaque paiement, un récapitulatif comptable prêt chaque mois pour votre gestionnaire.",
+    title: "La quittance émise à la confirmation",
+    body: "Numérotée, continue et sans trou — le document que réclame un dossier de logement ou un contrôle.",
     icon: (
       <>
         <path d="M7 3h8l4 4v14H7z" />
@@ -17,8 +17,28 @@ const ownerFeatures = [
     ),
   },
   {
-    title: "Gestion des signalements de pannes",
-    body: "Chaque panne remontée par vos locataires arrive centralisée, avec photos, priorité et statut de résolution.",
+    title: "L'amende de retard calculée toute seule",
+    body: "Passé le 5, la pénalité s'ajoute au montant dû. Vous n'avez plus à la réclamer : elle est déjà au décompte.",
+    icon: (
+      <>
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 7v5l3 3" />
+      </>
+    ),
+  },
+  {
+    title: "Le préavis quand le retard devient sérieux",
+    body: "Au-delà du délai de tolérance, Xwégán signale que le congé est fondé. La décision reste la vôtre.",
+    icon: (
+      <>
+        <path d="M6 21V4" />
+        <path d="M6 4h12l-3 4 3 4H6" />
+      </>
+    ),
+  },
+  {
+    title: "Les pannes remontées avec photos",
+    body: "Centralisées, datées, avec leur priorité et leur statut de résolution.",
     icon: (
       <>
         <path d="M14.5 3.5 20.5 9.5 9 21H3v-6Z" />
@@ -26,17 +46,12 @@ const ownerFeatures = [
       </>
     ),
   },
-  {
-    title: "Résolution des litiges entre locataires",
-    body: "Un espace commun pour documenter, échanger des preuves et trancher, sans que tout retombe sur vous par téléphone.",
-    icon: <path d="M12 3v18M6 7l-3 6a3.2 3.2 0 0 0 6 0ZM21 13a3.2 3.2 0 0 1-6 0l3-6ZM6 7h12" />,
-  },
 ];
 
 const tenantFeatures = [
   {
-    title: "Paiement du loyer en ligne",
-    body: "Payez en quelques secondes depuis votre téléphone, recevez votre reçu automatiquement.",
+    title: "Payer par Mobile Money, depuis son téléphone",
+    body: "À toute heure, sans déplacement et sans espèces à transporter.",
     icon: (
       <>
         <rect x="6" y="2.5" width="12" height="19" rx="2.5" />
@@ -46,33 +61,33 @@ const tenantFeatures = [
     ),
   },
   {
-    title: "Signalement de pannes avec photos",
-    body: "Montrez le problème au lieu de le décrire au téléphone. Trois photos suffisent.",
+    title: "Sa quittance, téléchargeable quand il veut",
+    body: "Des mois plus tard, pour un dossier de logement ou un justificatif de domicile.",
+    icon: (
+      <>
+        <path d="M7 3h8l4 4v14H7z" />
+        <path d="M15 3v4h4M9 12h6M9 16h6" />
+      </>
+    ),
+  },
+  {
+    title: "Savoir ce qu'on doit, et pourquoi",
+    body: "Le détail du mois, de l'amende s'il y en a une, et la date limite avant qu'elle ne s'applique.",
+    icon: (
+      <>
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 8h.01M11 12h1v5h1" />
+      </>
+    ),
+  },
+  {
+    title: "Signaler une panne en photo",
+    body: "Montrer le problème au lieu de le décrire au téléphone. Et suivre où en est la réparation.",
     icon: (
       <>
         <rect x="3" y="7" width="18" height="13" rx="2" />
         <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
         <circle cx="12" cy="13.5" r="2.5" />
-      </>
-    ),
-  },
-  {
-    title: "Suivi des réparations en direct",
-    body: "Sachez exactement où en est votre demande — signalée, prise en charge, résolue — sans relancer personne.",
-    icon: (
-      <>
-        <path d="M20 12a8 8 0 1 1-3-6.2" />
-        <path d="M20 4v5h-5" />
-      </>
-    ),
-  },
-  {
-    title: "Signalement de litiges en quelques clics",
-    body: "Un désaccord avec un voisin ou le propriétaire ? Signalez-le et gardez une trace claire, datée.",
-    icon: (
-      <>
-        <path d="M6 21V4" />
-        <path d="M6 4h12l-3 4 3 4H6" />
       </>
     ),
   },
@@ -105,7 +120,7 @@ export function FeatureTracks() {
           </h2>
           <p className="text-ink-2">
             Le propriétaire pilote son parc comme une petite entreprise. Le locataire, lui, veut
-            juste que ça marche en deux clics. Immo tient les deux promesses.
+            juste que ça marche en deux clics. Xwégán tient les deux promesses.
           </p>
         </div>
 

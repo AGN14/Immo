@@ -10,8 +10,8 @@ const problems = [
     body: "Un appel manqué, un message noyé dans une conversation de groupe : la fuite d'eau signalée un lundi attend toujours d'être vue trois semaines plus tard.",
   },
   {
-    title: "Le litige qui s'éternise",
-    body: "Bruit, dégâts, retard de paiement entre colocataires : sans registre commun, chaque discussion repart de zéro et s'envenime un peu plus.",
+    title: "Le retard qu'on n'ose pas réclamer",
+    body: "Le 5 est passé, puis le 10. Réclamer, c'est risquer la brouille ; ne rien dire, c'est l'installer. Faute de règle écrite d'avance, c'est au bailleur de jouer le mauvais rôle, chaque mois.",
   },
 ];
 
@@ -20,7 +20,7 @@ export function ProblemSection() {
     <section id="problemes" className="bg-sand py-16 md:py-24">
       <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
         <div className="flex max-w-[42em] flex-col items-start gap-4">
-          <Eyebrow>Le quotidien sans Immo</Eyebrow>
+          <Eyebrow>Le quotidien sans Xwégán</Eyebrow>
           <h2 className="font-display text-ink text-3xl font-semibold text-balance md:text-4xl">
             Trois frictions qui usent la relation propriétaire–locataire
           </h2>

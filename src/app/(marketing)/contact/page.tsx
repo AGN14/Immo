@@ -2,16 +2,16 @@ import type { Metadata } from "next";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 
 export const metadata: Metadata = {
-  title: "Contact — Immo",
+  title: "Contact — Xwégán",
   description:
-    "Écrire à l'équipe Immo : questions produit, offre Business pour les portefeuilles multi-biens, ou problème rencontré sur votre compte.",
+    "Écrire à l'équipe Xwégán : questions produit, offre Business pour les portefeuilles multi-biens, ou problème rencontré sur votre compte.",
 };
 
 const motifs = [
   {
     titre: "Une question sur le produit",
     corps:
-      "Vous vous demandez si Immo couvre votre situation — plusieurs immeubles, colocation, gestion déléguée ?",
+      "Vous vous demandez si Xwégán couvre votre situation — plusieurs immeubles, colocation, gestion déléguée ?",
     adresse: "bonjour@immo.app",
     sujet: "Question produit",
   },
@@ -61,8 +61,8 @@ export default function ContactPage() {
         </div>
 
         <p className="text-ink-3 mt-10 max-w-[42em] text-sm">
-          Immo est en construction : nous répondons nous-mêmes à chaque message, sans formulaire ni
-          robot intermédiaire.
+          Xwégán est en construction : nous répondons nous-mêmes à chaque message, sans formulaire
+          ni robot intermédiaire.
         </p>
       </div>
     </section>

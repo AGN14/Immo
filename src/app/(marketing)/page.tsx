@@ -12,8 +12,8 @@ export default function Home() {
   return (
     <>
       <Hero />
-      <StatsSection />
       <ProblemSection />
+      <StatsSection />
       {/* L'animation au scroll ne porte que deux blocs : le texte du reste
           de la page est lisible sans attendre le JS. */}
       <Reveal>

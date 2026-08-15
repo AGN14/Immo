@@ -13,9 +13,9 @@ const columns = [
     ],
   },
   {
-    title: "Immo",
+    title: "Xwégán",
     links: [
-      { href: "/#temoignages", label: "Témoignages" },
+      { href: "/#temoignages", label: "Notre approche" },
       { href: "/a-propos", label: "À propos" },
       { href: "/contact", label: "Contact" },
     ],
@@ -32,8 +32,8 @@ export function Footer() {
               <Logo />
             </Link>
             <p className="text-ink-2 text-sm">
-              La plateforme qui relie propriétaires et locataires : loyers, pannes et litiges, sans
-              prise de tête.
+              La plateforme qui relie propriétaires et locataires : loyers, pannes et quittances,
+              sans prise de tête.
             </p>
           </div>
 
@@ -67,7 +67,7 @@ export function Footer() {
         </div>
 
         <div className="border-line text-ink-3 mt-10 flex flex-wrap items-center justify-between gap-4 border-t pt-6 text-sm">
-          <span>© 2026 Immo. Tous droits réservés.</span>
+          <span>© 2026 Xwégán. Tous droits réservés.</span>
           <span>Fait en Afrique de l&rsquo;Ouest</span>
         </div>
       </div>
