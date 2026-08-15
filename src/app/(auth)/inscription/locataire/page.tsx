@@ -3,7 +3,13 @@ import { signup } from "@/lib/auth/actions";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 
-export default function InscriptionLocatairePage() {
+export default async function InscriptionLocatairePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const erreur = (await searchParams).erreur;
+
   return (
     <>
       <div className="border-line bg-surface rounded-lg border p-6 shadow-sm sm:p-8">
@@ -16,6 +22,14 @@ export default function InscriptionLocatairePage() {
         <p className="text-ink-2 mt-1 text-sm">
           Toujours gratuit. Il vous faut le code de votre bien, transmis par votre propriétaire.
         </p>
+
+        {erreur === "consentement" && (
+          <p className="border-line bg-highlight text-ink mt-4 rounded-md border px-3 py-2 text-sm">
+            Vous devez cocher la case d&rsquo;acceptation des Conditions
+            d&rsquo;utilisation et de la Politique de confidentialité pour créer
+            un compte.
+          </p>
+        )}
 
         <form action={signup} className="mt-6 flex flex-col gap-4">
           <input type="hidden" name="role" value="locataire" />
@@ -43,12 +57,26 @@ export default function InscriptionLocatairePage() {
             required
           />
           <Input label="Mot de passe" type="password" name="password" required />
+          <label className="text-ink-3 flex items-start gap-2 text-xs">
+            <input type="checkbox" name="consentement" required className="mt-0.5" />
+            <span>
+              J&rsquo;accepte les{" "}
+              <Link
+                href="/conditions-utilisation"
+                className="text-primary font-semibold no-underline"
+              >
+                Conditions d&rsquo;utilisation
+              </Link>{" "}
+              et la{" "}
+              <Link href="/confidentialite" className="text-primary font-semibold no-underline">
+                politique de confidentialité
+              </Link>{" "}
+              de Xwégán.
+            </span>
+          </label>
           <Button type="submit" variant="primary" block className="mt-1">
             Créer mon compte
           </Button>
-          <p className="text-ink-3 text-xs">
-            En créant un compte, vous acceptez nos Conditions d&rsquo;utilisation.
-          </p>
         </form>
       </div>
 
