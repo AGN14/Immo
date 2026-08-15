@@ -31,7 +31,7 @@ export function Footer() {
             <Link href="/" className="flex items-center gap-2.5 no-underline">
               <Logo />
             </Link>
-            <p className="text-ink-2 text-sm">
+            <p className="text-ink-2 text-justify text-sm">
               La plateforme qui relie propriétaires et locataires : loyers, pannes et quittances,
               sans prise de tête.
             </p>
@@ -59,7 +59,7 @@ export function Footer() {
 
           <div className="flex max-w-[22em] flex-col gap-2">
             <h3 className="text-ink font-sans text-sm font-semibold">Newsletter</h3>
-            <p className="text-ink-2 text-sm">
+            <p className="text-ink-2 text-justify text-sm">
               Un e-mail par mois : nouveautés produit, rien d&rsquo;autre.
             </p>
             <NewsletterForm />

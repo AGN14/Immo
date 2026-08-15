@@ -8,7 +8,7 @@ const ownerFeatures = [
   },
   {
     title: "La quittance émise à la confirmation",
-    body: "Numérotée, continue et sans trou — le document que réclame un dossier de logement ou un contrôle.",
+    body: "Numérotée, continue et sans trou : le document que réclame un dossier de logement ou un contrôle.",
     icon: (
       <>
         <path d="M7 3h8l4 4v14H7z" />
@@ -118,7 +118,7 @@ export function FeatureTracks() {
           <h2 className="font-display text-ink text-3xl font-semibold text-balance md:text-4xl">
             Pensé pour parler le langage de chacun
           </h2>
-          <p className="text-ink-2">
+          <p className="text-ink-2 text-justify">
             Le propriétaire pilote son parc comme une petite entreprise. Le locataire, lui, veut
             juste que ça marche en deux clics. Xwégán tient les deux promesses.
           </p>
@@ -139,7 +139,7 @@ export function FeatureTracks() {
                   </span>
                   <div>
                     <h4 className="text-ink font-sans text-base font-semibold">{f.title}</h4>
-                    <p className="text-ink-2 mt-1 text-sm">{f.body}</p>
+                    <p className="text-ink-2 text-justify mt-1 text-sm">{f.body}</p>
                   </div>
                 </li>
               ))}
@@ -159,7 +159,7 @@ export function FeatureTracks() {
                   </span>
                   <div>
                     <h4 className="text-ink font-sans text-base font-semibold">{f.title}</h4>
-                    <p className="text-ink-2 mt-1 text-sm">{f.body}</p>
+                    <p className="text-ink-2 text-justify mt-1 text-sm">{f.body}</p>
                   </div>
                 </li>
               ))}

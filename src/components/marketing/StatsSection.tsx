@@ -27,7 +27,7 @@ export function StatsSection() {
           <h2 className="font-display text-ink text-3xl font-semibold text-balance md:text-4xl">
             Pensé pour tenir la charge d&rsquo;un vrai parc locatif
           </h2>
-          <p className="text-ink-2 max-w-[38em]">
+          <p className="text-ink-2 text-justify max-w-[38em]">
             Xwégán n&rsquo;est pas un tableur qu&rsquo;on abandonne au bout d&rsquo;un mois. Chaque
             engagement ci-contre est tenu par le produit lui-même, pas par une promesse marketing.
           </p>

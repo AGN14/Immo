@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 
 export const metadata: Metadata = {
-  title: "Contact — Xwégán",
+  title: "Contact · Xwégán",
   description:
     "Écrire à l'équipe Xwégán : questions produit, offre Business pour les portefeuilles multi-biens, ou problème rencontré sur votre compte.",
 };
@@ -11,7 +11,7 @@ const motifs = [
   {
     titre: "Une question sur le produit",
     corps:
-      "Vous vous demandez si Xwégán couvre votre situation — plusieurs immeubles, colocation, gestion déléguée ?",
+      "Vous vous demandez si Xwégán couvre votre situation : plusieurs immeubles, colocation, gestion déléguée ?",
     adresse: "bonjour@immo.app",
     sujet: "Question produit",
   },
@@ -40,7 +40,7 @@ export default function ContactPage() {
           <h1 className="font-display text-ink text-4xl font-semibold text-balance md:text-5xl">
             Écrivez-nous
           </h1>
-          <p className="text-ink-2 text-lg">
+          <p className="text-ink-2 text-justify text-lg">
             Une adresse par sujet, pour que votre message arrive à la bonne personne du premier
             coup.
           </p>
@@ -54,13 +54,13 @@ export default function ContactPage() {
               className="border-line bg-surface hover:border-primary hover:bg-highlight group flex flex-col gap-1.5 rounded-lg border p-6 no-underline transition-colors"
             >
               <h2 className="font-display text-ink text-xl font-semibold">{m.titre}</h2>
-              <p className="text-ink-2 text-sm">{m.corps}</p>
+              <p className="text-ink-2 text-justify text-sm">{m.corps}</p>
               <span className="text-primary mt-2 text-sm font-semibold">{m.adresse} →</span>
             </a>
           ))}
         </div>
 
-        <p className="text-ink-3 mt-10 max-w-[42em] text-sm">
+        <p className="text-ink-3 text-justify mt-10 max-w-[42em] text-sm">
           Xwégán est en construction : nous répondons nous-mêmes à chaque message, sans formulaire
           ni robot intermédiaire.
         </p>

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 
 export const metadata: Metadata = {
-  title: "À propos — Xwégán",
+  title: "À propos · Xwégán",
   description:
     "Pourquoi Xwégán existe : réunir propriétaires et locataires sur un registre commun, en FCFA, avec une trace de chaque loyer et chaque panne.",
 };
@@ -41,12 +41,12 @@ export default function AProposPage() {
             <h1 className="font-display text-ink text-4xl font-semibold text-balance md:text-5xl">
               Un registre commun, plutôt qu&rsquo;un cahier et un groupe WhatsApp
             </h1>
-            <p className="text-ink-2 text-lg">
+            <p className="text-ink-2 text-justify text-lg">
               La gestion locative en Afrique de l&rsquo;Ouest tient souvent dans un cahier, une
-              liasse de reçus et une conversation de groupe. Ça fonctionne — jusqu&rsquo;au jour où
+              liasse de reçus et une conversation de groupe. Ça fonctionne, jusqu&rsquo;au jour où
               il faut prouver qui a payé quoi, ou retrouver quand une fuite a été signalée.
             </p>
-            <p className="text-ink-2">
+            <p className="text-ink-2 text-justify">
               Xwégán réunit le propriétaire et son locataire sur le même registre. Les loyers sont
               suivis à la FCFA près, les pannes remontent avec leurs photos, les quittances
               partent dès le paiement confirmé. Chacun voit la même chose, au même moment.
@@ -64,7 +64,7 @@ export default function AProposPage() {
             {principes.map((p) => (
               <div key={p.titre} className="border-line flex flex-col gap-2 border-t pt-5">
                 <dt className="font-display text-ink text-xl font-semibold">{p.titre}</dt>
-                <dd className="text-ink-2 text-sm">{p.corps}</dd>
+                <dd className="text-ink-2 text-justify text-sm">{p.corps}</dd>
               </div>
             ))}
           </dl>
@@ -75,7 +75,7 @@ export default function AProposPage() {
         <div className="mx-auto px-5 sm:px-8 lg:px-12">
           <div className="border-line bg-surface flex max-w-[42em] flex-col items-start gap-4 rounded-lg border p-6 md:p-8">
             <h2 className="font-display text-ink text-2xl font-semibold">Où en est le produit</h2>
-            <p className="text-ink-2 text-sm">
+            <p className="text-ink-2 text-justify text-sm">
               Xwégán est en construction. Les biens, locataires et montants visibles sur ce site
               sont des données de démonstration : le produit n&rsquo;a pas encore de clients dont
               nous pourrions citer les mots. Nous préférons le dire plutôt que d&rsquo;en inventer.

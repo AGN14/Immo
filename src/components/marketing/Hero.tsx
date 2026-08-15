@@ -24,10 +24,10 @@ export function Hero() {
               </h1>
             </div>
             <div className="flex flex-col items-start gap-4 md:max-w-xs md:items-end md:text-right">
-              <p className="text-ink-2 text-base">
+              <p className="text-ink-2 text-justify text-base">
                 Xwégán réunit le propriétaire et son locataire sur un même registre. Le locataire
                 paie par Mobile Money depuis son téléphone&nbsp;; sa quittance numérotée est émise
-                dans la seconde. Vous savez qui a payé, qui doit, et combien — au franc près.
+                dans la seconde. Vous savez qui a payé, qui doit, et combien, au franc près.
               </p>
               <Button href="/inscription" variant="primary" className="md:self-end">
                 Commencer gratuitement

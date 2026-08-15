@@ -24,7 +24,7 @@ export function ProblemSection() {
           <h2 className="font-display text-ink text-3xl font-semibold text-balance md:text-4xl">
             Trois frictions qui usent la relation propriétaire–locataire
           </h2>
-          <p className="text-ink-2">
+          <p className="text-ink-2 text-justify">
             Ce ne sont pas de gros problèmes pris isolément. C&rsquo;est leur répétition, mois après
             mois, qui finit par créer la méfiance.
           </p>
@@ -37,7 +37,7 @@ export function ProblemSection() {
               className="border-line bg-surface flex flex-col gap-2.5 border p-6 md:-mr-px"
             >
               <h3 className="font-display text-ink text-xl font-semibold">{p.title}</h3>
-              <p className="text-ink-2 text-sm">{p.body}</p>
+              <p className="text-ink-2 text-justify text-sm">{p.body}</p>
             </article>
           ))}
         </div>

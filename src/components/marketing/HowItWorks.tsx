@@ -34,7 +34,7 @@ export function HowItWorks() {
                 {i + 1}
               </span>
               <h3 className="font-display text-ink text-xl font-semibold">{s.title}</h3>
-              <p className="text-ink-2 text-sm">{s.body}</p>
+              <p className="text-ink-2 text-justify text-sm">{s.body}</p>
             </li>
           ))}
         </ol>

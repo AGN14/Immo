@@ -73,9 +73,9 @@ export async function Pricing() {
           <h2 className="font-display text-ink text-3xl font-semibold text-balance md:text-4xl">
             Vous ne payez que sur ce qui vous rapporte
           </h2>
-          <p className="text-ink-2">
+          <p className="text-ink-2 text-justify">
             Le palier dépend du nombre de{" "}
-            <strong className="text-ink font-semibold">logements loués</strong> — un logement vacant
+            <strong className="text-ink font-semibold">logements loués</strong> : un logement vacant
             ne compte pas, et un départ libère la place.
           </p>
         </div>
@@ -118,7 +118,7 @@ export async function Pricing() {
                     </span>
                     <span className="text-ink-3 text-sm">FCFA / mois</span>
                   </div>
-                  <p className="text-ink-2 text-sm">{plan.description}</p>
+                  <p className="text-ink-2 text-justify text-sm">{plan.description}</p>
                 </div>
 
                 <ul className="flex flex-1 flex-col gap-2.5 text-sm">
@@ -150,7 +150,7 @@ export async function Pricing() {
           })}
         </div>
 
-        <p className="border-line bg-surface text-ink-2 mt-6 rounded-md border p-4 text-sm">
+        <p className="border-line bg-surface text-ink-2 text-justify mt-6 rounded-md border p-4 text-sm">
           <strong className="text-ink font-semibold">
             L&rsquo;accès locataire est et restera toujours gratuit.
           </strong>{" "}
