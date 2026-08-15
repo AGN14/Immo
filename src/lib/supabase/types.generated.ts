@@ -217,6 +217,44 @@ export type Database = {
           },
         ]
       }
+      consentement: {
+        Row: {
+          accepte: boolean
+          auth_user_id: string
+          cree_le: string
+          finalite: string
+          id: string
+          texte: string
+          version: string
+        }
+        Insert: {
+          accepte?: boolean
+          auth_user_id: string
+          cree_le?: string
+          finalite: string
+          id?: string
+          texte: string
+          version: string
+        }
+        Update: {
+          accepte?: boolean
+          auth_user_id?: string
+          cree_le?: string
+          finalite?: string
+          id?: string
+          texte?: string
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consentement_auth_user_id_fkey"
+            columns: ["auth_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       gestionnaire: {
         Row: {
           cree_le: string
@@ -349,6 +387,27 @@ export type Database = {
           },
         ]
       }
+      newsletter_abonne: {
+        Row: {
+          actif: boolean
+          cree_le: string
+          email: string
+          id: string
+        }
+        Insert: {
+          actif?: boolean
+          cree_le?: string
+          email: string
+          id?: string
+        }
+        Update: {
+          actif?: boolean
+          cree_le?: string
+          email?: string
+          id?: string
+        }
+        Relationships: []
+      }
       paiement: {
         Row: {
           bail_id: string
@@ -440,6 +499,7 @@ export type Database = {
           plan_expire_le: string | null
           plan_id: string
           supprime_le: string | null
+          telephone: string | null
         }
         Insert: {
           auth_user_id?: string | null
@@ -456,6 +516,7 @@ export type Database = {
           plan_expire_le?: string | null
           plan_id?: string
           supprime_le?: string | null
+          telephone?: string | null
         }
         Update: {
           auth_user_id?: string | null
@@ -472,6 +533,7 @@ export type Database = {
           plan_expire_le?: string | null
           plan_id?: string
           supprime_le?: string | null
+          telephone?: string | null
         }
         Relationships: [
           {
