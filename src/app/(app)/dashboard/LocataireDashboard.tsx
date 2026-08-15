@@ -212,10 +212,19 @@ export async function LocataireDashboard({
                     {versement ? methodeLabel[versement.methode] : "—"}
                   </td>
                   <td className="px-4 py-3">
+                    {/* Un numéro seul n'a aucune valeur : une quittance sert de
+                        justificatif de domicile et de preuve en cas de litige.
+                        Elle doit pouvoir être ouverte et présentée. */}
                     {quittance ? (
-                      <span className="text-primary font-semibold" data-numeric>
+                      <a
+                        href={`/quittances/${quittance.id}`}
+                        target="_blank"
+                        rel="noopener"
+                        className="text-primary font-semibold underline-offset-2 hover:underline"
+                        data-numeric
+                      >
                         {quittance.numero}
-                      </span>
+                      </a>
                     ) : (
                       <span className="text-ink-3">En attente de confirmation</span>
                     )}

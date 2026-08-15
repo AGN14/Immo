@@ -9,6 +9,54 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      abonnement: {
+        Row: {
+          cree_le: string
+          id: string
+          montant_fcfa: number
+          periode_debut: string
+          periode_fin: string
+          plan_id: string
+          proprietaire_id: string
+          reference_externe: string
+        }
+        Insert: {
+          cree_le?: string
+          id?: string
+          montant_fcfa: number
+          periode_debut?: string
+          periode_fin: string
+          plan_id: string
+          proprietaire_id: string
+          reference_externe: string
+        }
+        Update: {
+          cree_le?: string
+          id?: string
+          montant_fcfa?: number
+          periode_debut?: string
+          periode_fin?: string
+          plan_id?: string
+          proprietaire_id?: string
+          reference_externe?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "abonnement_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plan"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "abonnement_proprietaire_id_fkey"
+            columns: ["proprietaire_id"]
+            isOneToOne: false
+            referencedRelation: "proprietaire"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bail: {
         Row: {
           cree_le: string
@@ -386,6 +434,7 @@ export type Database = {
           mot_de_passe_hash: string | null
           nom: string
           penalite_retard_fcfa: number
+          plan_expire_le: string | null
           plan_id: string
           supprime_le: string | null
         }
@@ -401,6 +450,7 @@ export type Database = {
           mot_de_passe_hash?: string | null
           nom: string
           penalite_retard_fcfa?: number
+          plan_expire_le?: string | null
           plan_id?: string
           supprime_le?: string | null
         }
@@ -416,6 +466,7 @@ export type Database = {
           mot_de_passe_hash?: string | null
           nom?: string
           penalite_retard_fcfa?: number
+          plan_expire_le?: string | null
           plan_id?: string
           supprime_le?: string | null
         }

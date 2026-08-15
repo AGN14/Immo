@@ -6,6 +6,7 @@ import {
   getVersementsDuLocataire,
 } from "@/lib/data";
 import { moisAPayer, penaliteDuMois, soldeDu } from "@/lib/echeances";
+import { kkiapayConfigure } from "@/lib/paiement/kkiapay";
 import { FormulaireDeclaration } from "@/app/(app)/payer/FormulaireDeclaration";
 
 export default async function PayerPage() {
@@ -48,10 +49,14 @@ export default async function PayerPage() {
   return (
     <div className="max-w-xl">
       <h1 className="font-display text-ink text-3xl font-semibold">Payer mon loyer</h1>
+      {/* L'introduction décrivait le seul parcours manuel, juste au-dessus d'un
+          bouton de paiement en ligne : on annonce les deux, et ce qui les
+          distingue vraiment — le moment où la quittance arrive. */}
       <p className="text-ink-2 mt-2">
         {bail.loyerMensuelFcfa.toLocaleString("fr-FR")} F par mois, dû le{" "}
-        {bail.jourEcheance ?? proprietaire.jourEcheanceDefaut}. Déclarez le paiement : votre
-        propriétaire le confirmera avant l&rsquo;émission de la quittance.
+        {bail.jourEcheance ?? proprietaire.jourEcheanceDefaut}. Payez en ligne et votre quittance
+        est émise aussitôt ; si vous avez déjà réglé autrement, déclarez-le et{" "}
+        {proprietaire.nom} le confirmera.
       </p>
 
       {/* Le préavis se dit avant le formulaire : c'est plus grave que le solde,
@@ -74,6 +79,17 @@ export default async function PayerPage() {
           loyerMensuelFcfa={bail.loyerMensuelFcfa}
           moisDue={moisDue}
           penalites={penalites}
+          nomLocataire={session.nom}
+          // Absent tant que les clés ne sont pas configurées : le paiement en
+          // ligne disparaît alors proprement, la déclaration manuelle reste.
+          kkiapay={
+            kkiapayConfigure()
+              ? {
+                  clePublique: process.env.NEXT_PUBLIC_KKIAPAY_PUBLIC_KEY!,
+                  bacASable: process.env.NEXT_PUBLIC_KKIAPAY_SANDBOX !== "false",
+                }
+              : undefined
+          }
         />
       </div>
     </div>

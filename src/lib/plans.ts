@@ -52,6 +52,30 @@ export function planDepuisUuid(uuid: string | null | undefined): PlanId {
   return trouve ?? PLAN_PAR_DEFAUT;
 }
 
+/**
+ * Le palier réellement applicable : celui payé s'il court encore, Essentiel
+ * sinon.
+ *
+ * Rien n'est rétrogradé par une écriture — la date suffit à trancher. Un
+ * propriétaire dont l'abonnement expire un dimanche soir retombe sur Essentiel
+ * sans qu'aucune tâche n'ait eu à s'exécuter, et redevient Pro à la seconde où
+ * il repaie.
+ *
+ * Cette règle existe en double, ici et dans `plan_effectif()` côté base. Ce
+ * n'est pas un oubli : la version SQL fait autorité pour le quota, celle-ci
+ * sert l'affichage. Toute modification doit toucher les deux.
+ */
+export function planEffectif(
+  planPaye: PlanId | undefined,
+  expireLe: string | null | undefined,
+  maintenant = new Date(),
+): PlanId {
+  if (!planPaye) return PLAN_PAR_DEFAUT;
+  // Pas d'échéance = palier gratuit, il ne périme pas.
+  if (!expireLe) return planPaye;
+  return new Date(expireLe) > maintenant ? planPaye : PLAN_PAR_DEFAUT;
+}
+
 /** Ordre hiérarchique des paliers : le plus haut débloque tout ce qui est
  *  en dessous de lui. */
 const RANG: Record<PlanId, number> = { essentiel: 0, pro: 1, business: 2 };

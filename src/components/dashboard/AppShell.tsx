@@ -140,6 +140,19 @@ const entréesLocataire: Icône[] = [
     icône: icône(<path d="M5 13l4 4L19 7" />),
   },
   {
+    // Le document qu'on vient chercher des mois plus tard, pour un dossier de
+    // logement ou un justificatif de domicile. Il mérite mieux qu'une ligne au
+    // bas du tableau de bord.
+    label: "Mes quittances",
+    href: "/quittances",
+    icône: icône(
+      <>
+        <path d="M6 3h9l4 4v14H6z" />
+        <path d="M15 3v4h4M9 12h6M9 16h4" />
+      </>,
+    ),
+  },
+  {
     label: "Signaler un problème",
     href: "/signaler",
     icône: icône(

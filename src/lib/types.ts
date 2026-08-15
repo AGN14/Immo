@@ -36,7 +36,10 @@ export interface Proprietaire extends ReglagesEcheance {
   id: string;
   nom: string;
   email: string;
+  /** Palier **effectif** : celui payé s'il court encore, Essentiel sinon. */
   plan: PlanId;
+  /** Fin de la période payée. Null pour un palier gratuit, qui n'expire pas. */
+  planExpireLe: string | null;
   /** Jour où Immo reverse les loyers collectés. Défini par le propriétaire. */
   jourReversement: number;
   /** Date d'ouverture du compte. */

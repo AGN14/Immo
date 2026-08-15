@@ -45,7 +45,7 @@ import type {
   UrgenceSignalement,
   Versement,
 } from "@/lib/types";
-import { planDepuisUuid } from "@/lib/plans";
+import { planDepuisUuid, planEffectif } from "@/lib/plans";
 
 type LigneProprietaire = Database["public"]["Tables"]["proprietaire"]["Row"];
 type LigneBien = Database["public"]["Tables"]["bien"]["Row"];
@@ -66,7 +66,12 @@ function mappeProprietaire(l: LigneProprietaire): Proprietaire {
     email: l.email,
     // plan_id est un UUID depuis la migration plan_uuid : le caster en PlanId
     // donnait un palier ininterprétable, sans que TypeScript puisse le voir.
-    plan: planDepuisUuid(l.plan_id),
+    //
+    // On expose le palier EFFECTIF, pas celui payé : un abonnement expiré doit
+    // se comporter comme Essentiel partout dans l'interface, exactement comme
+    // le trigger de quota le fait côté base.
+    plan: planEffectif(planDepuisUuid(l.plan_id), l.plan_expire_le),
+    planExpireLe: l.plan_expire_le,
     jourEcheanceDefaut: l.jour_echeance_defaut,
     jourReversement: l.jour_reversement,
     creeLe: l.cree_le,
