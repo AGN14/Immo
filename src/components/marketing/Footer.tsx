@@ -13,11 +13,20 @@ const columns = [
     ],
   },
   {
-    title: "Immo",
+    title: "Xwégán",
     links: [
       { href: "/#temoignages", label: "Témoignages" },
       { href: "/a-propos", label: "À propos" },
       { href: "/contact", label: "Contact" },
+    ],
+  },
+  {
+    title: "Légal",
+    links: [
+      { href: "/mentions-legales", label: "Mentions légales" },
+      { href: "/confidentialite", label: "Confidentialité" },
+      { href: "/cookies", label: "Cookies" },
+      { href: "/conditions-utilisation", label: "Conditions d'utilisation" },
     ],
   },
 ];
@@ -67,7 +76,7 @@ export function Footer() {
         </div>
 
         <div className="border-line text-ink-3 mt-10 flex flex-wrap items-center justify-between gap-4 border-t pt-6 text-sm">
-          <span>© 2026 Immo. Tous droits réservés.</span>
+          <span>© 2026 Xwégán. Tous droits réservés.</span>
           <span>Fait en Afrique de l&rsquo;Ouest</span>
         </div>
       </div>
