@@ -73,7 +73,7 @@ export default async function PageSignalements() {
 
         <div className="text-ink-2 mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm">
           {bien && lot && (
-            <Link href={`/biens/${bien.id}`} className="text-primary no-underline">
+            <Link href={`/biens/${bien.slug}`} className="text-primary no-underline">
               {bien.nom} — {lot.nom}
             </Link>
           )}

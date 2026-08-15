@@ -82,6 +82,15 @@ export interface Bien {
   id: string;
   proprietaireId: string;
   nom: string;
+  /**
+   * Identifiant d'URL, dérivé du nom (« residence-les-baobabs »).
+   *
+   * Unique par propriétaire seulement : RLS ne laisse lire à chacun que son
+   * propre parc, deux bailleurs peuvent donc avoir leur « villa-rose ».
+   *
+   * À ne pas confondre avec `code`, qui n'a rien d'un identifiant public.
+   */
+  slug: string;
   type: TypeBien;
   adresse: string;
   quartier: string;

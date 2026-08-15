@@ -140,6 +140,18 @@ const entréesLocataire: Icône[] = [
     icône: icône(<path d="M5 13l4 4L19 7" />),
   },
   {
+    // Ce qu'on a payé, et ce qui reste à confirmer. Distinct des quittances :
+    // ici on consulte des mouvements, là on récupère un document.
+    label: "Historique",
+    href: "/historique",
+    icône: icône(
+      <>
+        <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
+        <path d="M3 4v4h4M12 7v5l3 2" />
+      </>,
+    ),
+  },
+  {
     // Le document qu'on vient chercher des mois plus tard, pour un dossier de
     // logement ou un justificatif de domicile. Il mérite mieux qu'une ligne au
     // bas du tableau de bord.

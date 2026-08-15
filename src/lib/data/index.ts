@@ -86,6 +86,7 @@ function mappeBien(l: LigneBien): Bien {
     id: l.id,
     proprietaireId: l.proprietaire_id,
     nom: l.nom,
+    slug: l.slug,
     type: l.type as TypeBien,
     adresse: l.adresse,
     quartier: l.quartier,
@@ -275,6 +276,21 @@ export async function getBiens(proprietaireId: string): Promise<Bien[]> {
 
 export async function getBienById(proprietaireId: string, id: string): Promise<Bien | undefined> {
   return (await perimetre(proprietaireId)).biens.find((b) => b.id === id);
+}
+
+/**
+ * Le bien désigné par un segment d'URL, qu'il porte le slug ou l'ancien UUID.
+ *
+ * Les deux formes cohabitent : un lien mis en favori avant la bascule doit
+ * continuer à ouvrir la bonne fiche. La page redirige ensuite vers le slug, si
+ * bien que l'UUID s'efface de lui-même à mesure qu'on navigue.
+ */
+export async function getBienParSegment(
+  proprietaireId: string,
+  segment: string,
+): Promise<Bien | undefined> {
+  const { biens } = await perimetre(proprietaireId);
+  return biens.find((b) => b.slug === segment) ?? biens.find((b) => b.id === segment);
 }
 
 export async function getLots(proprietaireId: string): Promise<Lot[]> {

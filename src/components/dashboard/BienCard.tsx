@@ -37,7 +37,7 @@ export async function BienCard({ bien, proprietaireId }: { bien: Bien; proprieta
 
   return (
     <Link
-      href={`/biens/${bien.id}`}
+      href={`/biens/${bien.slug}`}
       className="border-line bg-surface hover:border-primary group flex flex-col overflow-hidden rounded-md border no-underline transition-colors"
     >
       {bien.imageUrl ? (

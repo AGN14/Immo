@@ -75,7 +75,7 @@ export default async function LocataireDetailPage(props: PageProps<"/locataires/
     const lot = lots.find((l) => l.id === lotId);
     const bien = lot ? biens.find((b) => b.id === lot.bienId) : undefined;
     return bien && lot ? (
-      <Link href={`/biens/${bien.id}`} className="text-primary no-underline">
+      <Link href={`/biens/${bien.slug}`} className="text-primary no-underline">
         {bien.nom} — {lot.nom}
       </Link>
     ) : (

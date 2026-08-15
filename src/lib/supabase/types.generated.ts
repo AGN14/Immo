@@ -124,6 +124,7 @@ export type Database = {
           nom: string
           proprietaire_id: string
           quartier: string
+          slug: string
           superficie_m2: number | null
           type: string
           ville: string
@@ -143,6 +144,7 @@ export type Database = {
           nom: string
           proprietaire_id: string
           quartier: string
+          slug?: string
           superficie_m2?: number | null
           type: string
           ville: string
@@ -162,6 +164,7 @@ export type Database = {
           nom?: string
           proprietaire_id?: string
           quartier?: string
+          slug?: string
           superficie_m2?: number | null
           type?: string
           ville?: string

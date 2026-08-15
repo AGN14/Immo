@@ -29,6 +29,7 @@ const ESPACES_PROTEGES = [
   "/signaler",
   "/payer",
   "/quittances",
+  "/historique",
   "/profil",
   "/plans",
   "/analyses",

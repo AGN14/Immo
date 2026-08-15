@@ -17,6 +17,9 @@ const moisFr = (periode: string) =>
 const dateFr = (iso: string) =>
   new Date(iso).toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" });
 
+/** Reconnaît un ancien lien : un numéro de quittance ne ressemble pas à ça. */
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 /** Première lettre en capitale — « juillet 2026 » devient « Juillet 2026 ». */
 const capitale = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
 
@@ -33,18 +36,38 @@ const capitale = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
  * laissent passer que les quittances de son parc ou de ses baux. Un identifiant
  * deviné ne renvoie rien.
  */
-export async function GET(_request: Request, contexte: { params: Promise<{ id: string }> }) {
+export async function GET(_request: Request, contexte: { params: Promise<{ numero: string }> }) {
   const session = await getSession();
   if (!session) return new Response("Connexion requise.", { status: 401 });
 
-  const { id } = await contexte.params;
+  const { numero } = await contexte.params;
   const sb = supabaseUtilisateur();
 
+  const colonnes = "id, numero, emise_le, annulee_le, paiement_id, proprietaire_id";
+
+  /**
+   * Le numéro suffit à désigner la quittance, et c'est celui que le locataire a
+   * sous les yeux sur son papier. En base il n'est unique que par propriétaire
+   * — mais sous RLS cela ne laisse aucune ambiguïté : un propriétaire ne voit
+   * que ses propres quittances, et un locataire n'a qu'un seul bailleur
+   * (`locataire.proprietaire_id` est une colonne unique). Dans les deux cas la
+   * requête ne peut ramener qu'une ligne.
+   */
   const { data: quittance } = await sb
     .from("quittance")
-    .select("id, numero, emise_le, annulee_le, paiement_id, proprietaire_id")
-    .eq("id", id)
+    .select(colonnes)
+    .eq("numero", numero)
     .maybeSingle();
+
+  // Les anciens liens portaient l'UUID. On les honore, puis on renvoie vers
+  // l'adresse en numéro pour qu'ils cessent de circuler.
+  if (!quittance && UUID.test(numero)) {
+    const { data } = await sb.from("quittance").select(colonnes).eq("id", numero).maybeSingle();
+    if (data) {
+      return Response.redirect(new URL(`/quittances/${data.numero}`, _request.url), 308);
+    }
+  }
+
   if (!quittance) return new Response("Quittance introuvable.", { status: 404 });
 
   const { data: paiement } = await sb

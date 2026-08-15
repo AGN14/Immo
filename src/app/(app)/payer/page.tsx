@@ -38,9 +38,9 @@ export default async function PayerPage() {
     getPaiementsDuLocataire(session.locataireId),
     getVersementsDuLocataire(session.locataireId),
   ]);
-  // Trois mois affichés au maximum ; au-delà, on paye ce qui est dû, pas ce
-  // qui arrive.
-  const moisDue = moisAPayer(bail, paiements, versements, 3);
+  // Douze mois : de quoi solder une année d'avance, ce qui se pratique. Au-delà
+  // on dépasserait souvent la durée du bail lui-même, et il faudrait rembourser.
+  const moisDue = moisAPayer(bail, paiements, versements, 12);
   const penalites = Object.fromEntries(
     moisDue.map((periode) => [periode, penaliteDuMois(periode, bail, proprietaire)]),
   );
@@ -80,6 +80,7 @@ export default async function PayerPage() {
           moisDue={moisDue}
           penalites={penalites}
           nomLocataire={session.nom}
+          nomProprietaire={proprietaire.nom}
           // Absent tant que les clés ne sont pas configurées : le paiement en
           // ligne disparaît alors proprement, la déclaration manuelle reste.
           kkiapay={

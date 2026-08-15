@@ -166,7 +166,7 @@ export default async function LoyersPage() {
                 <tr key={p.id} className="border-line border-b last:border-0">
                   <td className="px-4 py-3">
                     {bien && lot ? (
-                      <Link href={`/biens/${bien.id}`} className="text-primary no-underline">
+                      <Link href={`/biens/${bien.slug}`} className="text-primary no-underline">
                         {bien.nom} — {lot.nom}
                       </Link>
                     ) : (

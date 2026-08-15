@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import {
   getBaux,
-  getBienById,
+  getBienParSegment,
   getLocataires,
   getLotsByBienId,
   getPaiementsByBailId,
@@ -29,14 +29,19 @@ import { CodeBien } from "@/components/biens/CodeBien";
 
 const th = "text-ink-2 px-4 py-2.5 text-sm font-medium";
 
-export default async function BienDetailPage(props: PageProps<"/biens/[id]">) {
+export default async function BienDetailPage(props: PageProps<"/biens/[slug]">) {
   const { proprietaireId } = await requireProprietaire();
-  const { id } = await props.params;
+  const { slug } = await props.params;
 
   // Le bien d'un autre propriétaire est introuvable, pas « interdit » :
   // on ne confirme même pas son existence.
-  const bien = await getBienById(proprietaireId, id);
+  const bien = await getBienParSegment(proprietaireId, slug);
   if (!bien) notFound();
+
+  // Les liens en UUID d'avant la bascule restent valides, mais ne survivent pas
+  // à la visite : on les remplace dans la barre d'adresse et l'historique. Un
+  // 308 plutôt qu'un 307, la substitution étant définitive.
+  if (slug !== bien.slug) permanentRedirect(`/biens/${bien.slug}`);
 
   const [lots, baux, locataires, versements] = await Promise.all([
     getLotsByBienId(proprietaireId, bien.id),
@@ -96,13 +101,9 @@ export default async function BienDetailPage(props: PageProps<"/biens/[id]">) {
             alt={`${bien.nom} — ${bien.quartier}, ${bien.ville}`}
             className="mt-4 h-56 w-full rounded-md object-cover"
           />
-          <CodeBien code={bien.code} />
+          <CodeBien code={bien.code} surImage />
         </div>
-      ) : (
-        <div className="relative">
-          <CodeBien code={bien.code} />
-        </div>
-      )}
+      ) : null}
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-4">
         <div>
@@ -118,6 +119,15 @@ export default async function BienDetailPage(props: PageProps<"/biens/[id]">) {
               year: "numeric",
             })}
           </p>
+          {/* Le code voisinait le bouton « Supprimer ». Il appartient aux
+              informations du bien, pas aux actions destructrices : c'est ce
+              qu'on lit et qu'on transmet à un locataire, pas ce qu'on clique
+              par mégarde. Sur la photo quand il y en a une, ici sinon. */}
+          {!bien.imageUrl && (
+            <div className="mt-3">
+              <CodeBien code={bien.code} />
+            </div>
+          )}
         </div>
         <div className="flex items-center gap-3">
           <ModalModifierBien bien={bien} />

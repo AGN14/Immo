@@ -3,14 +3,12 @@ import { dateEcheance, jourEcheance, moisAPayer, soldeDu, statutDuMois } from "@
 import {
   getLogementDuLocataire,
   getPaiementsDuLocataire,
-  getQuittancesDuLocataire,
   getSignalementsDuLocataire,
   getVersementsDuLocataire,
   periodeCourante,
 } from "@/lib/data";
 import {
   compositionLabel,
-  methodeLabel,
   statutLoyerLabel,
   statutSignalementLabel,
   urgenceLabel,
@@ -45,15 +43,13 @@ export async function LocataireDashboard({
 
   const { bail, lot, bien, proprietaire } = logement;
 
-  const [paiements, versements, quittances, signalements] = await Promise.all([
+  // Les quittances ne sont plus chargées ici : elles ne servaient qu'au tableau
+  // parti sur sa propre page. Une requête de moins à chaque ouverture.
+  const [paiements, versements, signalements] = await Promise.all([
     getPaiementsDuLocataire(locataireId),
     getVersementsDuLocataire(locataireId),
-    getQuittancesDuLocataire(locataireId),
     getSignalementsDuLocataire(locataireId),
   ]);
-
-  // Pour la table d'historique, un annuaire local évite une requête par ligne.
-  const versementParId = new Map(versements.map((v) => [v.id, v]));
 
   const jour = jourEcheance(bail, proprietaire);
   const periode = periodeCourante();
@@ -182,59 +178,36 @@ export async function LocataireDashboard({
         </ul>
       )}
 
-      {/* Historique et quittances */}
-      <h2 className="font-display text-ink mt-12 text-2xl font-semibold">Mes paiements</h2>
-      <p className="text-ink-2 mt-1 text-sm">
-        Votre quittance est émise dès que le paiement est confirmé.
-      </p>
-
-      <div className="border-line bg-surface mt-4 overflow-x-auto rounded-md border">
-        <table className="w-full text-left text-sm">
-          <thead>
-            <tr className="border-line bg-sand border-b">
-              <th className="text-ink-2 px-4 py-3 font-medium">Mois</th>
-              <th className="text-ink-2 px-4 py-3 font-medium">Montant</th>
-              <th className="text-ink-2 px-4 py-3 font-medium">Moyen</th>
-              <th className="text-ink-2 px-4 py-3 font-medium">Quittance</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paiements.map((p) => {
-              const versement = versementParId.get(p.versementId);
-              const quittance = quittances.find((q) => q.paiementId === p.id);
-              return (
-                <tr key={p.id} className="border-line border-b last:border-0">
-                  <td className="text-ink-2 px-4 py-3">{p.periode}</td>
-                  <td className="text-primary px-4 py-3 font-semibold">
-                    {p.montantFcfa.toLocaleString("fr-FR")} F
-                  </td>
-                  <td className="text-ink-2 px-4 py-3">
-                    {versement ? methodeLabel[versement.methode] : "—"}
-                  </td>
-                  <td className="px-4 py-3">
-                    {/* Un numéro seul n'a aucune valeur : une quittance sert de
-                        justificatif de domicile et de preuve en cas de litige.
-                        Elle doit pouvoir être ouverte et présentée. */}
-                    {quittance ? (
-                      <a
-                        href={`/quittances/${quittance.id}`}
-                        target="_blank"
-                        rel="noopener"
-                        className="text-primary font-semibold underline-offset-2 hover:underline"
-                        data-numeric
-                      >
-                        {quittance.numero}
-                      </a>
-                    ) : (
-                      <span className="text-ink-3">En attente de confirmation</span>
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      {/* Le tableau complet des paiements vivait ici. Il répondait pourtant à
+          une autre question que celle qui amène sur ce tableau de bord : « que
+          dois-je maintenant » plutôt que « qu'ai-je payé en mars ». Il a sa
+          page, et les quittances la leur ; ne restent que les deux portes. */}
+      {paiements.length > 0 && (
+        <div className="border-line bg-surface mt-12 flex flex-wrap items-center justify-between gap-4 rounded-md border p-5">
+          <div>
+            <p className="text-ink font-semibold">
+              {paiements.length} mois réglé{paiements.length > 1 && "s"} à ce jour
+            </p>
+            <p className="text-ink-2 mt-1 text-sm">
+              Votre quittance est émise dès que le paiement est confirmé.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/historique"
+              className="border-line text-ink hover:border-ink-3 rounded-md border px-4 py-2 text-sm font-semibold no-underline transition-colors"
+            >
+              Historique
+            </Link>
+            <Link
+              href="/quittances"
+              className="border-line text-ink hover:border-ink-3 rounded-md border px-4 py-2 text-sm font-semibold no-underline transition-colors"
+            >
+              Mes quittances
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
