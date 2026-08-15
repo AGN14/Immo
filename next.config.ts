@@ -1,5 +1,9 @@
 import type { NextConfig } from "next";
 
+const supabaseHost = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? "")
+  .replace(/^https?:\/\//, "")
+  .replace(/\/$/, "");
+
 const nextConfig: NextConfig = {
   // Masque la pastille de développement Next.js en bas de page.
   // Les erreurs de compilation et d'exécution restent affichées.
@@ -17,6 +21,12 @@ const nextConfig: NextConfig = {
    * que `next dev` ; la production n'est pas affectée.
    */
   allowedDevOrigins: ["127.0.0.1", "localhost", "192.168.1.*"],
+
+  images: {
+    remotePatterns: supabaseHost
+      ? [{ protocol: "https", hostname: supabaseHost }]
+      : [],
+  },
 };
 
 export default nextConfig;

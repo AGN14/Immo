@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import {
@@ -82,12 +83,18 @@ export default async function SignalerPage() {
                 {photos[s.id]?.length > 0 && (
                   <div className="mt-3 flex flex-wrap gap-2">
                     {photos[s.id].map((chemin, i) => (
-                      <img
+                      <div
                         key={chemin + i}
-                        src={chemin}
-                        alt={`Photo ${i + 1} du signalement`}
-                        className="size-16 rounded-md object-cover"
-                      />
+                        className="relative size-16 shrink-0 overflow-hidden rounded-md"
+                      >
+                        <Image
+                          src={chemin}
+                          alt={`Photo ${i + 1} du signalement`}
+                          fill
+                          sizes="64px"
+                          className="object-cover"
+                        />
+                      </div>
                     ))}
                   </div>
                 )}
