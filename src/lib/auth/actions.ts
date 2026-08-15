@@ -22,6 +22,22 @@ import { destroySession } from "@/lib/auth/session";
 const LONGUEUR_MINIMALE = 8;
 
 /**
+ * Version des documents juridiques (date de la dernière révision des
+ * Conditions d'utilisation et de la Politique de confidentialité). Conservée
+ * sur chaque ligne de consentement pour prouver ce qui a été accepté.
+ */
+const VERSION_CONSENTEMENT = "2026-08-15";
+
+/** Le texte exact que coche l'utilisateur, tel qu'affiché à l'inscription. */
+const TEXTE_CONSENTEMENT =
+  "J'accepte les Conditions d'utilisation de Xwégán et la Politique de " +
+  "confidentialité. En cochant cette case, je consens au traitement de mes " +
+  "données personnelles (nom, e-mail, téléphone et données de gestion " +
+  "locative que je renseigne) pour : la gestion de mon compte, le suivi des " +
+  "loyers et paiements, le signalement des pannes et litiges, la facturation " +
+  "et le contact au sujet de mon compte.";
+
+/**
  * L'origine réelle de la requête, pour construire les liens des e-mails.
  * En dur, un lien de réinitialisation pointerait vers localhost dans les
  * courriels envoyés depuis une autre machine du réseau.
@@ -79,10 +95,15 @@ export async function signup(formData: FormData) {
   const email = String(formData.get("email") ?? "")
     .trim()
     .toLowerCase();
+  const telephone = String(formData.get("telephone") ?? "").trim() || null;
   const motDePasse = String(formData.get("password") ?? "");
   const page = role === "locataire" ? "/inscription/locataire" : "/inscription/proprietaire";
 
   if (motDePasse.length < LONGUEUR_MINIMALE) redirect(`${page}?erreur=court`);
+
+  // Sans consentement, pas de compte : la politique ne s'applique qu'à ceux
+  // qui l'ont acceptée, et la preuve (article 389) doit exister dès l'origine.
+  if (formData.get("consentement") !== "on") redirect(`${page}?erreur=consentement`);
 
   // Le code de bien est vérifié AVANT de créer quoi que ce soit : inutile
   // d'ouvrir un compte qui ne pourra être rattaché à aucun parc.
@@ -122,16 +143,35 @@ export async function signup(formData: FormData) {
     role === "locataire"
       ? await admin
           .from("locataire")
-          .insert({ proprietaire_id: proprietaireId!, nom, email, auth_user_id: authUserId })
+          .insert({ proprietaire_id: proprietaireId!, nom, email, telephone, auth_user_id: authUserId })
       : await admin.from("proprietaire").insert({
           nom,
           email,
+          telephone,
           auth_user_id: authUserId,
           plan_id: uuidDuPlan(planDemande(formData)),
         });
 
   if (erreurFiche) {
     // Sans fiche, le compte est inutilisable : on ne laisse pas de coquille.
+    await admin.auth.admin.deleteUser(authUserId);
+    redirect(`${page}?erreur=1`);
+  }
+
+  // La preuve du consentement doit exister avec le compte, pas après coup. Si
+  // elle manque, on déroule : sans elle, le compte n'a pas de base légale.
+  const { error: erreurConsentement } = await admin.from("consentement").insert({
+    auth_user_id: authUserId,
+    finalite: "compte",
+    version: VERSION_CONSENTEMENT,
+    texte: TEXTE_CONSENTEMENT,
+  });
+
+  if (erreurConsentement) {
+    await admin
+      .from(role === "locataire" ? "locataire" : "proprietaire")
+      .delete()
+      .eq("auth_user_id", authUserId);
     await admin.auth.admin.deleteUser(authUserId);
     redirect(`${page}?erreur=1`);
   }
