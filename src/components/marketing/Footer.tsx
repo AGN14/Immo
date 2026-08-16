@@ -35,43 +35,43 @@ export function Footer() {
   return (
     <footer className="border-line border-t py-12">
       <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
-        <div className="flex flex-wrap justify-between gap-10">
-          <div className="flex max-w-[22em] flex-col gap-3">
+        <div className="grid grid-cols-1 items-start gap-x-8 gap-y-10 sm:grid-cols-3 lg:grid-cols-[1.3fr_0.8fr_0.8fr_0.8fr_1.3fr]">
+          <div className="flex flex-col gap-3 sm:col-span-3 lg:col-span-1">
             <Link href="/" className="flex items-center gap-2.5 no-underline">
               <Logo />
             </Link>
-            <p className="text-ink-2 text-justify text-sm">
+            <p className="text-ink-2 text-justify max-w-[22em] text-sm">
               La plateforme qui relie propriétaires et locataires : loyers, pannes et quittances,
               sans prise de tête.
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-12">
-            {columns.map((c) => (
-              <div key={c.title}>
-                <h3 className="text-ink font-sans text-sm font-semibold">{c.title}</h3>
-                <ul className="mt-3 flex flex-col gap-2">
-                  {c.links.map((l) => (
-                    <li key={l.label}>
-                      <Link
-                        href={l.href}
-                        className="text-ink-2 hover:text-ink text-sm no-underline transition-colors"
-                      >
-                        {l.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
+          {columns.map((c) => (
+            <div key={c.title}>
+              <h3 className="text-ink font-sans text-sm font-semibold">{c.title}</h3>
+              <ul className="mt-3 flex flex-col gap-2">
+                {c.links.map((l) => (
+                  <li key={l.label}>
+                    <Link
+                      href={l.href}
+                      className="text-ink-2 hover:text-ink text-sm no-underline transition-colors"
+                    >
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
 
-          <div className="flex max-w-[22em] flex-col gap-2">
+          <div className="flex flex-col gap-2 sm:col-span-3 lg:col-span-1">
             <h3 className="text-ink font-sans text-sm font-semibold">Newsletter</h3>
-            <p className="text-ink-2 text-justify text-sm">
+            <p className="text-ink-2 text-justify max-w-[22em] text-sm">
               Un e-mail par mois : nouveautés produit, rien d&rsquo;autre.
             </p>
-            <NewsletterForm />
+            <div className="max-w-[22em]">
+              <NewsletterForm />
+            </div>
           </div>
         </div>
 
