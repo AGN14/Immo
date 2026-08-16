@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { Select } from "@/components/ui/Select";
 
 export interface LigneQuittance {
   id: string;
@@ -58,21 +59,14 @@ export function TableauQuittances({ lignes }: { lignes: LigneQuittance[] }) {
     <div className="mt-8">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex flex-wrap items-end gap-3">
-          <label className="flex flex-col gap-1.5">
-            <span className="text-ink-2 text-sm font-medium">Année</span>
-            <select
-              value={annee}
-              onChange={(e) => setAnnee(e.target.value)}
-              className="border-line bg-surface text-ink focus-visible:outline-primary rounded-md border px-3 py-2 text-sm focus-visible:outline-2"
-            >
-              <option value="toutes">Toutes</option>
-              {annees.map((a) => (
-                <option key={a} value={a}>
-                  {a}
-                </option>
-              ))}
-            </select>
-          </label>
+          <Select
+            label="Année"
+            name="annee"
+            value={annee}
+            onChange={setAnnee}
+            options={[{ value: "toutes", label: "Toutes" }, ...annees.map((a) => ({ value: a, label: a }))]}
+            className="w-36"
+          />
 
           <label className="flex flex-col gap-1.5">
             <span className="text-ink-2 text-sm font-medium">Rechercher</span>

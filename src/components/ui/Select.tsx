@@ -15,7 +15,8 @@ export interface OptionSelect {
 export function Select({
   label,
   name,
-  value,
+  value: valeurControlee,
+  defaultValue,
   onChange,
   options,
   hint,
@@ -23,12 +24,20 @@ export function Select({
 }: {
   label: string;
   name: string;
-  value: string;
-  onChange: (valeur: string) => void;
+  /** Fournir `value` + `onChange` pour un champ contrôlé (ex. un choix qui
+   *  fait apparaître d'autres champs). Sans eux, le composant gère seul son
+   *  état — le cas courant d'un simple champ de formulaire. */
+  value?: string;
+  defaultValue?: string;
+  onChange?: (valeur: string) => void;
   options: OptionSelect[];
   hint?: string;
   className?: string;
 }) {
+  const controle = valeurControlee !== undefined;
+  const [valeurInterne, setValeurInterne] = useState(defaultValue ?? options[0]?.value ?? "");
+  const value = controle ? valeurControlee : valeurInterne;
+
   const [ouvert, setOuvert] = useState(false);
   const [survole, setSurvole] = useState<string | null>(null);
   const conteneurRef = useRef<HTMLDivElement>(null);
@@ -47,7 +56,8 @@ export function Select({
   }, [ouvert]);
 
   const choisir = (v: string) => {
-    onChange(v);
+    if (!controle) setValeurInterne(v);
+    onChange?.(v);
     setOuvert(false);
     declencheurRef.current?.focus();
   };

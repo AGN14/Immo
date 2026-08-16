@@ -9,12 +9,10 @@ import { DatePicker } from "@/components/ui/DatePicker";
 import { EtapesWizard } from "@/components/ui/EtapesWizard";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
+import { Select } from "@/components/ui/Select";
 import { useWizardEtapes } from "@/components/ui/validation-etapes";
 
 const etatInitial: EtatAction = { ok: false };
-
-const selectClass =
-  "border-line bg-surface text-ink focus-visible:outline-primary rounded-md border px-3 py-2.5 text-base focus-visible:outline-2 focus-visible:outline-offset-1";
 
 const pieces: { valeur: PieceIdentite; label: string }[] = [
   { valeur: "cni", label: "Carte nationale d'identité" },
@@ -110,17 +108,12 @@ function ModalAjouterLocataireInterne() {
         {/* Étape 3 — pièce d'identité */}
         <div data-etape={3} className={etape === 3 ? "flex flex-col gap-4" : "hidden"}>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <label className="flex flex-col gap-1.5">
-              <span className="text-ink-3 text-sm">Type</span>
-              <select name="pieceType" defaultValue="" className={selectClass}>
-                <option value="">—</option>
-                {pieces.map((p) => (
-                  <option key={p.valeur} value={p.valeur}>
-                    {p.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <Select
+              label="Type"
+              name="pieceType"
+              defaultValue=""
+              options={[{ value: "", label: "—" }, ...pieces.map((p) => ({ value: p.valeur, label: p.label }))]}
+            />
             <Input label="Numéro" name="pieceNumero" placeholder="Ex. 2 2025 010123" />
           </div>
         </div>

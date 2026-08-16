@@ -8,11 +8,9 @@ import type { Bien, Lot, Locataire } from "@/lib/types";
 import { DatePicker } from "@/components/ui/DatePicker";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
+import { Select } from "@/components/ui/Select";
 
 const etatInitial: EtatAction = { ok: false };
-
-const selectClass =
-  "border-line bg-surface text-ink focus-visible:outline-primary rounded-md border px-3 py-2.5 text-base focus-visible:outline-2 focus-visible:outline-offset-1";
 
 export function ModalAttribuerLogement({
   locataires,
@@ -80,31 +78,26 @@ function ModalAttribuerLogementInterne({
   return (
     <Modal ouvert={ouvert} surFermer={() => setOuvert(false)} titre="Attribuer un logement">
       <form action={action} className="flex flex-col gap-4">
-        <label className="flex flex-col gap-1.5">
-          <span className="text-ink-2 text-sm font-medium">Locataire</span>
-          <select name="locataireId" className={selectClass} required defaultValue={locataireInitial ?? ""}>
-            {!locataireInitial && <option value="">—</option>}
-            {locataires.map((l) => (
-              <option key={l.id} value={l.id}>
-                {l.nom}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="flex flex-col gap-1.5">
-          <span className="text-ink-2 text-sm font-medium">Logement</span>
-          <select name="lotId" className={selectClass} required>
-            {lotsDisponibles.map(({ lot, bien }) => (
-              <option key={lot.id} value={lot.id}>
-                {bien ? `${bien.nom} — ` : ""}
-                {lot.nom} ({compositionLabel[lot.composition]})
-                {lot.loyerReferenceFcfa
-                  ? ` · ${lot.loyerReferenceFcfa.toLocaleString("fr-FR")} F`
-                  : ""}
-              </option>
-            ))}
-          </select>
-        </label>
+        <Select
+          label="Locataire"
+          name="locataireId"
+          defaultValue={locataireInitial ?? ""}
+          options={[
+            ...(locataireInitial ? [] : [{ value: "", label: "—" }]),
+            ...locataires.map((l) => ({ value: l.id, label: l.nom })),
+          ]}
+        />
+        <Select
+          label="Logement"
+          name="lotId"
+          defaultValue={lotsDisponibles[0]?.lot.id ?? ""}
+          options={lotsDisponibles.map(({ lot, bien }) => ({
+            value: lot.id,
+            label: `${bien ? `${bien.nom} — ` : ""}${lot.nom} (${compositionLabel[lot.composition]})${
+              lot.loyerReferenceFcfa ? ` · ${lot.loyerReferenceFcfa.toLocaleString("fr-FR")} F` : ""
+            }`,
+          }))}
+        />
         <Input
           label="Loyer mensuel (F CFA)"
           name="loyerMensuelFcfa"

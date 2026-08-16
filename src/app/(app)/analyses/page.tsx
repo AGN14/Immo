@@ -13,6 +13,7 @@ import {
   getSerieLoyersAnnee,
 } from "@/lib/data";
 import { KPICard } from "@/components/ui/KPICard";
+import { Select } from "@/components/ui/Select";
 import {
   ChartLoyersMensuels,
   ChartEncaissementParBien,
@@ -137,20 +138,17 @@ export default async function AnalysesPage({
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <form action="/analyses" className="flex items-center gap-2">
-            <label className="text-ink-3 text-sm">Période</label>
-            <select
+          <form action="/analyses" className="flex items-end gap-2">
+            <Select
+              label="Période"
               name="annee"
               defaultValue={anneeParam ?? ""}
-              className="border-line bg-surface text-ink focus-visible:outline-primary rounded-md border px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-offset-1"
-            >
-              <option value="">Tout l&rsquo;historique</option>
-              {annees.map((a) => (
-                <option key={a} value={a}>
-                  Année {a}
-                </option>
-              ))}
-            </select>
+              options={[
+                { value: "", label: "Tout l'historique" },
+                ...annees.map((a) => ({ value: a, label: `Année ${a}` })),
+              ]}
+              className="w-44"
+            />
             <button
               type="submit"
               className="bg-primary text-on-primary hover:bg-primary-hi shadow-cta rounded-md px-4 py-2 text-sm font-semibold transition-colors"

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { Select } from "@/components/ui/Select";
 import { StatusPill } from "@/components/ui/StatusPill";
 import type { StatutVersement } from "@/lib/types";
 
@@ -71,36 +72,29 @@ export function TableauHistorique({ lignes }: { lignes: LigneHistorique[] }) {
     <div className="mt-8">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex flex-wrap items-end gap-3">
-          <label className="flex flex-col gap-1.5">
-            <span className="text-ink-2 text-sm font-medium">Année</span>
-            <select
-              value={annee}
-              onChange={(e) => setAnnee(e.target.value)}
-              className="border-line bg-surface text-ink focus-visible:outline-primary rounded-md border px-3 py-2 text-sm focus-visible:outline-2"
-            >
-              <option value="toutes">Toutes</option>
-              {annees.map((a) => (
-                <option key={a} value={a}>
-                  {a}
-                </option>
-              ))}
-            </select>
-          </label>
+          <Select
+            label="Année"
+            name="annee"
+            value={annee}
+            onChange={setAnnee}
+            options={[{ value: "toutes", label: "Toutes" }, ...annees.map((a) => ({ value: a, label: a }))]}
+            className="w-36"
+          />
 
-          <label className="flex flex-col gap-1.5">
-            <span className="text-ink-2 text-sm font-medium">Statut</span>
-            <select
-              value={statut}
-              onChange={(e) => setStatut(e.target.value)}
-              className="border-line bg-surface text-ink focus-visible:outline-primary rounded-md border px-3 py-2 text-sm focus-visible:outline-2"
-            >
-              <option value="tous">Tous</option>
-              <option value="confirme">Confirmé</option>
-              <option value="initie">À confirmer</option>
-              <option value="echoue">Échoué</option>
-              <option value="annule">Annulé</option>
-            </select>
-          </label>
+          <Select
+            label="Statut"
+            name="statut"
+            value={statut}
+            onChange={setStatut}
+            options={[
+              { value: "tous", label: "Tous" },
+              { value: "confirme", label: "Confirmé" },
+              { value: "initie", label: "À confirmer" },
+              { value: "echoue", label: "Échoué" },
+              { value: "annule", label: "Annulé" },
+            ]}
+            className="w-40"
+          />
         </div>
 
         <p className="text-ink-2 text-right text-sm">

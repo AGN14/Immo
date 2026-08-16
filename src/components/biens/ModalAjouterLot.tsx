@@ -4,9 +4,10 @@ import { useActionState, useState } from "react";
 import { creerLot, type EtatAction } from "@/lib/actions/biens";
 import { compositionLabel } from "@/lib/status-labels";
 import type { TypeBien } from "@/lib/types";
-import { compositionsParType, selectClass } from "@/components/biens/constantes-bien";
+import { compositionsParType } from "@/components/biens/constantes-bien";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
+import { Select } from "@/components/ui/Select";
 
 const etatInitial: EtatAction = { ok: false };
 
@@ -56,20 +57,12 @@ function ModalAjouterLotInterne({
     <Modal ouvert={ouvert} surFermer={() => setOuvert(false)} titre="Ajouter un lot">
       <form action={action} className="flex flex-col gap-4">
         <Input label="Nom du lot" name="nom" placeholder="Ex. Appartement A1" required />
-        <label className="flex flex-col gap-1.5">
-          <span className="text-ink-2 text-sm font-medium">Composition</span>
-          <select
-            name="composition"
-            defaultValue={compositions[0]}
-            className={selectClass}
-          >
-            {compositions.map((valeur) => (
-              <option key={valeur} value={valeur}>
-                {compositionLabel[valeur]}
-              </option>
-            ))}
-          </select>
-        </label>
+        <Select
+          label="Composition"
+          name="composition"
+          defaultValue={compositions[0]}
+          options={compositions.map((valeur) => ({ value: valeur, label: compositionLabel[valeur] }))}
+        />
         <Input
           label="Loyer de référence (F CFA / mois)"
           name="loyerReferenceFcfa"

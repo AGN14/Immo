@@ -4,11 +4,9 @@ import { useActionState } from "react";
 import { creerSignalement } from "@/lib/actions/signalements";
 import type { EtatAction } from "@/lib/actions/biens";
 import { ChampPhoto } from "@/components/ui/ChampPhoto";
+import { Select } from "@/components/ui/Select";
 
 const etatInitial: EtatAction = { ok: false };
-
-const selectClass =
-  "border-line bg-surface text-ink focus-visible:outline-primary rounded-md border px-3 py-2.5 text-base focus-visible:outline-2 focus-visible:outline-offset-1";
 
 const urgences = [
   { valeur: "basse", label: "Basse — gênant, peut attendre" },
@@ -48,18 +46,12 @@ export function FormulaireSignalement() {
         />
       </div>
 
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="urgence-signalement" className="text-ink-2 text-sm font-medium">
-          Urgence
-        </label>
-        <select id="urgence-signalement" name="urgence" defaultValue="normale" className={selectClass}>
-          {urgences.map((u) => (
-            <option key={u.valeur} value={u.valeur}>
-              {u.label}
-            </option>
-          ))}
-        </select>
-      </div>
+      <Select
+        label="Urgence"
+        name="urgence"
+        defaultValue="normale"
+        options={urgences.map((u) => ({ value: u.valeur, label: u.label }))}
+      />
 
       <ChampPhoto nom="photo" label="Photo (facultatif)" accept="image/*" />
 
