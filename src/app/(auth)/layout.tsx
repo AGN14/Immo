@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowLeftIcon } from "@/components/ui/ArrowLeftIcon";
 import { Logo } from "@/components/ui/Logo";
 
 /**
@@ -16,9 +17,10 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           </Link>
           <Link
             href="/"
-            className="text-ink-2 hover:text-ink text-sm font-medium no-underline transition-colors"
+            className="text-ink-2 hover:text-ink inline-flex items-center gap-1.5 text-sm font-medium no-underline transition-colors [&_svg]:size-4 [&_svg]:shrink-0"
           >
-            ← Retour au site
+            <ArrowLeftIcon />
+            Retour au site
           </Link>
         </div>
       </header>

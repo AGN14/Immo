@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ArrowLeftIcon } from "@/components/ui/ArrowLeftIcon";
 import {
   getBaux,
   getBiens,
@@ -103,8 +104,12 @@ export default async function LocataireDetailPage(props: PageProps<"/locataires/
 
   return (
     <div className="mx-auto max-w-3xl">
-      <Link href="/locataires" className="text-ink-3 hover:text-ink text-sm no-underline">
-        ← Tous les locataires
+      <Link
+        href="/locataires"
+        className="text-ink-3 hover:text-ink inline-flex items-center gap-1.5 text-sm no-underline [&_svg]:size-4 [&_svg]:shrink-0"
+      >
+        <ArrowLeftIcon />
+        Tous les locataires
       </Link>
 
       <div className="mt-4 flex flex-wrap items-center gap-4">

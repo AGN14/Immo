@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ArrowRightIcon } from "@/components/ui/ArrowRightIcon";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 
 export const metadata: Metadata = {
@@ -55,7 +56,10 @@ export default function ContactPage() {
             >
               <h2 className="font-display text-ink text-xl font-semibold">{m.titre}</h2>
               <p className="text-ink-2 text-justify text-sm">{m.corps}</p>
-              <span className="text-primary mt-2 text-sm font-semibold">{m.adresse} →</span>
+              <span className="text-primary mt-2 inline-flex items-center gap-1.5 text-sm font-semibold [&_svg]:size-4 [&_svg]:shrink-0">
+                {m.adresse}
+                <ArrowRightIcon />
+              </span>
             </a>
           ))}
         </div>

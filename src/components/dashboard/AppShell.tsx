@@ -426,8 +426,8 @@ export function AppShell({
                       {plan.prixFcfa.toLocaleString("fr-FR")} F / mois
                     </span>
                   </span>
-                  <span className="text-ink-3" aria-hidden="true">
-                    →
+                  <span className="text-ink-3 shrink-0" aria-hidden="true">
+                    {icône(<path d="M5 12h14M13 6l6 6-6 6" />)}
                   </span>
                 </Link>
               ) : (

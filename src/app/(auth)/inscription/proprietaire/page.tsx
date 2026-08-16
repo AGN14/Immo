@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { signup } from "@/lib/auth/actions";
+import { ArrowLeftIcon } from "@/components/ui/ArrowLeftIcon";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { PLANS } from "@/lib/plans";
@@ -20,8 +21,12 @@ export default async function InscriptionProprietairePage({
   return (
     <>
       <div className="border-line bg-surface rounded-lg border p-6 shadow-sm sm:p-8">
-        <Link href="/inscription" className="text-ink-3 hover:text-ink text-sm no-underline">
-          ← Choisir un autre profil
+        <Link
+          href="/inscription"
+          className="text-ink-3 hover:text-ink inline-flex items-center gap-1.5 text-sm no-underline [&_svg]:size-4 [&_svg]:shrink-0"
+        >
+          <ArrowLeftIcon />
+          Choisir un autre profil
         </Link>
         <h1 className="font-display text-ink mt-3 text-2xl font-semibold">
           Créer un compte propriétaire

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
+import { ArrowLeftIcon } from "@/components/ui/ArrowLeftIcon";
 import {
   getBaux,
   getBienParSegment,
@@ -89,8 +90,12 @@ export default async function BienDetailPage(props: PageProps<"/biens/[slug]">) 
 
   return (
     <div>
-      <Link href="/biens" className="text-ink-3 hover:text-ink text-sm no-underline">
-        ← Tous les biens
+      <Link
+        href="/biens"
+        className="text-ink-3 hover:text-ink inline-flex items-center gap-1.5 text-sm no-underline [&_svg]:size-4 [&_svg]:shrink-0"
+      >
+        <ArrowLeftIcon />
+        Tous les biens
       </Link>
 
       {bien.imageUrl ? (
