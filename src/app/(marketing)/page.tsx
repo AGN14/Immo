@@ -11,20 +11,30 @@ import { Reveal } from "@/components/ui/Reveal";
 export default function Home() {
   return (
     <>
+      {/* Le Hero reste hors animation : premier écran, il doit être visible
+          sans attendre le JS ni le défilement. */}
       <Hero />
-      <ProblemSection />
-      <StatsSection />
-      {/* L'animation au scroll ne porte que deux blocs : le texte du reste
-          de la page est lisible sans attendre le JS. */}
+      <Reveal>
+        <ProblemSection />
+      </Reveal>
+      <Reveal>
+        <StatsSection />
+      </Reveal>
       <Reveal>
         <FeatureTracks />
       </Reveal>
-      <HowItWorks />
-      <Testimonials />
+      <Reveal>
+        <HowItWorks />
+      </Reveal>
+      <Reveal>
+        <Testimonials />
+      </Reveal>
       <Reveal>
         <Pricing />
       </Reveal>
-      <FinalCta />
+      <Reveal>
+        <FinalCta />
+      </Reveal>
     </>
   );
 }

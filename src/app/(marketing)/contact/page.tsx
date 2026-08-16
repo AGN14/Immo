@@ -51,7 +51,7 @@ export default function ContactPage() {
             <a
               key={m.titre}
               href={`mailto:${m.adresse}?subject=${encodeURIComponent(m.sujet)}`}
-              className="border-line bg-surface hover:border-primary hover:bg-highlight group flex flex-col gap-1.5 rounded-lg border p-6 no-underline transition-colors"
+              className="border-line bg-surface hover:border-primary hover:bg-highlight group flex flex-col gap-1.5 rounded-lg border p-6 no-underline transition-[color,background-color,border-color,transform] duration-200 hover:-translate-y-0.5"
             >
               <h2 className="font-display text-ink text-xl font-semibold">{m.titre}</h2>
               <p className="text-ink-2 text-justify text-sm">{m.corps}</p>

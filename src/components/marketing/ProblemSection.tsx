@@ -34,7 +34,7 @@ export function ProblemSection() {
           {problems.map((p) => (
             <article
               key={p.title}
-              className="border-line bg-surface flex flex-col gap-2.5 border p-6 md:-mr-px"
+              className="border-line bg-surface hover:shadow-md relative flex flex-col gap-2.5 border p-6 transition-shadow duration-200 hover:z-10 md:-mr-px"
             >
               <h3 className="font-display text-ink text-xl font-semibold">{p.title}</h3>
               <p className="text-ink-2 text-justify text-sm">{p.body}</p>

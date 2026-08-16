@@ -4,11 +4,11 @@ import type { ReactNode } from "react";
 type Variant = "primary" | "ghost" | "on-dark" | "outline-on-dark";
 
 const variantClasses: Record<Variant, string> = {
-  primary: "bg-primary text-on-primary hover:bg-primary-hi shadow-cta",
-  ghost: "border-line text-ink hover:border-ink-3 border bg-transparent",
-  "on-dark": "bg-on-primary text-panel hover:bg-on-primary/90",
+  primary: "bg-primary text-on-primary hover:bg-primary-hi hover:-translate-y-0.5 shadow-cta",
+  ghost: "border-line text-ink hover:border-ink-3 hover:-translate-y-0.5 border bg-transparent",
+  "on-dark": "bg-on-primary text-panel hover:bg-on-primary/90 hover:-translate-y-0.5",
   "outline-on-dark":
-    "border-panel-line text-on-primary border bg-transparent hover:border-on-primary",
+    "border-panel-line text-on-primary border bg-transparent hover:border-on-primary hover:-translate-y-0.5",
 };
 
 interface ButtonProps {
@@ -21,7 +21,7 @@ interface ButtonProps {
 }
 
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-md px-5 py-2.5 text-sm font-semibold whitespace-nowrap no-underline transition-colors duration-150 [&_svg]:size-4 [&_svg]:shrink-0";
+  "inline-flex items-center justify-center gap-2 rounded-md px-5 py-2.5 text-sm font-semibold whitespace-nowrap no-underline transition-[color,background-color,border-color,box-shadow,transform] duration-200 [&_svg]:size-4 [&_svg]:shrink-0";
 
 export function Button({
   href,

@@ -99,7 +99,7 @@ export async function Pricing() {
             return (
               <div
                 key={plan.id}
-                className={`border-line flex flex-col gap-6 rounded-lg border p-6 ${
+                className={`border-line flex flex-col gap-6 rounded-lg border p-6 transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-md ${
                   misEnAvant ? "bg-highlight shadow-sm" : "bg-surface"
                 }`}
               >
