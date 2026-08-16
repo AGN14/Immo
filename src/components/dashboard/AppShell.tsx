@@ -76,7 +76,12 @@ const entrées: Icône[] = [
     label: "Reversements",
     href: "/reversements",
     planRequis: "pro",
-    icône: icône(<path d="M9 6l6 6-6 6" />),
+    icône: icône(
+      <>
+        <path d="M7 17 17 7" />
+        <path d="M8 7h9v9" />
+      </>,
+    ),
   },
   {
     label: "Signalements",
@@ -289,7 +294,13 @@ export function AppShell({
             </div>
           </div>
         </header>
-        <nav className="border-line bg-surface sticky top-16 z-20 border-b">
+        <nav className="border-line bg-surface relative sticky top-16 z-20 border-b">
+          {/* Dégradé en bord de piste : seul indice que la barre défile, vu
+              qu'elle n'a pas de flèches ni de barre de défilement visible. */}
+          <div
+            className="from-surface pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l to-transparent"
+            aria-hidden="true"
+          />
           <div className="mx-auto flex gap-5 overflow-x-auto px-5 sm:px-8">
             {nav.map((e) => {
               const verrouille = estVerrouille(e);
@@ -387,11 +398,10 @@ export function AppShell({
                 <span className="shrink-0">{e.icône}</span>
                 {ouvert && (
                   <>
-                    <span className="truncate">{e.label}</span>
+                    <span className="min-w-0 flex-1 truncate">{e.label}</span>
                     {verrouille && (
-                      <span className="ml-auto flex shrink-0 items-center gap-1.5" aria-hidden="true">
+                      <span className="text-ink-3 ml-auto shrink-0" aria-hidden="true">
                         {icôneCadenas}
-                        {badgePlan(e.planRequis!)}
                       </span>
                     )}
                   </>
@@ -507,7 +517,7 @@ export function AppShell({
       </aside>
 
       <div className={`transition-[padding] duration-200 ${ouvert ? "lg:pl-60" : "lg:pl-16"}`}>
-        <main className="mx-auto px-5 py-10 sm:px-8 lg:px-12">{children}</main>
+        <main className="mx-auto max-w-6xl px-5 py-10 sm:px-8 lg:px-12">{children}</main>
       </div>
     </div>
   );

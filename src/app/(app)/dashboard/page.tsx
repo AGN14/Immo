@@ -54,6 +54,15 @@ async function ProprietaireDashboard({
 
   const cautionsEnAttente = cautions.filter((c) => c.statut === "due");
 
+  // Tendance des loyers encaissés sur les mois déjà connus de `serie` : pas
+  // de nouvelle requête, et le point de comparaison est réel, jamais estimé.
+  const tendanceLoyers = serie.map((s) => s.encaisseFcfa);
+  const moisPrecedent = serie.at(-2)?.encaisseFcfa;
+  const deltaLoyers =
+    moisPrecedent !== undefined && moisPrecedent > 0
+      ? ((kpis.totalRecuFcfa - moisPrecedent) / moisPrecedent) * 100
+      : undefined;
+
   return (
     <div>
       <h1 className="font-display text-ink text-3xl font-semibold">Bienvenue, {nom}.</h1>
@@ -65,6 +74,8 @@ async function ProprietaireDashboard({
           value={`${kpis.totalRecuFcfa.toLocaleString("fr-FR")} F`}
           caption="Ce mois-ci"
           icon={<Icon>{<path d="M4 19V10M10 19V5M16 19v-7M4 19h16" />}</Icon>}
+          delta={deltaLoyers}
+          tendance={tendanceLoyers}
         />
         <KPICard
           label="En attente"

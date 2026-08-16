@@ -89,7 +89,7 @@ export default async function BienDetailPage(props: PageProps<"/biens/[slug]">) 
   const equipements = (Object.keys(equipementLabel) as CleEquipement[]).filter((e) => bien[e]);
 
   return (
-    <div>
+    <div className="mx-auto max-w-4xl">
       <Link
         href="/biens"
         className="text-ink-3 hover:text-ink inline-flex items-center gap-1.5 text-sm no-underline [&_svg]:size-4 [&_svg]:shrink-0"
