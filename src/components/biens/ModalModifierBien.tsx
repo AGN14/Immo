@@ -6,6 +6,7 @@ import { verifierMotDePasse } from "@/lib/actions/compte";
 import { equipementLabel, typeBienLabel } from "@/lib/status-labels";
 import type { Bien, TypeBien } from "@/lib/types";
 import { ChampPhoto } from "@/components/ui/ChampPhoto";
+import { EtapesWizard } from "@/components/ui/EtapesWizard";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { Select } from "@/components/ui/Select";
@@ -115,42 +116,7 @@ function ModalModifierBienInterne({ bien }: { bien: Bien }) {
         {/* Le mot de passe confirme la modification côté serveur. */}
         <input type="hidden" name="motDePasse" value={motDePasse} />
 
-        <ol className="flex items-center gap-2">
-          {etapesBien.map((label, i) => {
-            const n = i + 1;
-            const fait = n < etape;
-            const actif = n === etape;
-            return (
-              <li key={label} className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => aller(n)}
-                  aria-current={actif ? "step" : undefined}
-                  className={`flex items-center gap-2 rounded-md px-2 py-1 text-sm font-medium transition-colors ${
-                    actif ? "text-ink" : fait ? "text-ink-2" : "text-ink-3"
-                  }`}
-                >
-                  <span
-                    className={`grid size-7 shrink-0 place-items-center rounded-full text-xs font-bold ${
-                      actif
-                        ? "bg-primary text-on-primary"
-                        : fait
-                          ? "bg-primary-soft text-primary"
-                          : "bg-sand text-ink-3"
-                    }`}
-                    aria-hidden="true"
-                  >
-                    {fait ? "✓" : n}
-                  </span>
-                  <span className="hidden sm:inline">{label}</span>
-                </button>
-                {n < etapesBien.length && (
-                  <span className="border-line h-px w-4 sm:w-7" aria-hidden="true" />
-                )}
-              </li>
-            );
-          })}
-        </ol>
+        <EtapesWizard etapes={etapesBien} etape={etape} aller={aller} />
 
         {/* Étape 1 — identité du bien */}
         <div data-etape={1} className={etape === 1 ? "flex flex-col gap-4" : "hidden"}>

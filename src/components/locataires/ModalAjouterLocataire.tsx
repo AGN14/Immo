@@ -5,6 +5,8 @@ import { creerLocataire } from "@/lib/actions/locataires";
 import type { EtatAction } from "@/lib/actions/biens";
 import type { PieceIdentite } from "@/lib/types";
 import { ChampPhoto } from "@/components/ui/ChampPhoto";
+import { DatePicker } from "@/components/ui/DatePicker";
+import { EtapesWizard } from "@/components/ui/EtapesWizard";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { useWizardEtapes } from "@/components/ui/validation-etapes";
@@ -65,58 +67,19 @@ function ModalAjouterLocataireInterne() {
         onSubmit={soumettre}
         className="flex flex-col gap-4"
       >
-        <ol className="flex items-center gap-2">
-          {etapes.map((label, i) => {
-            const n = i + 1;
-            const fait = n < etape;
-            const actif = n === etape;
-            return (
-              <li key={label} className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => aller(n)}
-                  aria-current={actif ? "step" : undefined}
-                  className={`flex items-center gap-2 rounded-md px-2 py-1 text-sm font-medium transition-colors ${
-                    actif ? "text-ink" : fait ? "text-ink-2" : "text-ink-3"
-                  }`}
-                >
-                  <span
-                    className={`grid size-7 shrink-0 place-items-center rounded-full text-xs font-bold ${
-                      actif
-                        ? "bg-primary text-on-primary"
-                        : fait
-                          ? "bg-primary-soft text-primary"
-                          : "bg-sand text-ink-3"
-                    }`}
-                    aria-hidden="true"
-                  >
-                    {fait ? "✓" : n}
-                  </span>
-                  <span className="hidden sm:inline">{label}</span>
-                </button>
-                {n < etapes.length && (
-                  <span className="border-line h-px w-4 sm:w-7" aria-hidden="true" />
-                )}
-              </li>
-            );
-          })}
-        </ol>
+        <EtapesWizard etapes={etapes} etape={etape} aller={aller} />
 
         {/* Étape 1 — photo et identité */}
         <div data-etape={1} className={etape === 1 ? "flex flex-col gap-5" : "hidden"}>
-          <fieldset>
-            <legend className="text-ink-2 mb-2 text-sm font-semibold">Photo</legend>
-            <ChampPhoto nom="photo" label="Photo" />
-          </fieldset>
+          <ChampPhoto nom="photo" label="Photo" />
           <fieldset>
             <legend className="text-ink-2 mb-2 text-sm font-semibold">Identité</legend>
             <div className="flex flex-col gap-4">
               <Input label="Nom complet" name="nom" placeholder="Ex. Awa Diop" required />
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <Input
+                <DatePicker
                   label="Date de naissance"
                   name="dateNaissance"
-                  type="date"
                   hint="Facultatif, utile au suivi du dossier."
                 />
                 <Input
