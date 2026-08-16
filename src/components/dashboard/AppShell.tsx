@@ -76,7 +76,7 @@ const entrées: Icône[] = [
     label: "Reversements",
     href: "/reversements",
     planRequis: "pro",
-    icône: icône(<path d="M5 12h14M13 6l6 6-6 6" />),
+    icône: icône(<path d="M9 6l6 6-6 6" />),
   },
   {
     label: "Signalements",
@@ -427,7 +427,7 @@ export function AppShell({
                     </span>
                   </span>
                   <span className="text-ink-3 shrink-0" aria-hidden="true">
-                    {icône(<path d="M5 12h14M13 6l6 6-6 6" />)}
+                    {icône(<path d="M9 6l6 6-6 6" />)}
                   </span>
                 </Link>
               ) : (

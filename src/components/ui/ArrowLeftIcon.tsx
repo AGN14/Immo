@@ -8,7 +8,7 @@ export function ArrowLeftIcon() {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path d="M19 12H5M11 6l-6 6 6 6" />
+      <path d="M15 6l-6 6 6 6" />
     </svg>
   );
 }
