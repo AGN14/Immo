@@ -5,6 +5,7 @@ import { creerBail } from "@/lib/actions/locataires";
 import type { EtatAction } from "@/lib/actions/biens";
 import { compositionLabel } from "@/lib/status-labels";
 import type { Bien, Lot, Locataire } from "@/lib/types";
+import { DatePicker } from "@/components/ui/DatePicker";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 
@@ -114,7 +115,7 @@ function ModalAttribuerLogementInterne({
           placeholder="Ex. 75000"
         />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <Input label="Date de début" name="dateDebut" type="date" required />
+          <DatePicker label="Date de début" name="dateDebut" required />
           <Input
             label="Caution (F CFA)"
             name="cautionFcfa"

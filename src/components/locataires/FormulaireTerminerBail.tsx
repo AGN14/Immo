@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { terminerBail } from "@/lib/actions/locataires";
 import type { EtatAction } from "@/lib/actions/biens";
+import { DatePicker } from "@/components/ui/DatePicker";
 
 const etatInitial: EtatAction = { ok: false };
 
@@ -35,13 +36,12 @@ export function FormulaireTerminerBail({
   return (
     <form action={action} className="flex flex-col items-end gap-2">
       <div className="flex items-center gap-2">
-        <input
-          type="date"
+        <DatePicker
           name="dateFin"
           required
           min={dateDebut}
-          aria-label="Date de fin du bail"
-          className="border-line bg-surface text-ink focus-visible:outline-primary rounded-md border px-2.5 py-1.5 text-sm focus-visible:outline-2 focus-visible:outline-offset-1"
+          ariaLabel="Date de fin du bail"
+          compact
         />
         <button
           type="submit"
