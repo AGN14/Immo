@@ -241,15 +241,10 @@ export function AppShell({
   const estVerrouille = (e: Icône) =>
     role === "proprietaire" && !!e.planRequis && !planSuffisant(planId ?? undefined, e.planRequis);
   const initiale = nom.trim()[0]?.toUpperCase() ?? "?";
-
-  const badgePlan = (requis: PlanId) => (
-    <span
-      className="bg-primary-soft text-primary rounded-sm px-1.5 py-0.5 text-[10px] font-bold uppercase"
-      aria-hidden="true"
-    >
-      {requis}
-    </span>
-  );
+  /** Un trait avant la première entrée d'un palier différent du précédent :
+   *  regroupe visuellement l'essentiel, le pro et le business plutôt qu'une
+   *  liste plate de onze lignes. */
+  const nouveauPalier = (i: number) => i > 0 && nav[i].planRequis !== nav[i - 1].planRequis;
 
   const icôneCadenas = (
     <svg
@@ -269,7 +264,10 @@ export function AppShell({
 
   return (
     <div className="bg-paper min-h-dvh">
-      {/* Mobile : la sidebar n'existe pas par défaut, on l'affiche via un menu hamburger. */}
+      {/* Mobile : la sidebar n'existe pas par défaut, on l'affiche via un menu hamburger.
+          Un seul système de navigation (le tiroir) plutôt que deux : l'ancienne barre
+          d'onglets qui défilait horizontalement faisait double emploi et coupait des
+          libellés sans qu'on puisse deviner qu'elle continuait. */}
       <div className="lg:hidden">
         <header className="border-line bg-surface sticky top-0 z-30 border-b">
           <div className="mx-auto flex h-16 items-center justify-between gap-4 px-5 sm:px-8">
@@ -286,47 +284,21 @@ export function AppShell({
                 <Logo />
               </Link>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="text-right text-sm">
-                <div className="text-ink font-semibold">{nom}</div>
-                <div className="text-ink-3">{roleLabels[role]}</div>
-              </div>
-            </div>
+            <Link
+              href="/profil"
+              className="no-underline"
+              title={`${nom} — ${roleLabels[role]} : mon profil`}
+              aria-label="Mon profil"
+            >
+              <span
+                className="bg-primary-soft text-primary grid size-9 shrink-0 place-items-center rounded-full text-sm font-bold"
+                aria-hidden="true"
+              >
+                {initiale}
+              </span>
+            </Link>
           </div>
         </header>
-        <nav className="border-line bg-surface relative sticky top-16 z-20 border-b">
-          {/* Dégradé en bord de piste : seul indice que la barre défile, vu
-              qu'elle n'a pas de flèches ni de barre de défilement visible. */}
-          <div
-            className="from-surface pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l to-transparent"
-            aria-hidden="true"
-          />
-          <div className="mx-auto flex gap-5 overflow-x-auto px-5 sm:px-8">
-            {nav.map((e) => {
-              const verrouille = estVerrouille(e);
-              return (
-                <Link
-                  key={e.href}
-                  href={verrouille ? "/plans" : e.href}
-                  aria-label={verrouille ? `${e.label} — réservé au plan ${e.planRequis}` : undefined}
-                  className={`-mb-px flex shrink-0 items-center gap-1.5 border-b-2 py-3 text-sm font-medium no-underline transition-colors ${
-                    estActive(e.href) && !verrouille
-                      ? "border-primary text-ink"
-                      : "text-ink-3 hover:text-ink border-transparent"
-                  }`}
-                >
-                  {e.label}
-                  {verrouille && (
-                    <span className="flex items-center gap-1" aria-hidden="true">
-                      {icôneCadenas}
-                      {badgePlan(e.planRequis!)}
-                    </span>
-                  )}
-                </Link>
-              );
-            })}
-          </div>
-        </nav>
       </div>
 
       {/* Overlay mobile */}
@@ -338,9 +310,11 @@ export function AppShell({
         />
       )}
 
-      {/* Sidebar : pleine hauteur bureau, tiroir mobile. */}
+      {/* Sidebar : pleine hauteur bureau, tiroir mobile. Le tiroir se détache
+          de l'écran (coin arrondi, ombre) ; le rail bureau reste franc,
+          simplement bordé, puisqu'il ne flotte au-dessus de rien. */}
       <aside
-        className={`border-line bg-surface fixed inset-y-0 left-0 z-50 flex flex-col border-r transition-all duration-200 ${
+        className={`border-line bg-surface fixed inset-y-0 left-0 z-50 flex flex-col rounded-r-lg border-r shadow-xl transition-all duration-200 lg:rounded-none lg:shadow-none ${
           mobileOuvert ? "translate-x-0 w-64" : "-translate-x-full lg:translate-x-0"
         } ${ouvert ? "lg:w-60" : "lg:w-16"} lg:z-30`}
       >
@@ -378,40 +352,47 @@ export function AppShell({
         </div>
 
         <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3" onClick={() => setMobileOuvert(false)}>
-          {nav.map((e) => {
+          {nav.map((e, i) => {
             const verrouille = estVerrouille(e);
             return (
-              <Link
-                key={e.href}
-                href={verrouille ? "/plans" : e.href}
-                aria-current={estActive(e.href) && !verrouille ? "page" : undefined}
-                aria-label={
-                  verrouille ? `${e.label} — réservé au plan ${e.planRequis}` : undefined
-                }
-                title={ouvert ? (verrouille ? `${e.label} — plan ${e.planRequis}` : undefined) : e.label}
-                className={`relative rounded-md font-medium no-underline transition-colors ${
-                  estActive(e.href) && !verrouille
-                    ? "bg-sand text-ink"
-                    : "text-ink-3 hover:bg-sand/60 hover:text-ink"
-                } ${ouvert ? "flex items-center gap-3 px-3 py-2.5 text-sm" : "flex justify-center p-2.5"}`}
-              >
-                <span className="shrink-0">{e.icône}</span>
-                {ouvert && (
-                  <>
-                    <span className="min-w-0 flex-1 truncate">{e.label}</span>
-                    {verrouille && (
-                      <span className="text-ink-3 ml-auto shrink-0" aria-hidden="true">
-                        {icôneCadenas}
-                      </span>
-                    )}
-                  </>
+              <div key={e.href}>
+                {nouveauPalier(i) && (
+                  <div
+                    className={`border-line my-2 border-t ${ouvert ? "" : "mx-1.5"}`}
+                    aria-hidden="true"
+                  />
                 )}
-                {!ouvert && verrouille && (
-                  <span className="absolute grid size-4 place-items-center rounded-full bg-primary-soft text-primary">
-                    {icôneCadenas}
-                  </span>
-                )}
-              </Link>
+                <Link
+                  href={verrouille ? "/plans" : e.href}
+                  aria-current={estActive(e.href) && !verrouille ? "page" : undefined}
+                  aria-label={
+                    verrouille ? `${e.label} — réservé au plan ${e.planRequis}` : undefined
+                  }
+                  title={ouvert ? (verrouille ? `${e.label} — plan ${e.planRequis}` : undefined) : e.label}
+                  className={`relative rounded-md font-medium no-underline transition-colors ${
+                    estActive(e.href) && !verrouille
+                      ? "bg-primary text-on-primary"
+                      : "text-ink-3 hover:bg-sand/60 hover:text-ink"
+                  } ${ouvert ? "flex items-center gap-3 px-3 py-2.5 text-sm" : "flex justify-center p-2.5"}`}
+                >
+                  <span className="shrink-0">{e.icône}</span>
+                  {ouvert && (
+                    <>
+                      <span className="min-w-0 flex-1 truncate">{e.label}</span>
+                      {verrouille && (
+                        <span className="text-ink-3 ml-auto shrink-0" aria-hidden="true">
+                          {icôneCadenas}
+                        </span>
+                      )}
+                    </>
+                  )}
+                  {!ouvert && verrouille && (
+                    <span className="absolute grid size-4 place-items-center rounded-full bg-primary-soft text-primary">
+                      {icôneCadenas}
+                    </span>
+                  )}
+                </Link>
+              </div>
             );
           })}
         </nav>
