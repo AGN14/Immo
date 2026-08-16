@@ -20,6 +20,15 @@ const columns = [
       { href: "/contact", label: "Contact" },
     ],
   },
+  {
+    title: "Légal",
+    links: [
+      { href: "/mentions-legales", label: "Mentions légales" },
+      { href: "/confidentialite", label: "Confidentialité" },
+      { href: "/cookies", label: "Cookies" },
+      { href: "/conditions-utilisation", label: "Conditions d'utilisation" },
+    ],
+  },
 ];
 
 export function Footer() {

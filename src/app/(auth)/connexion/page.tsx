@@ -23,7 +23,7 @@ export default async function ConnexionPage({
     <>
       <div className="border-line bg-surface rounded-lg border p-6 shadow-sm sm:p-8">
         <h1 className="font-display text-ink text-2xl font-semibold">Connexion</h1>
-        <p className="text-ink-2 mt-1 text-sm">Accédez à votre espace Immo.</p>
+        <p className="text-ink-2 mt-1 text-sm">Accédez à votre espace Xwégán.</p>
 
         {erreur && (
           <p className="border-danger bg-danger-soft text-ink mt-5 rounded-md border p-3 text-sm">

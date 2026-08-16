@@ -20,7 +20,11 @@ export function Logo({
     );
   }
   return (
-    <span className="relative -left-6 flex w-[170.442px] cursor-move items-center">
+    // `cursor-move` traînait ici : le logo est toujours enveloppé dans un
+    // <Link> vers /dashboard, et la croix à quatre flèches écrasait le curseur
+    // « main » du lien. Elle annonçait un élément à déplacer là où il y avait
+    // un élément à cliquer.
+    <span className="relative -left-6 flex w-[170.442px] items-center">
       <span
         className={`block size-25 shrink-0 rounded-md bg-cover bg-center ${onDark ? "opacity-90" : ""}`}
         style={{ backgroundImage: `url(${logoImmo.src})` }}

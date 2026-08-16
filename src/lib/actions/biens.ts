@@ -172,7 +172,9 @@ export async function modifierBien(
 
   if (error) return { ok: false, erreur: `Enregistrement impossible : ${error.message}` };
 
-  revalidatePath(`/biens/${bienId}`);
+  // Le chemin exact n'est plus connu ici : renommer un bien change son slug.
+  // On invalide la route dynamique entière, ancien et nouveau chemin compris.
+  revalidatePath("/biens/[slug]", "page");
   revalidatePath("/biens");
   revalidatePath("/dashboard");
   return { ok: true };
@@ -215,7 +217,9 @@ export async function creerLot(
 
   if (error) return { ok: false, erreur: `Enregistrement impossible : ${error.message}` };
 
-  revalidatePath(`/biens/${bienId}`);
+  // Le chemin exact n'est plus connu ici : renommer un bien change son slug.
+  // On invalide la route dynamique entière, ancien et nouveau chemin compris.
+  revalidatePath("/biens/[slug]", "page");
   revalidatePath("/biens");
   revalidatePath("/dashboard");
   return { ok: true };

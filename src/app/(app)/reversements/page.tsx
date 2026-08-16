@@ -42,7 +42,7 @@ export default async function ReversementsPage() {
     <div>
       <h1 className="font-display text-ink text-3xl font-semibold">Reversements</h1>
       <p className="text-ink-2 mt-2">
-        Chaque mois, Immo reverse les loyers collectés et confirmés, déduction faite de la
+        Chaque mois, Xwégán reverse les loyers collectés et confirmés, déduction faite de la
         commission.
       </p>
 

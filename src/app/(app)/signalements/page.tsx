@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireProprietaire } from "@/lib/auth/session";
@@ -73,7 +74,7 @@ export default async function PageSignalements() {
 
         <div className="text-ink-2 mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm">
           {bien && lot && (
-            <Link href={`/biens/${bien.id}`} className="text-primary no-underline">
+            <Link href={`/biens/${bien.slug}`} className="text-primary no-underline">
               {bien.nom} — {lot.nom}
             </Link>
           )}
@@ -90,12 +91,18 @@ export default async function PageSignalements() {
         {photos[s.id]?.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-2">
             {photos[s.id].map((chemin, i) => (
-              <img
+              <div
                 key={chemin + i}
-                src={chemin}
-                alt={`Photo ${i + 1} du signalement`}
-                className="size-16 rounded-md object-cover"
-              />
+                className="relative size-16 shrink-0 overflow-hidden rounded-md"
+              >
+                <Image
+                  src={chemin}
+                  alt={`Photo ${i + 1} du signalement`}
+                  fill
+                  sizes="64px"
+                  className="object-cover"
+                />
+              </div>
             ))}
           </div>
         )}

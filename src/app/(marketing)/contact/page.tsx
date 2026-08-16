@@ -12,21 +12,21 @@ const motifs = [
     titre: "Une question sur le produit",
     corps:
       "Vous vous demandez si Xwégán couvre votre situation : plusieurs immeubles, colocation, gestion déléguée ?",
-    adresse: "bonjour@immo.app",
+    adresse: "contact@xwegan.com",
     sujet: "Question produit",
   },
   {
     titre: "L'offre Business",
     corps:
       "Portefeuille multi-biens, plusieurs gestionnaires, exports comptables : nous en discutons directement.",
-    adresse: "bonjour@immo.app",
+    adresse: "contact@xwegan.com",
     sujet: "Offre Business",
   },
   {
     titre: "Un problème sur votre compte",
     corps:
       "Un loyer qui ne remonte pas, une panne signalée qui n'apparaît pas : décrivez-nous ce que vous voyez.",
-    adresse: "support@immo.app",
+    adresse: "support@xwegan.com",
     sujet: "Problème sur mon compte",
   },
 ];

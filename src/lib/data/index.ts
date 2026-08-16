@@ -45,7 +45,7 @@ import type {
   UrgenceSignalement,
   Versement,
 } from "@/lib/types";
-import { planDepuisUuid } from "@/lib/plans";
+import { planDepuisUuid, planEffectif } from "@/lib/plans";
 
 type LigneProprietaire = Database["public"]["Tables"]["proprietaire"]["Row"];
 type LigneBien = Database["public"]["Tables"]["bien"]["Row"];
@@ -66,7 +66,12 @@ function mappeProprietaire(l: LigneProprietaire): Proprietaire {
     email: l.email,
     // plan_id est un UUID depuis la migration plan_uuid : le caster en PlanId
     // donnait un palier ininterprétable, sans que TypeScript puisse le voir.
-    plan: planDepuisUuid(l.plan_id),
+    //
+    // On expose le palier EFFECTIF, pas celui payé : un abonnement expiré doit
+    // se comporter comme Essentiel partout dans l'interface, exactement comme
+    // le trigger de quota le fait côté base.
+    plan: planEffectif(planDepuisUuid(l.plan_id), l.plan_expire_le),
+    planExpireLe: l.plan_expire_le,
     jourEcheanceDefaut: l.jour_echeance_defaut,
     jourReversement: l.jour_reversement,
     creeLe: l.cree_le,
@@ -81,6 +86,7 @@ function mappeBien(l: LigneBien): Bien {
     id: l.id,
     proprietaireId: l.proprietaire_id,
     nom: l.nom,
+    slug: l.slug,
     type: l.type as TypeBien,
     adresse: l.adresse,
     quartier: l.quartier,
@@ -270,6 +276,21 @@ export async function getBiens(proprietaireId: string): Promise<Bien[]> {
 
 export async function getBienById(proprietaireId: string, id: string): Promise<Bien | undefined> {
   return (await perimetre(proprietaireId)).biens.find((b) => b.id === id);
+}
+
+/**
+ * Le bien désigné par un segment d'URL, qu'il porte le slug ou l'ancien UUID.
+ *
+ * Les deux formes cohabitent : un lien mis en favori avant la bascule doit
+ * continuer à ouvrir la bonne fiche. La page redirige ensuite vers le slug, si
+ * bien que l'UUID s'efface de lui-même à mesure qu'on navigue.
+ */
+export async function getBienParSegment(
+  proprietaireId: string,
+  segment: string,
+): Promise<Bien | undefined> {
+  const { biens } = await perimetre(proprietaireId);
+  return biens.find((b) => b.slug === segment) ?? biens.find((b) => b.id === segment);
 }
 
 export async function getLots(proprietaireId: string): Promise<Lot[]> {

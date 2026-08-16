@@ -304,7 +304,7 @@ export default async function AnalysesPage({
                 <tr key={bien.id} className="text-ink">
                   <td className="px-4 py-3">
                     <Link
-                      href={`/biens/${bien.id}`}
+                      href={`/biens/${bien.slug}`}
                       className="text-ink hover:text-primary font-semibold no-underline"
                     >
                       {bien.nom}

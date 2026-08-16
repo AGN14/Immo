@@ -36,8 +36,11 @@ export interface Proprietaire extends ReglagesEcheance {
   id: string;
   nom: string;
   email: string;
+  /** Palier **effectif** : celui payé s'il court encore, Essentiel sinon. */
   plan: PlanId;
-  /** Jour où Immo reverse les loyers collectés. Défini par le propriétaire. */
+  /** Fin de la période payée. Null pour un palier gratuit, qui n'expire pas. */
+  planExpireLe: string | null;
+  /** Jour où Xwégán reverse les loyers collectés. Défini par le propriétaire. */
   jourReversement: number;
   /** Date d'ouverture du compte. */
   creeLe: string;
@@ -79,6 +82,15 @@ export interface Bien {
   id: string;
   proprietaireId: string;
   nom: string;
+  /**
+   * Identifiant d'URL, dérivé du nom (« residence-les-baobabs »).
+   *
+   * Unique par propriétaire seulement : RLS ne laisse lire à chacun que son
+   * propre parc, deux bailleurs peuvent donc avoir leur « villa-rose ».
+   *
+   * À ne pas confondre avec `code`, qui n'a rien d'un identifiant public.
+   */
+  slug: string;
   type: TypeBien;
   adresse: string;
   quartier: string;
@@ -160,7 +172,7 @@ export interface Locataire {
   nom: string;
   telephone: string;
   email: string;
-  /** Avatar, uploadé dans le stockage Immo. */
+  /** Avatar, uploadé dans le stockage Xwégán. */
   photoUrl: string | null;
   /** Date de naissance, au format AAAA-MM-JJ. */
   dateNaissance: string | null;

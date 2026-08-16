@@ -9,6 +9,54 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      abonnement: {
+        Row: {
+          cree_le: string
+          id: string
+          montant_fcfa: number
+          periode_debut: string
+          periode_fin: string
+          plan_id: string
+          proprietaire_id: string
+          reference_externe: string
+        }
+        Insert: {
+          cree_le?: string
+          id?: string
+          montant_fcfa: number
+          periode_debut?: string
+          periode_fin: string
+          plan_id: string
+          proprietaire_id: string
+          reference_externe: string
+        }
+        Update: {
+          cree_le?: string
+          id?: string
+          montant_fcfa?: number
+          periode_debut?: string
+          periode_fin?: string
+          plan_id?: string
+          proprietaire_id?: string
+          reference_externe?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "abonnement_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plan"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "abonnement_proprietaire_id_fkey"
+            columns: ["proprietaire_id"]
+            isOneToOne: false
+            referencedRelation: "proprietaire"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bail: {
         Row: {
           cree_le: string
@@ -76,6 +124,7 @@ export type Database = {
           nom: string
           proprietaire_id: string
           quartier: string
+          slug: string
           superficie_m2: number | null
           type: string
           ville: string
@@ -95,6 +144,7 @@ export type Database = {
           nom: string
           proprietaire_id: string
           quartier: string
+          slug?: string
           superficie_m2?: number | null
           type: string
           ville: string
@@ -114,6 +164,7 @@ export type Database = {
           nom?: string
           proprietaire_id?: string
           quartier?: string
+          slug?: string
           superficie_m2?: number | null
           type?: string
           ville?: string
@@ -162,6 +213,44 @@ export type Database = {
             columns: ["bail_id"]
             isOneToOne: false
             referencedRelation: "bail"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      consentement: {
+        Row: {
+          accepte: boolean
+          auth_user_id: string
+          cree_le: string
+          finalite: string
+          id: string
+          texte: string
+          version: string
+        }
+        Insert: {
+          accepte?: boolean
+          auth_user_id: string
+          cree_le?: string
+          finalite: string
+          id?: string
+          texte: string
+          version: string
+        }
+        Update: {
+          accepte?: boolean
+          auth_user_id?: string
+          cree_le?: string
+          finalite?: string
+          id?: string
+          texte?: string
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consentement_auth_user_id_fkey"
+            columns: ["auth_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -298,6 +387,27 @@ export type Database = {
           },
         ]
       }
+      newsletter_abonne: {
+        Row: {
+          actif: boolean
+          cree_le: string
+          email: string
+          id: string
+        }
+        Insert: {
+          actif?: boolean
+          cree_le?: string
+          email: string
+          id?: string
+        }
+        Update: {
+          actif?: boolean
+          cree_le?: string
+          email?: string
+          id?: string
+        }
+        Relationships: []
+      }
       paiement: {
         Row: {
           bail_id: string
@@ -386,8 +496,10 @@ export type Database = {
           mot_de_passe_hash: string | null
           nom: string
           penalite_retard_fcfa: number
+          plan_expire_le: string | null
           plan_id: string
           supprime_le: string | null
+          telephone: string | null
         }
         Insert: {
           auth_user_id?: string | null
@@ -401,8 +513,10 @@ export type Database = {
           mot_de_passe_hash?: string | null
           nom: string
           penalite_retard_fcfa?: number
+          plan_expire_le?: string | null
           plan_id?: string
           supprime_le?: string | null
+          telephone?: string | null
         }
         Update: {
           auth_user_id?: string | null
@@ -416,8 +530,10 @@ export type Database = {
           mot_de_passe_hash?: string | null
           nom?: string
           penalite_retard_fcfa?: number
+          plan_expire_le?: string | null
           plan_id?: string
           supprime_le?: string | null
+          telephone?: string | null
         }
         Relationships: [
           {

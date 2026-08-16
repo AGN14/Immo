@@ -140,6 +140,31 @@ const entréesLocataire: Icône[] = [
     icône: icône(<path d="M5 13l4 4L19 7" />),
   },
   {
+    // Ce qu'on a payé, et ce qui reste à confirmer. Distinct des quittances :
+    // ici on consulte des mouvements, là on récupère un document.
+    label: "Historique",
+    href: "/historique",
+    icône: icône(
+      <>
+        <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
+        <path d="M3 4v4h4M12 7v5l3 2" />
+      </>,
+    ),
+  },
+  {
+    // Le document qu'on vient chercher des mois plus tard, pour un dossier de
+    // logement ou un justificatif de domicile. Il mérite mieux qu'une ligne au
+    // bas du tableau de bord.
+    label: "Mes quittances",
+    href: "/quittances",
+    icône: icône(
+      <>
+        <path d="M6 3h9l4 4v14H6z" />
+        <path d="M15 3v4h4M9 12h6M9 16h4" />
+      </>,
+    ),
+  },
+  {
     label: "Signaler un problème",
     href: "/signaler",
     icône: icône(
@@ -156,7 +181,7 @@ const roleLabels = {
   locataire: "Locataire",
 } as const;
 
-const cleLocalStorage = "immo:sidebar:ouvert";
+const cleLocalStorage = "xwegan:sidebar:ouvert";
 
 /** Coquille de l'application. Sur bureau, tout vit dans la sidebar (logo,
  *  navigation, session) : l'écran est entièrement dédié aux données. La
@@ -318,7 +343,7 @@ export function AppShell({
               <Logo />
             </Link>
           ) : (
-            <Link href="/dashboard" aria-label="Immo" className="no-underline" title="Immo">
+            <Link href="/dashboard" aria-label="Xwégán" className="no-underline" title="Xwégán">
               <Logo compact />
             </Link>
           )}
