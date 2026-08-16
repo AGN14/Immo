@@ -25,6 +25,41 @@ import { useEffect } from "react";
  * prix de l'adresse propre, et il se paie une fois.
  */
 export function DefilementAncres() {
+  /**
+   * Arrivée sur la page AVEC une ancre déjà dans l'adresse.
+   *
+   * Le clic était intercepté, mais pas l'arrivée : venant de /contact ou de
+   * /a-propos — dont l'en-tête et le pied de page pointent vers `/#tarifs`,
+   * `/#comment-ca-marche`… — le gestionnaire ci-dessous se retire volontairement
+   * (la section n'existe pas sur la page de départ), le navigateur suit le lien,
+   * et le fragment restait affiché. La même section donnait donc une adresse
+   * propre ou non selon d'où l'on venait.
+   *
+   * Couvre au passage le clic parti avant l'hydratation, où l'écouteur n'est
+   * pas encore posé.
+   */
+  useEffect(() => {
+    const ancre = window.location.hash.slice(1);
+    if (!ancre) return;
+
+    const cible = document.getElementById(ancre);
+    // Ancre inconnue : on ne touche à rien. Effacer le fragment masquerait une
+    // adresse erronée au lieu de la laisser voir.
+    if (!cible) return;
+
+    // Une image du haut de page peut encore décaler la mise en page : on laisse
+    // passer une frame avant de mesurer la position de la section.
+    const image = requestAnimationFrame(() => {
+      const animationsReduites = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      cible.scrollIntoView({ behavior: animationsReduites ? "auto" : "smooth", block: "start" });
+      cible.setAttribute("tabindex", "-1");
+      cible.focus({ preventScroll: true });
+      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    });
+
+    return () => cancelAnimationFrame(image);
+  }, []);
+
   useEffect(() => {
     const auClic = (evenement: MouseEvent) => {
       // Clic modifié : l'utilisateur veut un nouvel onglet, on n'intervient pas.
