@@ -15,35 +15,78 @@ export function QuotaBanner({ quota }: { quota: Quota }) {
   }
 
   const { utilises, max, niveau, restants, suivant, plan } = quota;
-  const pourcentage = Math.min(100, Math.round((utilises / (max ?? 1)) * 100));
+  const total = max ?? 1;
 
   const ton =
     niveau === "atteint"
-      ? { bordure: "border-danger", barre: "bg-danger", fond: "bg-danger-soft" }
+      ? {
+          bordure: "border-danger",
+          barre: "bg-danger",
+          fond: "bg-danger-soft",
+          icone: "bg-danger-soft text-danger",
+        }
       : niveau === "proche"
-        ? { bordure: "border-amber", barre: "bg-amber", fond: "bg-surface" }
-        : { bordure: "border-line", barre: "bg-primary", fond: "bg-surface" };
+        ? {
+            bordure: "border-amber",
+            barre: "bg-amber",
+            fond: "bg-surface",
+            icone: "bg-amber/15 text-amber",
+          }
+        : {
+            bordure: "border-line",
+            barre: "bg-primary",
+            fond: "bg-surface",
+            icone: "bg-primary-soft text-primary",
+          };
 
   return (
     <div className={`mt-6 rounded-md border p-4 ${ton.bordure} ${ton.fond}`}>
-      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <span className="text-ink text-sm font-semibold">
-          <span data-numeric>
-            {utilises} / {max}
-          </span>{" "}
-          logements loués — palier {plan.nom}
+      <div className="flex items-center gap-3">
+        <span
+          className={`grid size-9 shrink-0 place-items-center rounded-full ${ton.icone}`}
+          aria-hidden="true"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.75"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="size-4"
+          >
+            <path d="M3 10.5 12 3l9 7.5" />
+            <path d="M5 9.5V21h14V9.5" />
+          </svg>
         </span>
-        {niveau === "atteint" ? (
-          <span className="text-danger text-sm font-semibold">Limite atteinte</span>
-        ) : (
-          <span className="text-ink-3 text-sm">
-            {restants} {restants === 1 ? "place restante" : "places restantes"}
+        <div className="flex min-w-0 flex-1 flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+          <span className="text-ink text-sm font-semibold">
+            <span data-numeric>
+              {utilises} / {max}
+            </span>{" "}
+            logements loués — palier {plan.nom}
           </span>
-        )}
+          {niveau === "atteint" ? (
+            <span className="text-danger text-sm font-semibold">Limite atteinte</span>
+          ) : (
+            <span className="text-ink-3 text-sm">
+              {restants} {restants === 1 ? "place restante" : "places restantes"}
+            </span>
+          )}
+        </div>
       </div>
 
-      <div className="bg-sand rounded-pill mt-2.5 h-1.5 w-full overflow-hidden">
-        <div className={`rounded-pill h-full ${ton.barre}`} style={{ width: `${pourcentage}%` }} />
+      {/* Un segment par logement du palier plutôt qu'une barre continue :
+          chaque case compte quelque chose de réel, pas juste un pourcentage. */}
+      <div className="mt-3 flex gap-1" role="img" aria-label={`${utilises} logements loués sur ${total}`}>
+        {Array.from({ length: total }, (_, i) => (
+          <span
+            key={i}
+            className={`h-3 min-w-0 flex-1 rounded-full transition-colors ${
+              i < utilises ? ton.barre : "bg-sand"
+            }`}
+          />
+        ))}
       </div>
 
       {niveau !== "ok" && suivant && (
