@@ -19,8 +19,11 @@
 -- collision du point de vue de qui les lit.
 -- =============================================================================
 
+-- Rejouable de bout en bout : ces migrations se passent à la main dans le SQL
+-- Editor, où l'on relance volontiers un script sans savoir s'il est déjà passé.
+-- Sans ces garde-fous, un second passage échoue dès la première instruction.
 alter table public.bien
-  add column slug text;
+  add column if not exists slug text;
 
 -- « Résidence Les Baobabs » → « residence-les-baobabs ».
 create or replace function public.slugifier(v_texte text)
@@ -76,6 +79,8 @@ begin
 end;
 $$;
 
+drop trigger if exists bien_attribuer_slug on public.bien;
+
 create trigger bien_attribuer_slug
   before insert or update of nom on public.bien
   for each row
@@ -114,4 +119,4 @@ $$;
 alter table public.bien
   alter column slug set not null;
 
-create unique index bien_slug_idx on public.bien (proprietaire_id, slug);
+create unique index if not exists bien_slug_idx on public.bien (proprietaire_id, slug);

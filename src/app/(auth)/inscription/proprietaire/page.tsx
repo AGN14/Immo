@@ -4,6 +4,7 @@ import { ArrowLeftIcon } from "@/components/ui/ArrowLeftIcon";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { PLANS } from "@/lib/plans";
+import { MessageInscription } from "@/app/(auth)/inscription/MessageInscription";
 
 export default async function InscriptionProprietairePage({
   searchParams,
@@ -50,13 +51,7 @@ export default async function InscriptionProprietairePage({
           </p>
         )}
 
-        {erreur === "consentement" && (
-          <p className="border-line bg-highlight text-ink mt-4 rounded-md border px-3 py-2 text-sm">
-            Vous devez cocher la case d&rsquo;acceptation des Conditions
-            d&rsquo;utilisation et de la Politique de confidentialité pour créer
-            un compte.
-          </p>
-        )}
+        <MessageInscription code={erreur} />
 
         <form action={signup} className="mt-6 flex flex-col gap-4">
           <input type="hidden" name="role" value="proprietaire" />

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { signup } from "@/lib/auth/actions";
 import { ArrowLeftIcon } from "@/components/ui/ArrowLeftIcon";
+import { MessageInscription } from "@/app/(auth)/inscription/MessageInscription";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 
@@ -28,13 +29,7 @@ export default async function InscriptionLocatairePage({
           Toujours gratuit. Il vous faut le code de votre bien, transmis par votre propriétaire.
         </p>
 
-        {erreur === "consentement" && (
-          <p className="border-line bg-highlight text-ink mt-4 rounded-md border px-3 py-2 text-sm">
-            Vous devez cocher la case d&rsquo;acceptation des Conditions
-            d&rsquo;utilisation et de la Politique de confidentialité pour créer
-            un compte.
-          </p>
-        )}
+        <MessageInscription code={erreur} />
 
         <form action={signup} className="mt-6 flex flex-col gap-4">
           <input type="hidden" name="role" value="locataire" />

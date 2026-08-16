@@ -131,10 +131,21 @@ export async function signup(formData: FormData) {
     password: motDePasse,
   });
 
-  if (erreurCompte || !compte.user) {
-    const deja = erreurCompte?.message?.toLowerCase().includes("already");
-    redirect(`${page}?erreur=${deja ? "existe" : "1"}`);
-  }
+  if (erreurCompte) redirect(`${page}?erreur=${codeDeLErreur(erreurCompte)}`);
+  if (!compte.user) redirect(`${page}?erreur=1`);
+
+  /**
+   * Adresse déjà prise : Supabase répond 200 avec un utilisateur FACTICE plutôt
+   * qu'une erreur, pour ne pas révéler qu'un compte existe à cette adresse. Le
+   * seul signe est la liste `identities`, qui revient vide.
+   *
+   * La détection précédente cherchait « already » dans un message d'erreur qui
+   * n'arrive jamais : on poursuivait donc avec un identifiant qui ne désigne
+   * personne. Côté propriétaire l'unicité de l'e-mail arrêtait les frais ; côté
+   * locataire, où cette contrainte n'existe pas, on créait une fiche orpheline
+   * rattachée à un compte inexistant.
+   */
+  if ((compte.user.identities ?? []).length === 0) redirect(`${page}?erreur=existe`);
 
   const admin = supabaseAdmin();
   const authUserId = compte.user.id;
@@ -176,8 +187,36 @@ export async function signup(formData: FormData) {
     redirect(`${page}?erreur=1`);
   }
 
+  /**
+   * Pas de session ? Alors le projet exige une confirmation par e-mail, et
+   * `signUp` n'a rien ouvert.
+   *
+   * On redirigeait malgré tout vers l'espace connecté, dont le layout appelle
+   * `getSession()`, ne trouvait rien et renvoyait vers /connexion — où la
+   * connexion échouait à son tour, l'adresse n'étant pas confirmée. Le compte
+   * était bel et bien créé, mais l'écran donnait à croire le contraire.
+   */
+  if (!compte.session) redirect(`${page}?erreur=confirmez`);
+
   // Le propriétaire choisit son palier ; le locataire va droit à son espace.
   redirect(role === "proprietaire" ? "/plans" : "/dashboard");
+}
+
+/**
+ * Traduit l'échec de Supabase en un code que la page d'inscription sait dire.
+ *
+ * Tout tombait auparavant sur « 1 », y compris le quota d'e-mails — qui n'est
+ * pas une faute de saisie et ne se corrige pas en réessayant tout de suite.
+ */
+function codeDeLErreur(erreur: { code?: string; message?: string }): string {
+  const code = erreur.code ?? "";
+  const message = (erreur.message ?? "").toLowerCase();
+
+  if (code === "over_email_send_rate_limit" || message.includes("rate limit")) return "limite";
+  if (code === "email_address_invalid" || message.includes("invalid")) return "adresse";
+  if (code === "user_already_exists" || message.includes("already")) return "existe";
+  if (code === "weak_password" || message.includes("password")) return "court";
+  return "1";
 }
 
 /** Le lien « Passer en Pro » de la page Tarifs transporte le palier choisi. */
