@@ -174,3 +174,28 @@
     background: transparent;
   }
 }
+
+/* Panneau des menus déroulants maison (Select) : légère apparition, jamais
+   pour les personnes qui ont désactivé les animations côté système. */
+@keyframes menu-apparition {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@layer utilities {
+  .animation-menu {
+    animation: menu-apparition 150ms ease-out;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animation-menu {
+      animation: none;
+    }
+  }
+}

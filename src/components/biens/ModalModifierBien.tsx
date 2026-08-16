@@ -8,12 +8,12 @@ import type { Bien, TypeBien } from "@/lib/types";
 import { ChampPhoto } from "@/components/ui/ChampPhoto";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
+import { Select } from "@/components/ui/Select";
 import { useWizardEtapes } from "@/components/ui/validation-etapes";
 import {
   avecEtages,
   equipementsParType,
   etapesBien,
-  selectClass,
   typesDeBien,
 } from "@/components/biens/constantes-bien";
 
@@ -162,24 +162,14 @@ function ModalModifierBienInterne({ bien }: { bien: Bien }) {
               required
               defaultValue={bien.nom}
             />
-            <label className="flex flex-col gap-1.5">
-              <span className="text-ink-2 text-sm font-medium">Type de bien</span>
-              <select
-                name="type"
-                value={type}
-                onChange={(e) => setType(e.target.value as TypeBien)}
-                className={selectClass}
-              >
-                {typesDeBien.map((valeur) => (
-                  <option key={valeur} value={valeur}>
-                    {labelType(valeur)}
-                  </option>
-                ))}
-              </select>
-              <span className="text-ink-3 text-sm">
-                Le formulaire s&rsquo;adapte au type choisi.
-              </span>
-            </label>
+            <Select
+              label="Type de bien"
+              name="type"
+              value={type}
+              onChange={(v) => setType(v as TypeBien)}
+              options={typesDeBien.map((valeur) => ({ value: valeur, label: labelType(valeur) }))}
+              hint="Le formulaire s’adapte au type choisi."
+            />
           </div>
 
           <label className="flex flex-col gap-1.5">
