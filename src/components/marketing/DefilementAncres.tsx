@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
 
 /**
  * Défilement vers les sections sans laisser l'ancre dans la barre d'adresse.
@@ -38,9 +38,24 @@ export function DefilementAncres() {
    * Couvre au passage le clic parti avant l'hydratation, où l'écouteur n'est
    * pas encore posé.
    */
-  useEffect(() => {
+  // `useLayoutEffect` et non `useEffect` : le navigateur a pu restaurer une
+  // ancienne position de défilement avant même que React n'hydrate. Corriger
+  // ça avant la peinture évite un flash (page en bas, puis remontée).
+  useLayoutEffect(() => {
+    // Par défaut, le navigateur restaure lui-même la position de défilement
+    // au rechargement (F5) ou au retour arrière — pratique dans une appli qui
+    // gère ses propres listes, mais pas ici : une page publique rechargée
+    // doit repartir du haut, sauf si l'adresse pointe explicitement vers une
+    // section (cas géré plus bas).
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+
     const ancre = window.location.hash.slice(1);
-    if (!ancre) return;
+    if (!ancre) {
+      window.scrollTo(0, 0);
+      return;
+    }
 
     const cible = document.getElementById(ancre);
     // Ancre inconnue : on ne touche à rien. Effacer le fragment masquerait une

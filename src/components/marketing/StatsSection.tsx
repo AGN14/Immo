@@ -1,22 +1,53 @@
+"use client";
+
 import { ArrowRightIcon } from "@/components/ui/ArrowRightIcon";
 import { Button } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
+import { useReveal } from "@/components/ui/Reveal";
+import { useCompteur } from "@/components/ui/useCompteur";
 
 /* Des faits produit vérifiables, pas des indicateurs de performance inventés. */
 const engagements = [
   {
-    valeur: "0 F",
+    cible: 0,
+    suffixe: "F",
     libelle: "L'accès locataire, sans limite de durée ni de fonctionnalités.",
   },
   {
-    valeur: "3 baux",
+    cible: 3,
+    suffixe: "baux",
     libelle: "Gratuits, sans carte bancaire ni engagement.",
   },
   {
-    valeur: "24 h/24",
+    cible: 24,
+    suffixe: "h/24",
     libelle: "Le locataire paie quand il peut, pas quand vous êtes disponible.",
   },
 ];
+
+function LigneEngagement({
+  cible,
+  suffixe,
+  libelle,
+  delayMs,
+}: {
+  cible: number;
+  suffixe: string;
+  libelle: string;
+  delayMs: number;
+}) {
+  const { ref, className, style, visible } = useReveal<HTMLDivElement>(delayMs);
+  const valeur = useCompteur(cible, visible);
+
+  return (
+    <div ref={ref} style={style} className={`${className} flex items-baseline gap-6 py-5`}>
+      <dt className="font-display text-ink w-28 shrink-0 text-2xl font-semibold" data-numeric>
+        {valeur} {suffixe}
+      </dt>
+      <dd className="text-ink-2 text-sm">{libelle}</dd>
+    </div>
+  );
+}
 
 export function StatsSection() {
   return (
@@ -38,16 +69,14 @@ export function StatsSection() {
         </div>
 
         <dl className="border-line divide-line divide-y border-t border-b">
-          {engagements.map((e) => (
-            <div key={e.valeur} className="flex items-baseline gap-6 py-5">
-              <dt
-                className="font-display text-ink w-28 shrink-0 text-2xl font-semibold"
-                data-numeric
-              >
-                {e.valeur}
-              </dt>
-              <dd className="text-ink-2 text-sm">{e.libelle}</dd>
-            </div>
+          {engagements.map((e, i) => (
+            <LigneEngagement
+              key={e.suffixe}
+              cible={e.cible}
+              suffixe={e.suffixe}
+              libelle={e.libelle}
+              delayMs={i * 80}
+            />
           ))}
         </dl>
       </div>

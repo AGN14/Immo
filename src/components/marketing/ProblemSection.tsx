@@ -1,4 +1,7 @@
+"use client";
+
 import { Eyebrow } from "@/components/ui/Eyebrow";
+import { useReveal } from "@/components/ui/Reveal";
 
 const problems = [
   {
@@ -14,6 +17,31 @@ const problems = [
     body: "Le 5 est passé, puis le 10. Réclamer, c'est risquer la brouille ; ne rien dire, c'est l'installer. Faute de règle écrite d'avance, c'est au bailleur de jouer le mauvais rôle, chaque mois.",
   },
 ];
+
+/** Composant séparé : `useReveal` est un hook, il ne peut pas être appelé
+ *  directement dans le `.map()` du parent. */
+function CarteProbleme({
+  titre,
+  corps,
+  delayMs,
+}: {
+  titre: string;
+  corps: string;
+  delayMs: number;
+}) {
+  const { ref, className: classesRevelation, style } = useReveal<HTMLElement>(delayMs, "box-shadow");
+
+  return (
+    <article
+      ref={ref}
+      style={style}
+      className={`${classesRevelation} border-line bg-surface hover:shadow-md relative flex flex-col gap-2.5 border p-6 hover:z-10 md:-mr-px`}
+    >
+      <h3 className="font-display text-ink text-xl font-semibold">{titre}</h3>
+      <p className="text-ink-2 text-justify text-sm">{corps}</p>
+    </article>
+  );
+}
 
 export function ProblemSection() {
   return (
@@ -31,14 +59,8 @@ export function ProblemSection() {
         </div>
 
         <div className="mt-12 grid grid-cols-1 gap-px md:grid-cols-3">
-          {problems.map((p) => (
-            <article
-              key={p.title}
-              className="border-line bg-surface hover:shadow-md relative flex flex-col gap-2.5 border p-6 transition-shadow duration-200 hover:z-10 md:-mr-px"
-            >
-              <h3 className="font-display text-ink text-xl font-semibold">{p.title}</h3>
-              <p className="text-ink-2 text-justify text-sm">{p.body}</p>
-            </article>
+          {problems.map((p, i) => (
+            <CarteProbleme key={p.title} titre={p.title} corps={p.body} delayMs={i * 80} />
           ))}
         </div>
       </div>

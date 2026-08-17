@@ -133,7 +133,10 @@ export function FeatureTracks() {
             </h3>
             <ul className="divide-line-soft border-line-soft mt-6 flex flex-col divide-y border-t">
               {ownerFeatures.map((f) => (
-                <li key={f.title} className="flex gap-3.5 py-4">
+                <li
+                  key={f.title}
+                  className="-mx-3 flex gap-3.5 rounded-md px-3 py-4 transition-colors duration-[250ms] ease-[cubic-bezier(0.25,0.1,0.25,1)] hover:bg-surface/70"
+                >
                   <span className="text-primary mt-0.5 shrink-0">
                     <Icon>{f.icon}</Icon>
                   </span>
@@ -153,7 +156,10 @@ export function FeatureTracks() {
             </h3>
             <ul className="divide-line border-line mt-6 flex flex-col divide-y border-t">
               {tenantFeatures.map((f) => (
-                <li key={f.title} className="flex gap-3.5 py-4">
+                <li
+                  key={f.title}
+                  className="-mx-3 flex gap-3.5 rounded-md px-3 py-4 transition-colors duration-[250ms] ease-[cubic-bezier(0.25,0.1,0.25,1)] hover:bg-sand"
+                >
                   <span className="text-primary mt-0.5 shrink-0">
                     <Icon>{f.icon}</Icon>
                   </span>

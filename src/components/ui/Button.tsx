@@ -21,7 +21,7 @@ interface ButtonProps {
 }
 
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-md px-5 py-2.5 text-sm font-semibold whitespace-nowrap no-underline transition-[color,background-color,border-color,box-shadow,transform] duration-200 [&_svg]:size-4 [&_svg]:shrink-0";
+  "inline-flex items-center justify-center gap-2 rounded-md px-5 py-2.5 text-sm font-semibold whitespace-nowrap no-underline transition-all duration-[250ms] ease-[cubic-bezier(0.25,0.1,0.25,1)] [&_svg]:size-4 [&_svg]:shrink-0";
 
 export function Button({
   href,

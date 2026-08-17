@@ -42,7 +42,7 @@ export function NewsletterForm() {
             name="consentement"
             required
             disabled={succes}
-            className="mt-0.5"
+            className="accent-[var(--color-primary)] mt-0.5"
           />
           <span>
             J&rsquo;accepte de recevoir la newsletter de Xwégán (un e-mail par

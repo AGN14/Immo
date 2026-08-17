@@ -79,7 +79,12 @@ export default async function InscriptionProprietairePage({
           />
           <Input label="Mot de passe" type="password" name="password" required />
           <label className="text-ink-3 flex items-start gap-2 text-xs">
-            <input type="checkbox" name="consentement" required className="mt-0.5" />
+            <input
+              type="checkbox"
+              name="consentement"
+              required
+              className="accent-[var(--color-primary)] mt-0.5"
+            />
             <span>
               J&rsquo;accepte les{" "}
               <Link

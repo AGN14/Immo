@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
+import { Reveal } from "@/components/ui/Reveal";
 import { supabaseUtilisateur } from "@/lib/supabase/utilisateur";
 import type { PlanId } from "@/lib/plans";
 
@@ -81,7 +82,7 @@ export async function Pricing() {
         </div>
 
         <div className="mt-12 grid grid-cols-1 items-stretch gap-6 md:grid-cols-3">
-          {plans.map((plan) => {
+          {plans.map((plan, i) => {
             const fonctionnalites = Array.isArray(plan.fonctionnalites)
               ? (plan.fonctionnalites as string[])
               : [];
@@ -97,55 +98,66 @@ export async function Pricing() {
             const misEnAvant = plan.slug === "pro";
 
             return (
-              <div
-                key={plan.id}
-                className={`border-line flex flex-col gap-6 rounded-lg border p-6 transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-md ${
-                  misEnAvant ? "bg-highlight shadow-sm" : "bg-surface"
-                }`}
-              >
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="font-display text-ink text-lg font-semibold">{plan.nom}</span>
-                    {misEnAvant && (
-                      <span className="bg-primary text-on-primary rounded-sm px-2 py-0.5 text-xs font-semibold">
-                        Recommandé
+              // Deux niveaux : l'apparition (opacity/transform) sur le
+              // wrapper, le survol (lift + ombre, qui anime aussi transform)
+              // sur la carte elle-même. Sur un seul élément, les deux se
+              // disputeraient la durée de `transform` — l'un des deux
+              // perdrait sa fluidité.
+              <Reveal key={plan.id} delayMs={i * 80} className="h-full">
+                <div
+                  className={`border-line flex h-full flex-col gap-6 rounded-lg border p-6 transition-[transform,box-shadow] duration-[250ms] ease-[cubic-bezier(0.25,0.1,0.25,1)] hover:-translate-y-1 hover:shadow-md ${
+                    misEnAvant ? "bg-highlight shadow-sm" : "bg-surface"
+                  }`}
+                >
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="font-display text-ink text-lg font-semibold">
+                        {plan.nom}
                       </span>
-                    )}
+                      {misEnAvant && (
+                        <span className="bg-primary text-on-primary rounded-sm px-2 py-0.5 text-xs font-semibold">
+                          Recommandé
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-baseline gap-1.5">
+                      <span
+                        className="font-display text-primary text-4xl font-semibold"
+                        data-numeric
+                      >
+                        {plan.prix_fcfa.toLocaleString("fr-FR")}
+                      </span>
+                      <span className="text-ink-3 text-sm">FCFA / mois</span>
+                    </div>
+                    <p className="text-ink-2 text-justify text-sm">{plan.description}</p>
                   </div>
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="font-display text-primary text-4xl font-semibold" data-numeric>
-                      {plan.prix_fcfa.toLocaleString("fr-FR")}
-                    </span>
-                    <span className="text-ink-3 text-sm">FCFA / mois</span>
-                  </div>
-                  <p className="text-ink-2 text-justify text-sm">{plan.description}</p>
-                </div>
 
-                <ul className="flex flex-1 flex-col gap-2.5 text-sm">
-                  <li className="flex items-start gap-2.5">
-                    <span className="text-primary">
-                      <Check />
-                    </span>
-                    <strong className="text-ink font-semibold">
-                      {plan.max_baux === null
-                        ? "Logements loués illimités"
-                        : `Jusqu'à ${plan.max_baux} logements loués`}
-                    </strong>
-                  </li>
-                  {fonctionnalites.map((f) => (
-                    <li key={f} className="flex items-start gap-2.5">
+                  <ul className="flex flex-1 flex-col gap-2.5 text-sm">
+                    <li className="flex items-start gap-2.5">
                       <span className="text-primary">
                         <Check />
                       </span>
-                      {f}
+                      <strong className="text-ink font-semibold">
+                        {plan.max_baux === null
+                          ? "Logements loués illimités"
+                          : `Jusqu'à ${plan.max_baux} logements loués`}
+                      </strong>
                     </li>
-                  ))}
-                </ul>
+                    {fonctionnalites.map((f) => (
+                      <li key={f} className="flex items-start gap-2.5">
+                        <span className="text-primary">
+                          <Check />
+                        </span>
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
 
-                <Button href={bouton.href} variant={bouton.variant} block>
-                  {bouton.label}
-                </Button>
-              </div>
+                  <Button href={bouton.href} variant={bouton.variant} block>
+                    {bouton.label}
+                  </Button>
+                </div>
+              </Reveal>
             );
           })}
         </div>

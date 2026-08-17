@@ -14,24 +14,18 @@ export default function Home() {
       {/* Le Hero reste hors animation : premier écran, il doit être visible
           sans attendre le JS ni le défilement. */}
       <Hero />
-      <Reveal>
-        <ProblemSection />
-      </Reveal>
-      <Reveal>
-        <StatsSection />
-      </Reveal>
+      {/* Cartes/étapes déjà animées individuellement (voir chaque composant) :
+          un Reveal ici referait apparaître le bloc entier par-dessus, en double. */}
+      <ProblemSection />
+      <StatsSection />
       <Reveal>
         <FeatureTracks />
       </Reveal>
-      <Reveal>
-        <HowItWorks />
-      </Reveal>
+      <HowItWorks />
       <Reveal>
         <Testimonials />
       </Reveal>
-      <Reveal>
-        <Pricing />
-      </Reveal>
+      <Pricing />
       <Reveal>
         <FinalCta />
       </Reveal>

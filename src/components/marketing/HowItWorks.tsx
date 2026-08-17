@@ -1,4 +1,7 @@
+"use client";
+
 import { Eyebrow } from "@/components/ui/Eyebrow";
+import { useReveal } from "@/components/ui/Reveal";
 
 const steps = [
   {
@@ -15,6 +18,36 @@ const steps = [
   },
 ];
 
+/** Composant séparé : `useReveal` est un hook, il ne peut pas être appelé
+ *  directement dans le `.map()` du parent. */
+function Etape({
+  numero,
+  titre,
+  corps,
+  delayMs,
+}: {
+  numero: number;
+  titre: string;
+  corps: string;
+  delayMs: number;
+}) {
+  const { ref, className: classesRevelation, style } = useReveal<HTMLLIElement>(delayMs);
+
+  return (
+    <li
+      ref={ref}
+      style={style}
+      className={`${classesRevelation} border-line flex flex-col gap-2.5 border-t pt-5`}
+    >
+      <span className="font-display text-primary text-2xl font-semibold" data-numeric>
+        {numero}
+      </span>
+      <h3 className="font-display text-ink text-xl font-semibold">{titre}</h3>
+      <p className="text-ink-2 text-justify text-sm">{corps}</p>
+    </li>
+  );
+}
+
 export function HowItWorks() {
   return (
     <section id="comment-ca-marche" className="bg-sand py-16 md:py-24">
@@ -29,13 +62,7 @@ export function HowItWorks() {
         {/* Ici la numérotation est légitime : c'est une séquence, pas une liste. */}
         <ol className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-10">
           {steps.map((s, i) => (
-            <li key={s.title} className="border-line flex flex-col gap-2.5 border-t pt-5">
-              <span className="font-display text-primary text-2xl font-semibold" data-numeric>
-                {i + 1}
-              </span>
-              <h3 className="font-display text-ink text-xl font-semibold">{s.title}</h3>
-              <p className="text-ink-2 text-justify text-sm">{s.body}</p>
-            </li>
+            <Etape key={s.title} numero={i + 1} titre={s.title} corps={s.body} delayMs={i * 80} />
           ))}
         </ol>
       </div>
