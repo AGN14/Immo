@@ -16,11 +16,26 @@ const nextConfig: NextConfig = {
    * renvoie une page qui s'affiche mais ne s'hydrate jamais : Next bloque les
    * scripts et le rechargement à chaud, sans erreur visible côté navigateur.
    *
-   * On travaille à deux sur le même réseau — la base tourne sur un poste, le
-   * front sur l'autre — donc le réseau local doit être admis. Cela ne concerne
-   * que `next dev` ; la production n'est pas affectée.
+   * La raison d'origine — la base sur un poste, le front sur l'autre — a
+   * disparu avec le passage au cloud. L'autorisation reste, pour une meilleure
+   * raison : ouvrir le site depuis un vrai téléphone. Xwégán se paie par Mobile
+   * Money, et le widget KKiaPay, le clavier numérique et la lecture des
+   * montants ne se jugent pas dans un simulateur de navigateur.
+   *
+   * Les deux plages retenues sont privées au sens du RFC 1918, donc
+   * injoignables depuis Internet : 192.168.x.x pour une box ou un partage de
+   * connexion, 10.x.x.x pour un réseau d'école ou d'entreprise. `192.168.1.*`
+   * seul ne suffisait pas : en partage de connexion Android, le téléphone
+   * distribue du 192.168.43.x, et rien ne se chargeait.
+   *
+   * Pourquoi ne pas tout autoriser avec `*` : ce serveur sert le code source et
+   * ses source maps. Avec `*`, n'importe quel site ouvert dans un onglet
+   * pendant que `next dev` tourne pourrait les lire depuis le navigateur. La
+   * liste dit « les appareils de mon réseau », pas « le web entier ».
+   *
+   * Ne concerne que `next dev` ; la production n'est pas affectée.
    */
-  allowedDevOrigins: ["127.0.0.1", "localhost", "192.168.1.*"],
+  allowedDevOrigins: ["127.0.0.1", "localhost", "192.168.*.*", "10.*.*.*"],
 
   images: {
     remotePatterns: supabaseHost
