@@ -45,7 +45,7 @@ export default function MentionsLegalesPage() {
                 <li>CHOUCHOU Curie — analyste en sécurité</li>
                 <li>ANAGONOU Richard — développeur, architecte logiciel et chargé du marketing</li>
                 <li>CHABI MOUKA Merythe — management</li>
-                <li>TAIROU Wahab — rôle à définir</li>
+                <li>TAIROU Wahab — rôle à définir, chargé du marketing</li>
               </ul>
             </>
           ),
