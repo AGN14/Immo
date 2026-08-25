@@ -4,160 +4,119 @@ import { DocumentLegale } from "@/components/marketing/DocumentLegale";
 export const metadata: Metadata = {
   title: "Conditions d'utilisation — Xwégán",
   description:
-    "Conditions générales d'utilisation du service Xwégán pour propriétaires et locataires au Bénin.",
+    "Règles d'utilisation de Xwégán, comptes, paiements et abonnements, responsabilité et droit applicable au Bénin.",
 };
 
 export default function ConditionsUtilisationPage() {
   return (
     <DocumentLegale
-      type="Conditions"
+      type="Conditions d'utilisation"
       titre="Conditions générales d'utilisation"
-      introduction="Les présentes conditions encadrent l'utilisation de la plateforme Xwégán par les propriétaires et les locataires. En créant un compte, vous les acceptez. Elles sont soumises au droit béninois, notamment à la loi n° 2017-20 portant Code du numérique."
+      introduction="En utilisant Xwégán, vous acceptez les présentes conditions. Merci de les lire attentivement."
       miseAJour="15 août 2026"
       sections={[
         {
-          titre: "1. Objet du service",
+          titre: "Objet",
           corps: (
             <p>
-              Xwégán est une plateforme de gestion locative qui relie les propriétaires et leurs
-              locataires sur un registre commun : suivi des loyers en FCFA, paiements, cautions,
-              reversements, signalement des pannes et documentation des litiges.
+              Xwégán est une plateforme de gestion locative mettant en relation propriétaires et
+              locataires. Les présentes conditions définissent les règles d&rsquo;accès et
+              d&rsquo;utilisation du service.
             </p>
           ),
         },
         {
-          titre: "2. Création et accès au compte",
+          titre: "Acceptation",
           corps: (
-            <>
-              <p>
-                Pour utiliser le service, vous créez un compte propriétaire ou locataire avec des
-                informations exactes et à jour : nom complet, adresse e-mail et numéro de
-                téléphone. Vous êtes responsable de la confidentialité de votre mot de passe et de
-                toute activité réalisée depuis votre compte.
-              </p>
-              <p>
-                Le compte locataire est créé à partir du code du bien, transmis par le
-                propriétaire. L&rsquo;accès locataire est gratuit et le restera.
-              </p>
-            </>
+            <p>
+              L&rsquo;inscription et l&rsquo;utilisation de la plateforme valent acceptation sans
+              réserve des présentes conditions. Si vous n&rsquo;acceptez pas ces conditions, vous ne
+              devez pas utiliser le service.
+            </p>
           ),
         },
         {
-          titre: "3. Abonnements et paiements",
+          titre: "Comptes",
           corps: (
             <>
-              <p>Le service propriétaire est proposé selon trois offres :</p>
+              <p>Vous êtes responsable :</p>
               <ul className="list-disc space-y-1 pl-5">
-                <li>Essentiel : gratuit, jusqu&rsquo;à 3 logements loués ;</li>
-                <li>Pro : 5 000 FCFA / mois, jusqu&rsquo;à 20 logements loués ;</li>
-                <li>Business : 15 000 FCFA / mois, logements loués illimités.</li>
+                <li>de l&rsquo;exactitude des informations fournies à l&rsquo;inscription ;</li>
+                <li>de la confidentialité de votre mot de passe et de votre session ;</li>
+                <li>de l&rsquo;activité réalisée depuis votre compte.</li>
               </ul>
               <p>
-                Les abonnements payants sont facturés en FCFA selon les modalités affichées à la
-                souscription. Les montants sont dus pour chaque mois d&rsquo;utilisation. Vous pouvez
-                résilier à tout moment ; la résiliation prend effet à la fin de la période en
-                cours.
+                L&rsquo;accès locataire est gratuit. Seuls les comptes propriétaires souscrivent un
+                abonnement.
               </p>
             </>
           ),
         },
         {
-          titre: "4. Limite de logements loués",
+          titre: "Règles d'utilisation",
+          corps: (
+            <>
+              <p>Il est interdit de :</p>
+              <ul className="list-disc space-y-1 pl-5">
+                <li>saisir de fausses identités ou des données mensongères ;</li>
+                <li>utiliser la plateforme à des fins illicites ;</li>
+                <li>porter atteinte aux données d&rsquo;autrui ou à la sécurité du service.</li>
+              </ul>
+            </>
+          ),
+        },
+        {
+          titre: "Paiements et abonnements",
+          corps: (
+            <>
+              <p>
+                Les abonnements propriétaires sont réglés via KKiaPay (Mobile Money et autres moyens
+                pris en charge). Sauf indication contraire, l&rsquo;abonnement est reconductible selon
+                la périodicité choisie. Aucun remboursement n&rsquo;est dû pour une période déjà
+                commencée, sauf disposition légale contraire.
+              </p>
+            </>
+          ),
+        },
+        {
+          titre: "Responsabilité",
           corps: (
             <p>
-              Le nombre de logements effectivement loués (baux actifs) est limité par votre offre.
-              Lorsque la limite est atteinte, il n&rsquo;est plus possible de démarrer un nouveau bail
-              actif tant que vous n&rsquo;avez pas libéré de la place ou souscrit à une offre supérieure.
-              Cette règle s&rsquo;applique à tous les biens de votre compte, sans contournement possible.
+              Xwégán fournit le service en l&rsquo;état, sans garantie d&rsquo;absence
+              d&rsquo;interruption. La plateforme ne se substitue pas aux obligations légales du
+              propriétaire ou du locataire. En cas de force majeure, l&rsquo;exécution du service peut
+              être suspendue.
             </p>
           ),
         },
         {
-          titre: "5. Obligations des utilisateurs",
-          corps: (
-            <ul className="list-disc space-y-1 pl-5">
-              <li>Fournir des informations exactes sur les biens, les locataires et les montants ;</li>
-              <li>Déclarer les loyers, paiements, pannes et litiges de bonne foi ;</li>
-              <li>Ne pas utiliser le service pour des activités illicites ou frauduleuses ;</li>
-              <li>Respecter les droits des personnes dont les données sont enregistrées sur votre compte.</li>
-            </ul>
-          ),
-        },
-        {
-          titre: "6. Gratuité du compte locataire",
+          titre: "Propriété intellectuelle",
           corps: (
             <p>
-              Le locataire ne paie jamais pour utiliser Xwégán. Les loyers et autres montants versés
-              au propriétaire sont réglés selon les modalités convenues entre les parties ; Xwégán
-              n&rsquo;intervient pas comme organisme de paiement, sauf mention contraire explicite.
+              Les éléments de la plateforme (nom, logo, contenus, code) sont protégés. Toute
+              reproduction non autorisée est interdite.
             </p>
           ),
         },
         {
-          titre: "7. Propriété intellectuelle",
+          titre: "Résiliation",
           corps: (
             <p>
-              La plateforme, son code, ses marques, logos et contenus sont la propriété de Xwégán.
-              Les données que vous enregistrez (biens, locataires, montants, photos) vous
-              appartiennent et ne sont utilisées que pour vous fournir le service.
-            </p>
-          ),
-        },
-        {
-          titre: "8. Disponibilité et responsabilité",
-          corps: (
-            <p>
-              Xwégán s&rsquo;efforce de maintenir le service disponible et de sécuriser les données.
-              Xwégán ne saurait être tenu responsable des décisions prises par les parties sur la
-              base des informations enregistrées, ni des dommages indirects. L&rsquo;enregistrement d&rsquo;un
-              paiement ou d&rsquo;un litige ne constitue pas un conseil juridique ni une décision de
-              justice.
-            </p>
-          ),
-        },
-        {
-          titre: "9. Suspension et résiliation",
-          corps: (
-            <p>
-              Nous pouvons suspendre un compte en cas de violation des présentes conditions ou
-              d&rsquo;utilisation frauduleuse du service. Vous pouvez à tout moment supprimer votre
-              compte depuis votre espace. La suppression entraîne l&rsquo;effacement de vos données dans
-              les conditions prévues par notre politique de confidentialité, sous réserve des
-              obligations légales de conservation.
-            </p>
-          ),
-        },
-        {
-          titre: "10. Protection des données",
-          corps: (
-            <p>
-              Le traitement des données personnelles est décrit dans notre{" "}
-              <a href="/confidentialite" className="text-primary font-semibold no-underline">
-                politique de confidentialité
+              Vous pouvez fermer votre compte à tout moment depuis votre espace personnel ou en
+              écrivant à{" "}
+              <a href="mailto:contact@xwegan.com" className="text-primary font-semibold no-underline">
+                contact@xwegan.com
               </a>
-              , conforme à la loi n° 2017-20 du 20 avril 2018 portant Code du numérique en
-              République du Bénin et au règlement n° 2018/01/CM/UEMOA.
+              . Xwégán peut suspendre un compte en cas de manquement aux présentes conditions.
             </p>
           ),
         },
         {
-          titre: "11. Droit applicable et litiges",
+          titre: "Droit applicable",
           corps: (
             <p>
-              Les présentes conditions sont régies par le droit béninois. En cas de litige, les
-              parties s&rsquo;efforceront de trouver une solution amiable avant toute action. À défaut,
-              les tribunaux de Cotonou sont compétents, sauf disposition légale contraire.
-            </p>
-          ),
-        },
-        {
-          titre: "12. Évolution des conditions",
-          corps: (
-            <p>
-              Les présentes conditions peuvent être mises à jour. La version en vigueur est
-              toujours celle publiée sur cette page, avec sa date. En cas de modification
-              importante, vous en êtes informé par e-mail ; la poursuite de l&rsquo;utilisation du
-              service vaut acceptation des nouvelles conditions.
+              Les présentes conditions sont soumises au droit béninois. En cas de litige, les
+              juridictions de Cotonou sont compétentes, sauf disposition légale contraire.
             </p>
           ),
         },

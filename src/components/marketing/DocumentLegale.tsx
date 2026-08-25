@@ -22,7 +22,7 @@ export function DocumentLegale({
   return (
     <section className="py-16 md:py-24">
       <div className="mx-auto px-5 sm:px-8 lg:px-12">
-        <div className="flex max-w-[42em] flex-col items-start gap-4">
+        <div className="mx-auto flex max-w-[42em] flex-col items-start gap-4">
           <Eyebrow>{type}</Eyebrow>
           <h1 className="font-display text-ink text-4xl font-semibold text-balance md:text-5xl">
             {titre}
@@ -31,7 +31,7 @@ export function DocumentLegale({
           <p className="text-ink-3 text-sm">Dernière mise à jour : {miseAJour}</p>
         </div>
 
-        <div className="mt-12 grid max-w-[42em] gap-8">
+        <div className="mx-auto mt-12 grid max-w-[42em] gap-8">
           {sections.map((s) => (
             <section key={s.titre} className="border-line border-t pt-5">
               <h2 className="font-display text-ink text-2xl font-semibold">{s.titre}</h2>
