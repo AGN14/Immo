@@ -13,7 +13,7 @@ export default function MentionsLegalesPage() {
       type="Mentions légales"
       titre="Mentions légales du site Xwégán"
       introduction="Les informations qui suivent identifient l'éditeur et l'hébergeur du site, comme l'exige le Code du numérique en République du Bénin."
-      miseAJour="15 août 2026"
+      miseAJour="25 août 2026"
       sections={[
         {
           titre: "Éditeur du site",
@@ -45,7 +45,7 @@ export default function MentionsLegalesPage() {
                 <li>CHOUCHOU Curie — analyste en sécurité</li>
                 <li>ANAGONOU Richard — développeur, architecte logiciel et chargé du marketing</li>
                 <li>CHABI MOUKA Merythe — management</li>
-                <li>TAIROU Wahab — rôle à définir</li>
+                <li>TAIROU Wahab — rôle à définir, chargé du marketing</li>
               </ul>
             </>
           ),
