@@ -15,6 +15,9 @@ import { KPICard } from "@/components/ui/KPICard";
 import { ModalAjouterLocataire } from "@/components/locataires/ModalAjouterLocataire";
 import { ModalAttribuerLogement } from "@/components/locataires/ModalAttribuerLogement";
 import { FormulaireTerminerBail } from "@/components/locataires/FormulaireTerminerBail";
+import { Invitations, type LigneInvitation } from "@/components/locataires/Invitations";
+import { supabaseUtilisateur } from "@/lib/supabase/utilisateur";
+import { lienInvitation } from "@/lib/actions/invitations";
 
 const th = "text-ink-2 px-4 py-3 text-sm font-medium";
 
@@ -36,6 +39,25 @@ function Icon({ children }: { children: React.ReactNode }) {
 
 export default async function LocatairesPage() {
   const { proprietaireId } = await requireProprietaire();
+
+  // Les invitations non consommées. Le lien complet est reconstruit ici plutôt
+  // que stocké : l'adresse du site diffère entre développement et production.
+  const { data: brutes } = await supabaseUtilisateur()
+    .from("invitation")
+    .select("id, nom, telephone, jeton, expire_le, utilisee_le")
+    .is("utilisee_le", null)
+    .order("creee_le", { ascending: false });
+
+  const invitations: LigneInvitation[] = await Promise.all(
+    (brutes ?? []).map(async (i) => ({
+      id: i.id,
+      nom: i.nom,
+      telephone: i.telephone,
+      lien: await lienInvitation(i.jeton),
+      expireLe: i.expire_le,
+      utiliseeLe: i.utilisee_le,
+    })),
+  );
 
   const [actifs, anciens, locataires, biens, lots, lotsDisponibles] = await Promise.all([
     getBauxActifs(proprietaireId),
@@ -136,6 +158,8 @@ export default async function LocatairesPage() {
           }
         />
       </div>
+
+      <Invitations lignes={invitations} />
 
       <div className="border-line bg-surface mt-8 overflow-x-auto rounded-md border">
         <table className="w-full text-left text-sm">

@@ -18,6 +18,9 @@ interface ButtonProps {
   children: ReactNode;
   type?: "button" | "submit";
   className?: string;
+  /** Sans lui, un formulaire en cours d'envoi restait cliquable et
+   *  laissait soumettre deux fois. Ignoré pour la variante lien. */
+  disabled?: boolean;
 }
 
 const base =
@@ -30,6 +33,7 @@ export function Button({
   children,
   type = "button",
   className = "",
+  disabled = false,
 }: ButtonProps) {
   const classes = [base, variantClasses[variant], block ? "w-full" : "", className]
     .filter(Boolean)
@@ -44,7 +48,7 @@ export function Button({
   }
 
   return (
-    <button type={type} className={classes}>
+    <button type={type} className={`${classes} disabled:opacity-60`} disabled={disabled}>
       {children}
     </button>
   );

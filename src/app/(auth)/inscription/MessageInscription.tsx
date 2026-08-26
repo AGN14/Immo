@@ -42,6 +42,21 @@ const ECHECS: Record<string, { titre: string; suite: string }> = {
     suite:
       "Le service d'envoi d'e-mails est momentanément saturé. Réessayez dans une heure — votre saisie n'est pas en cause.",
   },
+  // Le lien a pu expirer entre l'ouverture de la page et l'envoi du formulaire :
+  // ces trois cas sont donc aussi renvoyés par le serveur, pas seulement
+  // détectés à l'affichage.
+  "invitation-inconnue": {
+    titre: "Ce lien d'invitation n'est pas valide.",
+    suite: "Demandez à votre propriétaire de vous le renvoyer en entier.",
+  },
+  "invitation-expiree": {
+    titre: "Cette invitation a expiré.",
+    suite: "Les liens ne valent que sept jours. Demandez-en un nouveau à votre propriétaire.",
+  },
+  "invitation-utilisee": {
+    titre: "Cette invitation a déjà servi.",
+    suite: "Votre compte existe donc probablement déjà : essayez de vous connecter.",
+  },
   1: {
     titre: "La création du compte a échoué.",
     suite: "Réessayez dans un instant. Si cela persiste, écrivez-nous et nous regarderons.",

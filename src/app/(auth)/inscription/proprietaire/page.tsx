@@ -1,10 +1,7 @@
 import Link from "next/link";
-import { signup } from "@/lib/auth/actions";
 import { ArrowLeftIcon } from "@/components/ui/ArrowLeftIcon";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
 import { PLANS } from "@/lib/plans";
-import { MessageInscription } from "@/app/(auth)/inscription/MessageInscription";
+import { FormulaireInscription } from "@/app/(auth)/inscription/FormulaireInscription";
 
 export default async function InscriptionProprietairePage({
   searchParams,
@@ -17,7 +14,6 @@ export default async function InscriptionProprietairePage({
   const pro = planChoisi === "pro";
   const business = planChoisi === "business";
   const offre = pro ? PLANS.pro : business ? PLANS.business : null;
-  const erreur = (await searchParams).erreur;
 
   return (
     <>
@@ -51,59 +47,7 @@ export default async function InscriptionProprietairePage({
           </p>
         )}
 
-        <MessageInscription code={erreur} />
-
-        <form action={signup} className="mt-6 flex flex-col gap-4">
-          <input type="hidden" name="role" value="proprietaire" />
-          <input type="hidden" name="plan" value={offre ? offre.id : "essentiel"} />
-          <Input
-            label="Nom complet"
-            type="text"
-            name="nom"
-            placeholder="Aïssatou Diallo"
-            required
-          />
-          <Input
-            label="Adresse e-mail"
-            type="email"
-            name="email"
-            placeholder="vous@exemple.com"
-            required
-          />
-          <Input
-            label="Téléphone"
-            type="tel"
-            name="telephone"
-            placeholder="+229 01 23 45 67"
-            required
-          />
-          <Input label="Mot de passe" type="password" name="password" required />
-          <label className="text-ink-3 flex items-start gap-2 text-xs">
-            <input
-              type="checkbox"
-              name="consentement"
-              required
-              className="accent-[var(--color-primary)] mt-0.5"
-            />
-            <span>
-              J&rsquo;accepte les{" "}
-              <Link
-                href="/conditions-utilisation"
-                className="text-primary font-semibold no-underline"
-              >
-                Conditions d&rsquo;utilisation
-              </Link>{" "}
-              et la{" "}
-              <Link href="/confidentialite" className="text-primary font-semibold no-underline">
-                politique de confidentialité
-              </Link>{" "}
-              de Xwégán.
-            </span>
-          </label>
-          <Button type="submit" variant="primary" block className="mt-1">
-            Créer mon compte
-          </Button>
-        </form>
+        <FormulaireInscription role="proprietaire" plan={offre ? offre.id : "essentiel"} />
       </div>
 
       <p className="text-ink-2 mt-5 text-center text-sm">

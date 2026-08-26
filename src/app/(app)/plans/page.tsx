@@ -4,6 +4,7 @@ import { getProprietaireById } from "@/lib/data";
 import { supabaseUtilisateur } from "@/lib/supabase/utilisateur";
 import { kkiapayConfigure } from "@/lib/paiement/kkiapay";
 import { BoutonPalier, PaiementAbonnement } from "@/app/(app)/plans/PaiementAbonnement";
+import { MessagePalier } from "@/app/(app)/plans/MessagePalier";
 import type { PlanId } from "@/lib/plans";
 
 export const metadata = { title: "Choisir votre plan" };
@@ -36,7 +37,12 @@ function Check() {
   );
 }
 
-export default async function PlansPage() {
+export default async function PlansPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [k: string]: string | string[] | undefined }>;
+}) {
+  const { erreur, info } = await searchParams;
   const session = await requireProprietaire();
   const { plan: planActuel } = session;
 
@@ -82,6 +88,10 @@ export default async function PlansPage() {
             ne compte pas, et vous pouvez changer de palier à tout moment.
           </p>
         </div>
+
+        {/* Le retour de l'action, en tête : c'est la réponse au clic qu'on
+          vient de faire, elle ne peut pas attendre le bas de page. */}
+        <MessagePalier erreur={erreur} info={info} />
 
         {/* Le propriétaire doit savoir jusqu'à quand il est couvert : sans cette
           date, l'expiration le prendrait de court, quota bloqué sans préavis. */}

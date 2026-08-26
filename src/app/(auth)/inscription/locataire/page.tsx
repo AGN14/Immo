@@ -1,16 +1,55 @@
 import Link from "next/link";
-import { signup } from "@/lib/auth/actions";
 import { ArrowLeftIcon } from "@/components/ui/ArrowLeftIcon";
-import { MessageInscription } from "@/app/(auth)/inscription/MessageInscription";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
+import { FormulaireInscription } from "@/app/(auth)/inscription/FormulaireInscription";
+import { lireInvitation, type MotifRefus } from "@/lib/auth/invitation";
+
+/**
+ * Deux entrées pour un même écran.
+ *
+ * Avec une invitation, le propriétaire a déjà désigné la personne : le champ
+ * « code du bien » disparaît et le formulaire arrive pré-rempli. Sans, on
+ * retombe sur le code, saisi à la main.
+ *
+ * L'invitation est validée **ici**, avant l'affichage, et non au moment de
+ * l'envoi : découvrir un lien expiré après avoir tout ressaisi serait la pire
+ * des façons de l'apprendre.
+ */
+const REFUS: Record<MotifRefus, { titre: string; suite: string }> = {
+  inconnue: {
+    titre: "Ce lien d'invitation n'est pas valide.",
+    suite:
+      "Il a peut-être été tronqué en le copiant. Demandez à votre propriétaire de vous le renvoyer en entier.",
+  },
+  expiree: {
+    titre: "Cette invitation a expiré.",
+    suite:
+      "Les liens ne valent que sept jours, par sécurité. Demandez-en un nouveau à votre propriétaire — cela lui prend quelques secondes.",
+  },
+  utilisee: {
+    titre: "Cette invitation a déjà servi.",
+    suite: "Votre compte existe donc probablement déjà : essayez de vous connecter.",
+  },
+};
 
 export default async function InscriptionLocatairePage({
   searchParams,
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const erreur = (await searchParams).erreur;
+  const brut = (await searchParams).invitation;
+  const jeton = Array.isArray(brut) ? brut[0] : brut;
+
+  const lecture = jeton ? await lireInvitation(jeton) : null;
+  const invitation =
+    lecture?.valide === true
+      ? {
+          jeton: jeton!,
+          nom: lecture.invitation.nom ?? undefined,
+          telephone: lecture.invitation.telephone ?? undefined,
+          email: lecture.invitation.email ?? undefined,
+        }
+      : undefined;
+  const refus = lecture?.valide === false ? REFUS[lecture.motif] : null;
 
   return (
     <>
@@ -23,66 +62,23 @@ export default async function InscriptionLocatairePage({
           Choisir un autre profil
         </Link>
         <h1 className="font-display text-ink mt-3 text-2xl font-semibold">
-          Créer un compte locataire
+          {invitation ? "Vous êtes invité" : "Créer un compte locataire"}
         </h1>
         <p className="text-ink-2 mt-1 text-sm">
-          Toujours gratuit. Il vous faut le code de votre bien, transmis par votre propriétaire.
+          {invitation
+            ? "Votre propriétaire vous a ouvert un accès. Vérifiez vos informations et choisissez un mot de passe."
+            : "Toujours gratuit. Il vous faut le code de votre bien, transmis par votre propriétaire."}
         </p>
 
-        <MessageInscription code={erreur} />
+        {refus && (
+          <p className="border-danger bg-danger-soft text-ink mt-4 rounded-md border px-3 py-2.5 text-sm">
+            <strong className="font-semibold">{refus.titre}</strong> {refus.suite}
+          </p>
+        )}
 
-        <form action={signup} className="mt-6 flex flex-col gap-4">
-          <input type="hidden" name="role" value="locataire" />
-          <Input
-            label="Code du bien"
-            type="text"
-            name="codeBien"
-            placeholder="Ex. BAOBAB-3B"
-            hint="Demandez ce code à votre propriétaire."
-            required
-          />
-          <Input label="Nom complet" type="text" name="nom" placeholder="Kouadio Yves" required />
-          <Input
-            label="Adresse e-mail"
-            type="email"
-            name="email"
-            placeholder="vous@exemple.com"
-            required
-          />
-          <Input
-            label="Téléphone"
-            type="tel"
-            name="telephone"
-            placeholder="+229 01 23 45 67"
-            required
-          />
-          <Input label="Mot de passe" type="password" name="password" required />
-          <label className="text-ink-3 flex items-start gap-2 text-xs">
-            <input
-              type="checkbox"
-              name="consentement"
-              required
-              className="accent-[var(--color-primary)] mt-0.5"
-            />
-            <span>
-              J&rsquo;accepte les{" "}
-              <Link
-                href="/conditions-utilisation"
-                className="text-primary font-semibold no-underline"
-              >
-                Conditions d&rsquo;utilisation
-              </Link>{" "}
-              et la{" "}
-              <Link href="/confidentialite" className="text-primary font-semibold no-underline">
-                politique de confidentialité
-              </Link>{" "}
-              de Xwégán.
-            </span>
-          </label>
-          <Button type="submit" variant="primary" block className="mt-1">
-            Créer mon compte
-          </Button>
-        </form>
+        {/* Un lien refusé ne bloque pas : le code de bien reste offert en
+            secours, plutôt que de laisser la personne devant une impasse. */}
+        <FormulaireInscription role="locataire" invitation={invitation} />
       </div>
 
       <p className="text-ink-2 mt-5 text-center text-sm">

@@ -290,6 +290,70 @@ export type Database = {
           },
         ]
       }
+      invitation: {
+        Row: {
+          creee_le: string
+          email: string | null
+          expire_le: string
+          id: string
+          jeton: string
+          locataire_id: string | null
+          lot_id: string | null
+          nom: string | null
+          proprietaire_id: string
+          telephone: string | null
+          utilisee_le: string | null
+        }
+        Insert: {
+          creee_le?: string
+          email?: string | null
+          expire_le?: string
+          id?: string
+          jeton: string
+          locataire_id?: string | null
+          lot_id?: string | null
+          nom?: string | null
+          proprietaire_id: string
+          telephone?: string | null
+          utilisee_le?: string | null
+        }
+        Update: {
+          creee_le?: string
+          email?: string | null
+          expire_le?: string
+          id?: string
+          jeton?: string
+          locataire_id?: string | null
+          lot_id?: string | null
+          nom?: string | null
+          proprietaire_id?: string
+          telephone?: string | null
+          utilisee_le?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invitation_proprietaire_id_fkey"
+            columns: ["proprietaire_id"]
+            isOneToOne: false
+            referencedRelation: "proprietaire"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invitation_lot_id_fkey"
+            columns: ["lot_id"]
+            isOneToOne: false
+            referencedRelation: "lot"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invitation_locataire_id_fkey"
+            columns: ["locataire_id"]
+            isOneToOne: false
+            referencedRelation: "locataire"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       locataire: {
         Row: {
           auth_user_id: string | null

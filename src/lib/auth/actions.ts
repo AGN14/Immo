@@ -6,6 +6,7 @@ import { supabaseUtilisateur } from "@/lib/supabase/utilisateur";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { PLAN_PAR_DEFAUT, PLANS, uuidDuPlan, type PlanId } from "@/lib/plans";
 import { destroySession } from "@/lib/auth/session";
+import { lireInvitation } from "@/lib/auth/invitation";
 
 /**
  * Authentification par Supabase Auth.
@@ -80,6 +81,11 @@ export async function logout() {
   redirect("/");
 }
 
+/** Ce que l'inscription renvoie au formulaire quand elle n'aboutit pas. */
+export interface EtatInscription {
+  erreur?: string;
+}
+
 /**
  * À l'inscription, le profil est un choix de l'utilisateur — contrairement à
  * la connexion, où il se déduit du compte.
@@ -89,7 +95,10 @@ export async function logout() {
  * utilisateur authentifié sans fiche ne peut rien faire et bloquerait son
  * adresse pour une nouvelle tentative.
  */
-export async function signup(formData: FormData) {
+export async function signup(
+  _etat: EtatInscription,
+  formData: FormData,
+): Promise<EtatInscription> {
   const role = formData.get("role") === "locataire" ? "locataire" : "proprietaire";
   const nom = String(formData.get("nom") ?? "Vous").trim();
   const email = String(formData.get("email") ?? "")
@@ -97,22 +106,42 @@ export async function signup(formData: FormData) {
     .toLowerCase();
   const telephone = String(formData.get("telephone") ?? "").trim() || null;
   const motDePasse = String(formData.get("password") ?? "");
-  const page = role === "locataire" ? "/inscription/locataire" : "/inscription/proprietaire";
-
-  if (motDePasse.length < LONGUEUR_MINIMALE) redirect(`${page}?erreur=court`);
+  if (motDePasse.length < LONGUEUR_MINIMALE) return { erreur: "court" };
 
   // Sans consentement, pas de compte : la politique ne s'applique qu'à ceux
   // qui l'ont acceptée, et la preuve (article 389) doit exister dès l'origine.
-  if (formData.get("consentement") !== "on") redirect(`${page}?erreur=consentement`);
+  if (formData.get("consentement") !== "on") return { erreur: "consentement" };
 
   // Le code de bien est vérifié AVANT de créer quoi que ce soit : inutile
   // d'ouvrir un compte qui ne pourra être rattaché à aucun parc.
   let proprietaireId: string | null = null;
+  let invitationId: string | null = null;
+
   if (role === "locataire") {
+    /**
+     * Deux chemins d'entrée, et l'invitation prime.
+     *
+     * Elle est nominative, à usage unique et expire : le propriétaire a
+     * explicitement désigné cette personne. Le code de bien, lui, reste ouvert
+     * à quiconque l'a vu — il ne sert que le cas courant où le bailleur le
+     * donne de vive voix.
+     */
+    const jeton = String(formData.get("invitation") ?? "").trim();
+    if (jeton) {
+      const lecture = await lireInvitation(jeton);
+      // Le motif du refus est repris tel quel : « expirée » et « déjà
+      // utilisée » n'appellent pas la même suite.
+      if (!lecture.valide) return { erreur: `invitation-${lecture.motif}` };
+      proprietaireId = lecture.invitation.proprietaireId;
+      invitationId = lecture.invitation.id;
+    }
+  }
+
+  if (role === "locataire" && !proprietaireId) {
     const code = String(formData.get("codeBien") ?? "")
       .trim()
       .toUpperCase();
-    if (!code) redirect(`${page}?erreur=code`);
+    if (!code) return { erreur: "code" };
 
     // Client d'administration : le futur locataire n'a pas encore de jeton, et
     // n'aura jamais le droit de lire la table `bien` de ce propriétaire.
@@ -122,7 +151,7 @@ export async function signup(formData: FormData) {
       .eq("code", code)
       .maybeSingle();
 
-    if (!bien) redirect(`${page}?erreur=code`);
+    if (!bien) return { erreur: "code" };
     proprietaireId = bien.proprietaire_id;
   }
 
@@ -131,8 +160,8 @@ export async function signup(formData: FormData) {
     password: motDePasse,
   });
 
-  if (erreurCompte) redirect(`${page}?erreur=${codeDeLErreur(erreurCompte)}`);
-  if (!compte.user) redirect(`${page}?erreur=1`);
+  if (erreurCompte) return { erreur: codeDeLErreur(erreurCompte) };
+  if (!compte.user) return { erreur: "1" };
 
   /**
    * Adresse déjà prise : Supabase répond 200 avec un utilisateur FACTICE plutôt
@@ -145,28 +174,38 @@ export async function signup(formData: FormData) {
    * locataire, où cette contrainte n'existe pas, on créait une fiche orpheline
    * rattachée à un compte inexistant.
    */
-  if ((compte.user.identities ?? []).length === 0) redirect(`${page}?erreur=existe`);
+  if ((compte.user.identities ?? []).length === 0) return { erreur: "existe" };
 
   const admin = supabaseAdmin();
   const authUserId = compte.user.id;
 
-  const { error: erreurFiche } =
-    role === "locataire"
-      ? await admin
-          .from("locataire")
-          .insert({ proprietaire_id: proprietaireId!, nom, email, telephone, auth_user_id: authUserId })
-      : await admin.from("proprietaire").insert({
-          nom,
-          email,
-          telephone,
-          auth_user_id: authUserId,
-          plan_id: uuidDuPlan(planDemande(formData)),
-        });
+  let locataireCree: string | null = null;
+  let erreurFiche;
+
+  if (role === "locataire") {
+    // L'identifiant est renvoyé : l'invitation doit savoir qui l'a consommée.
+    const { data, error } = await admin
+      .from("locataire")
+      .insert({ proprietaire_id: proprietaireId!, nom, email, telephone, auth_user_id: authUserId })
+      .select("id")
+      .single();
+    locataireCree = data?.id ?? null;
+    erreurFiche = error;
+  } else {
+    const { error } = await admin.from("proprietaire").insert({
+      nom,
+      email,
+      telephone,
+      auth_user_id: authUserId,
+      plan_id: uuidDuPlan(planDemande(formData)),
+    });
+    erreurFiche = error;
+  }
 
   if (erreurFiche) {
     // Sans fiche, le compte est inutilisable : on ne laisse pas de coquille.
     await admin.auth.admin.deleteUser(authUserId);
-    redirect(`${page}?erreur=1`);
+    return { erreur: "1" };
   }
 
   // La preuve du consentement doit exister avec le compte, pas après coup. Si
@@ -184,7 +223,7 @@ export async function signup(formData: FormData) {
       .delete()
       .eq("auth_user_id", authUserId);
     await admin.auth.admin.deleteUser(authUserId);
-    redirect(`${page}?erreur=1`);
+    return { erreur: "1" };
   }
 
   /**
@@ -196,7 +235,22 @@ export async function signup(formData: FormData) {
    * connexion échouait à son tour, l'adresse n'étant pas confirmée. Le compte
    * était bel et bien créé, mais l'écran donnait à croire le contraire.
    */
-  if (!compte.session) redirect(`${page}?erreur=confirmez`);
+  /**
+   * L'invitation est consommée en dernier, une fois le compte réellement
+   * constitué. La marquer plus tôt l'aurait brûlée pour rien si l'inscription
+   * avait échoué ensuite — et le propriétaire aurait dû en réémettre une.
+   *
+   * L'échec de cette écriture ne fait pas échouer l'inscription : le compte
+   * existe, le refuser serait pire qu'un lien qui resterait utilisable.
+   */
+  if (invitationId) {
+    await admin
+      .from("invitation")
+      .update({ utilisee_le: new Date().toISOString(), locataire_id: locataireCree })
+      .eq("id", invitationId);
+  }
+
+  if (!compte.session) return { erreur: "confirmez" };
 
   // Le propriétaire choisit son palier ; le locataire va droit à son espace.
   redirect(role === "proprietaire" ? "/plans" : "/dashboard");
