@@ -4,9 +4,7 @@
 
 ## Entre
 
-**[À COMPLÉTER]**, personne physique, profession [À COMPLÉTER], titulaire de la
-pièce d'identité (CNI/CIP) n° [À COMPLÉTER], domicilié(e) à [À COMPLÉTER],
-agissant en qualité de responsable du traitement pour la plateforme
+**Xwégán**, agissant en qualité de responsable du traitement pour la plateforme
 Xwégán (ci-après
 « le responsable du traitement »),
 
@@ -61,11 +59,10 @@ Signature : ____________________________
 
 | N° | Nom et prénoms | Fonction | Date | Signature |
 | --- | --- | --- | --- | --- |
-| 1 | [À COMPLÉTER] | Développeur et architecte logiciel — responsable du traitement | | |
-| 2 | YERIMA Thierry | Développeur et architecte logiciel | | |
-| 3 | AGNILA Max | Développeur et architecte logiciel | | |
-| 4 | KORE Ange | Développeur et architecte logiciel | | |
-| 5 | CHOUCHOU Curie | Analyste en sécurité (licence professionnelle en sécurité de l'information) | | |
-| 6 | ANAGONOU Richard | Développeur, architecte logiciel et chargé du marketing | | |
-| 7 | CHABI MOUKA Merythe | Management (licence professionnelle) | | |
-| 8 | TAIROU Wahab | Rôle à définir | | |
+| 1 | YERIMA Thierry | Développeur et architecte logiciel | | |
+| 1 | AGNILA Max | Développeur et architecte logiciel | | |
+| 1 | KORE Ange | Développeur et architecte logiciel | | |
+| 1 | CHOUCHOU Curie | Analyste en sécurité (licence professionnelle en sécurité de l'information) | | |
+| 1 | ANAGONOU Richard | Développeur, architecte logiciel et chargé du marketing | | |
+| 1 | CHABI MOUKA Merythe | Management (licence professionnelle) | | |
+| 1 | TAIROU Wahab | Rôle à définir | | |

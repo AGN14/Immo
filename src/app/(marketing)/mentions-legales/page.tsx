@@ -20,32 +20,16 @@ export default function MentionsLegalesPage() {
           corps: (
             <>
               <p>
-                Xwégán est un projet mené par une équipe de 7 personnes, sans structure juridique
+                Xwégán est un projet mené par une équipe, sans structure juridique
                 constituée à ce jour. Conformément au Code du numérique de la République du Bénin,
-                l&rsquo;éditeur du site est identifié comme suit :
-              </p>
-              <p>
-                [À COMPLÉTER], personne physique, profession [À COMPLÉTER], domicilié(e) à
-                Fidjrosse, C/1776, Maison QUENUM Rogatien, Cotonou, Bénin. Pièce d&rsquo;identité
-                (CNI/CIP) : 1255150718.
+                l&rsquo;éditeur du site est <strong>Xwégán</strong>.
               </p>
               <p>
                 Contact :{" "}
                 <a href="mailto:contact@xwegan.com" className="text-primary font-semibold no-underline">
                   contact@xwegan.com
-                </a>{" "}
-                — [TÉLÉPHONE À COMPLÉTER].
+                </a>
               </p>
-              <p>Membres de l&rsquo;équipe :</p>
-              <ul className="list-disc space-y-1 pl-5">
-                <li>YERIMA Thierry — développeur et architecte logiciel</li>
-                <li>AGNILA Max — développeur et architecte logiciel</li>
-                <li>KORE Ange — développeur et architecte logiciel</li>
-                <li>CHOUCHOU Curie — analyste en sécurité</li>
-                <li>ANAGONOU Richard — développeur, architecte logiciel et chargé du marketing</li>
-                <li>CHABI MOUKA Merythe — management</li>
-                <li>TAIROU Wahab — rôle à définir, chargé du marketing</li>
-              </ul>
             </>
           ),
         },
@@ -53,8 +37,8 @@ export default function MentionsLegalesPage() {
           titre: "Directeur de la publication",
           corps: (
             <p>
-              Le directeur de la publication est [À COMPLÉTER], membre de l&rsquo;équipe
-              Xwégán. Les contenus publiés sur le site engagent leur auteur.
+              Le directeur de la publication est Xwégán. Les contenus publiés sur le site
+              engagent leur auteur.
             </p>
           ),
         },

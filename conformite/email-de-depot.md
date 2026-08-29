@@ -11,16 +11,14 @@
 
 Madame, Monsieur,
 
-Je soussigné [À COMPLÉTER], personne physique, profession [À COMPLÉTER],
-titulaire de la pièce d'identité (CNI/CIP) n° [À COMPLÉTER], domicilié(e) à [À COMPLÉTER],
-téléphone [À COMPLÉTER], vous adresse par la présente
+Je soussigné, au nom de Xwégán, vous adresse par la présente
 ma demande
 de déclaration du traitement de données à caractère personnel mis en œuvre par la plateforme de
 gestion locative **Xwégán** (site web : xwegan.com), conformément aux articles 405 et 407 du
 Code du numérique de la République du Bénin (loi n° 2017-20 du 20 avril 2018) et au règlement
 n° 2018/01/CM/UEMOA.
 
-La plateforme Xwégán est développée par une équipe de 8 personnes, sans structure juridique
+La plateforme Xwégán est développée par une équipe de 7 personnes, sans structure juridique
 constituée à ce jour. Conformément au Code du numérique, je suis désigné(e) responsable du
 traitement à titre individuel ; chacun des membres de l'équipe ayant accès aux données a signé
 un engagement de confidentialité, joint au présent dossier.
@@ -47,11 +45,6 @@ Veuillez trouver ci-joint :
 Dans l'attente de votre récépissé, je vous prie d'agréer, Madame, Monsieur, l'expression de ma
 haute considération.
 
-[À COMPLÉTER]
-
-Téléphone : [À COMPLÉTER]
-
-E-mail : [À COMPLÉTER]
-
+Xwégán — responsable du traitement
 
 Signature : 

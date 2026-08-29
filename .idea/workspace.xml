@@ -3,29 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="beb7b87d-bd07-4bba-9ab7-1ab33ab96b09" name="Changes" comment="fix: real estate pic in landing page">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/next.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/next.config.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/(app)/reversements/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/(app)/reversements/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/(app)/signalements/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/(app)/signalements/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/(app)/signaler/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/(app)/signaler/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/(auth)/connexion/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/(auth)/connexion/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/(auth)/inscription/locataire/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/(auth)/inscription/locataire/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/(auth)/inscription/proprietaire/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/(auth)/inscription/proprietaire/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/(marketing)/a-propos/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/(marketing)/a-propos/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/(marketing)/contact/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/(marketing)/contact/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/dashboard/AppShell.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/dashboard/AppShell.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/marketing/FeatureTracks.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/marketing/FeatureTracks.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/marketing/Footer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/marketing/Footer.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/marketing/Hero.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/marketing/Hero.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/marketing/HowItWorks.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/marketing/HowItWorks.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/marketing/NewsletterForm.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/marketing/NewsletterForm.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/marketing/ProblemSection.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/marketing/ProblemSection.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/marketing/StatsSection.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/marketing/StatsSection.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/marketing/Testimonials.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/marketing/Testimonials.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/auth/actions.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/auth/actions.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/supabase/types.generated.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/supabase/types.generated.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/types.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,11 +33,10 @@
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
     &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
     &quot;js.debugger.nextJs.config.created.client&quot;: &quot;true&quot;,
     &quot;js.debugger.nextJs.config.created.server&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/lef/Documents/Projets/SaaS/SaaS_immobilier/Immo/src/app&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/lef/Documents/Projets/SaaS/SaaS_immobilier/Immo&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.jshint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -69,7 +45,7 @@
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;/home/lef/Documents/Projets/SaaS/SaaS_immobilier/Immo/node_modules/prettier&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;settings.javascript.runtime&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;/home/lef/Documents/Projets/SaaS/SaaS_immobilier/Immo/node_modules/typescript/lib&quot;
+    &quot;ts.external.directory.path&quot;: &quot;/home/lef/.local/share/JetBrains/Toolbox/apps/webstorm/plugins/javascript-plugin/jsLanguageServicesImpl/external&quot;
   }
 }</component>
   <component name="RecentsManager">
@@ -115,7 +91,10 @@
       <workItem from="1786695634996" duration="408000" />
       <workItem from="1786696052068" duration="41000" />
       <workItem from="1786696123035" duration="17583000" />
-      <workItem from="1786797008042" duration="7365000" />
+      <workItem from="1786797008042" duration="9351000" />
+      <workItem from="1786844478580" duration="254000" />
+      <workItem from="1786845138925" duration="11000" />
+      <workItem from="1788032215907" duration="1065000" />
     </task>
     <task id="LOCAL-00001" summary="fix: add pricing business plan to inscription/proprietaire">
       <option name="closed" value="true" />
