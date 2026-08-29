@@ -14,28 +14,12 @@ Date de remplissage : 15 août 2026
 - Quand l'entreprise sera créée (si le MVP prend), il suffira d'une **nouvelle déclaration** ou
   d'une **mise à jour** du dossier avec la raison sociale, le RCCM et l'IFU.
 
-## Identité de la personne physique (responsable du traitement)
-
-| Champ                         | Valeur                                             |
-|-------------------------------|----------------------------------------------------|
-| Nom                           | BOUDZOUMOU                                         |
-| Prénoms                       | Florent Junior                                     |
-| Profession                    | Étudiant                                           |
-| Nationalité                   | Congolaise                                         |
-| Pièce d'identité (CNI/CIP) n° | 1255150718                                         |
-| Adresse à Cotonou             | Fidjrosse, C/1776, Maison QUENUM Rogatien, Cotonou |
-| Téléphone                     | +229 01 41 78 92 03                                |
-| E-mail personnel              | `florentboudz@gmail.com` (déjà défini)             |
-| E-mail contact                | `contact@xwegan.com` (déjà défini)                 |
-| E-mail support                | `support@xwegan.com` (déjà défini)                 |
-| E-mail DPO                    | `dpo@xwegan.com` (déjà défini)                     |
-
-## Équipe (8 membres — à mentionner dans le dossier)
+## Équipe (7 membres — à mentionner dans le dossier)
 
 | Champ | Valeur |
 | --- | --- |
-| Nombre de membres de l'équipe | **8** |
-| Membres ayant accès aux données (signent l'engagement de confidentialité) | 1. BOUDZOUMOU Florent Junior (développeur et architecte logiciel) — **désigné responsable du traitement** ; 2. YERIMA Thierry (développeur et architecte logiciel) ; 3. AGNILA Max (développeur et architecte logiciel) ; 4. KORE Ange (développeur et architecte logiciel) ; 5. CHOUCHOU Curie (analyste en sécurité — licence professionnelle en sécurité de l'information) ; 6. ANAGONOU Richard (développeur, architecte logiciel et chargé du marketing) ; 7. CHABI MOUKA Merythe (management — licence professionnelle) ; 8. TAIROU Wahab (rôle à définir) |
+| Nombre de membres de l'équipe | **7** |
+| Membres ayant accès aux données (signent l'engagement de confidentialité) | 1. YERIMA Thierry (développeur et architecte logiciel) ; 2. AGNILA Max (développeur et architecte logiciel) ; 3. KORE Ange (développeur et architecte logiciel) ; 4. CHOUCHOU Curie (analyste en sécurité — licence professionnelle en sécurité de l'information) ; 5. ANAGONOU Richard (développeur, architecte logiciel et chargé du marketing) ; 6. CHABI MOUKA Merythe (management — licence professionnelle) ; 7. TAIROU Wahab (rôle à définir) |
 | Diplômes | **Tous les membres sont titulaires d'une licence professionnelle** |
 | DPO | **CHOUCHOU Curie**, analyste en sécurité (licence professionnelle en sécurité de l'information) — dpo@xwegan.com |
 

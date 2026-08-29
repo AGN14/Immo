@@ -4,9 +4,9 @@
 
 ## Entre
 
-**BOUDZOUMOU Florent Junior**, personne physique, profession Étudiant, titulaire de la
-pièce d'identité (CNI/CIP) n° 1255150718, domicilié(e) à Fidjrosse, C/1776, Maison QUENUM
-Rogatien, Cotonou, Bénin, agissant en qualité de responsable du traitement pour la plateforme
+**[À COMPLÉTER]**, personne physique, profession [À COMPLÉTER], titulaire de la
+pièce d'identité (CNI/CIP) n° [À COMPLÉTER], domicilié(e) à [À COMPLÉTER],
+agissant en qualité de responsable du traitement pour la plateforme
 Xwégán (ci-après
 « le responsable du traitement »),
 
@@ -61,7 +61,7 @@ Signature : ____________________________
 
 | N° | Nom et prénoms | Fonction | Date | Signature |
 | --- | --- | --- | --- | --- |
-| 1 | BOUDZOUMOU Florent Junior | Développeur et architecte logiciel — responsable du traitement | | |
+| 1 | [À COMPLÉTER] | Développeur et architecte logiciel — responsable du traitement | | |
 | 2 | YERIMA Thierry | Développeur et architecte logiciel | | |
 | 3 | AGNILA Max | Développeur et architecte logiciel | | |
 | 4 | KORE Ange | Développeur et architecte logiciel | | |

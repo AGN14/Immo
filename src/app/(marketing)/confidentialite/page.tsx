@@ -19,7 +19,7 @@ export default function ConfidentialitePage() {
           titre: "Responsable du traitement",
           corps: (
             <p>
-              Le responsable du traitement est Xwégán, représenté par BOUDZOUMOU Florent Junior.
+              Le responsable du traitement est Xwégán, représenté par [À COMPLÉTER].
               Pour toute question sur la protection des données, écrivez à{" "}
               <a href="mailto:contact@xwegan.com" className="text-primary font-semibold no-underline">
                 contact@xwegan.com

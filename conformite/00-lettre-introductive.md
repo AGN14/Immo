@@ -14,9 +14,9 @@ Madame, Monsieur le Président,
 
 Conformément aux dispositions de la loi n° 2017-20 du 20 avril 2018 portant Code du numérique
 en République du Bénin (articles 405, 407 et 409) et du règlement n° 2018/01/CM/UEMOA relatif à
-la protection des données à caractère personnel, je soussigné(e) BOUDZOUMOU Florent Junior,
-profession Etudiant, nationalité Congolaise, titulaire de la pièce d'identité (CNI/CIP)
-n° 1255150718, domicilié(e) à Fidjrosse C/1776 Maison QUENUM Rogatien Cotonou, BENIN, ai l'honneur de vous
+la protection des données à caractère personnel, je soussigné(e) [À COMPLÉTER],
+profession [À COMPLÉTER], nationalité [À COMPLÉTER], titulaire de la pièce d'identité (CNI/CIP)
+n° [À COMPLÉTER], domicilié(e) à [À COMPLÉTER], ai l'honneur de vous
 soumettre la présente demande de déclaration du traitement de données à caractère personnel mis
 en œuvre dans le cadre de la plateforme de gestion locative Xwégán, en qualité de responsable du
 traitement à titre individuel.
@@ -45,8 +45,8 @@ Vous trouverez ci-joint le dossier complet comprenant :
 Je reste à votre entière disposition pour toute information complémentaire et vous prie
 d'agréer, Madame, Monsieur le Président, l'expression de ma haute considération.
 
-BOUDZOUMOU Florent Junior
+[À COMPLÉTER]
 Personne physique — responsable du traitement
-Téléphone : 0141789203
-E-mail : florentboudz@gmail.com
-Signature : FlorentDev
+Téléphone : [À COMPLÉTER]
+E-mail : [À COMPLÉTER]
+Signature : [À COMPLÉTER]

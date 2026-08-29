@@ -45,7 +45,6 @@ CSS_COMPLETER = """
 """
 
 MEMBRES = [
-    ("BOUDZOUMOU Florent Junior", "Développeur et architecte logiciel — responsable du traitement"),
     ("YERIMA Thierry", "Développeur et architecte logiciel"),
     ("AGNILA Max", "Développeur et architecte logiciel"),
     ("KORE Ange", "Développeur et architecte logiciel"),

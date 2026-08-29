@@ -11,9 +11,9 @@
 
 Madame, Monsieur,
 
-Je soussigné BOUDZOUMOU Florent Junior, personne physique, profession Étudiant,
-titulaire de la pièce d'identité (CNI/CIP) n° 1255150718, domicilié(e) à Fidjrosse, C/1776,
-Maison QUENUM Rogatien, Cotonou, Bénin, téléphone 0141789203, vous adresse par la présente
+Je soussigné [À COMPLÉTER], personne physique, profession [À COMPLÉTER],
+titulaire de la pièce d'identité (CNI/CIP) n° [À COMPLÉTER], domicilié(e) à [À COMPLÉTER],
+téléphone [À COMPLÉTER], vous adresse par la présente
 ma demande
 de déclaration du traitement de données à caractère personnel mis en œuvre par la plateforme de
 gestion locative **Xwégán** (site web : xwegan.com), conformément aux articles 405 et 407 du
@@ -47,11 +47,11 @@ Veuillez trouver ci-joint :
 Dans l'attente de votre récépissé, je vous prie d'agréer, Madame, Monsieur, l'expression de ma
 haute considération.
 
-BOUDZOUMOU Florent Junior
+[À COMPLÉTER]
 
-Téléphone : 0141789203
+Téléphone : [À COMPLÉTER]
 
-E-mail : florentboudz@gmail.com
+E-mail : [À COMPLÉTER]
 
 
 Signature : 

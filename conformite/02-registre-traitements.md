@@ -3,9 +3,8 @@
 Tenue conformément à l'article 435 de la loi n° 2017-20 du 20 avril 2018 portant Code du
 numérique en République du Bénin.
 
-**Responsable de traitement :** BOUDZOUMOU Florent Junior, personne physique — Fidjrosse,
-C/1776, Maison QUENUM Rogatien, Cotonou, Bénin
-**Contexte :** projet Xwégán développé par une équipe de 8 personnes, sans structure juridique
+**Responsable de traitement :** [À COMPLÉTER — nom et adresse du responsable du traitement]
+**Contexte :** projet Xwégán développé par une équipe de 7 personnes, sans structure juridique
 constituée à ce jour ; le responsable du traitement est désigné à titre individuel.
 **DPO :** CHOUCHOU Curie — dpo@xwegan.com
 **Dernière mise à jour :** ______________________

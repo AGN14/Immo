@@ -20,12 +20,12 @@ export default function MentionsLegalesPage() {
           corps: (
             <>
               <p>
-                Xwégán est un projet mené par une équipe de 8 personnes, sans structure juridique
+                Xwégán est un projet mené par une équipe de 7 personnes, sans structure juridique
                 constituée à ce jour. Conformément au Code du numérique de la République du Bénin,
                 l&rsquo;éditeur du site est identifié comme suit :
               </p>
               <p>
-                BOUDZOUMOU Florent Junior, personne physique, profession Étudiant, domicilié(e) à
+                [À COMPLÉTER], personne physique, profession [À COMPLÉTER], domicilié(e) à
                 Fidjrosse, C/1776, Maison QUENUM Rogatien, Cotonou, Bénin. Pièce d&rsquo;identité
                 (CNI/CIP) : 1255150718.
               </p>
@@ -38,7 +38,6 @@ export default function MentionsLegalesPage() {
               </p>
               <p>Membres de l&rsquo;équipe :</p>
               <ul className="list-disc space-y-1 pl-5">
-                <li>BOUDZOUMOU Florent Junior — développeur et architecte logiciel</li>
                 <li>YERIMA Thierry — développeur et architecte logiciel</li>
                 <li>AGNILA Max — développeur et architecte logiciel</li>
                 <li>KORE Ange — développeur et architecte logiciel</li>
@@ -54,7 +53,7 @@ export default function MentionsLegalesPage() {
           titre: "Directeur de la publication",
           corps: (
             <p>
-              Le directeur de la publication est BOUDZOUMOU Florent Junior, membre de l&rsquo;équipe
+              Le directeur de la publication est [À COMPLÉTER], membre de l&rsquo;équipe
               Xwégán. Les contenus publiés sur le site engagent leur auteur.
             </p>
           ),
