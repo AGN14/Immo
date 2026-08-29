@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { useCompteur } from "@/components/ui/useCompteur";
-import PlaceAmazone_immo from "@/assets/PlaceAmazone_immo.png";
+import XWEGAN_hero from "@/assets/XWEGAN_hero.jpeg";
 
 const confiance = [
   { cible: 0, suffixe: "F", libelle: "accès locataire, à vie" },
@@ -60,8 +60,8 @@ export function Hero() {
           <div className="relative">
             <div className="border-line bg-surface relative aspect-[4/3] w-full overflow-hidden rounded-lg border shadow-md">
               <Image
-                src={PlaceAmazone_immo}
-                alt="Place de l'Amazone, Cotonou"
+                src={XWEGAN_hero}
+                alt="Xwégán — gestion locative au Bénin"
                 fill
                 className="object-cover"
                 priority
