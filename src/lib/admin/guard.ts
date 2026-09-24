@@ -10,8 +10,10 @@
  * ce fichier ne quitte jamais le serveur.
  */
 import "server-only";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
+import { hoteAdminAutorise } from "@/lib/admin/host";
 
 function lireEmailsAdmin(): string[] {
   return (process.env.ADMIN_EMAILS ?? "")
@@ -34,6 +36,14 @@ export async function requireAdmin() {
 
 /** Routes /api/admin/* : même règle, mais en 401/403 JSON plutôt qu'en redirection. */
 export async function verifierAdminApi(): Promise<{ ok: true; email: string } | Response> {
+  // Seconde barrière derrière le proxy : l'API n'existe que sur le
+  // sous-domaine admin (ou en local). Réponse 404, comme pour les pages.
+  const enTetes = await headers();
+  const hoteDemande = enTetes.get("x-forwarded-host") ?? enTetes.get("host");
+  if (!hoteAdminAutorise(hoteDemande, process.env.ADMIN_HOST)) {
+    return Response.json({ erreur: "Introuvable." }, { status: 404 });
+  }
+
   const session = await getSession();
   if (!session) {
     return Response.json({ erreur: "Non authentifié." }, { status: 401 });

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { hoteAdminAutorise } from "@/lib/admin/host";
 
 /**
  * Rafraîchissement de session et redirections d'authentification.
@@ -73,6 +74,19 @@ export async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
+
+  // L'admin n'existe que sur son sous-domaine : ailleurs, 404 sec plutôt
+  // qu'une redirection qui avouerait l'existence de la page. Vérifié avant
+  // l'authentification — un visiteur non connecté n'apprend rien.
+  if (correspond(pathname, ["/admin", "/api/admin"])) {
+    const hoteDemande =
+      request.headers.get("x-forwarded-host") ??
+      request.headers.get("host") ??
+      request.nextUrl.host;
+    if (!hoteAdminAutorise(hoteDemande, process.env.ADMIN_HOST)) {
+      return new NextResponse("Introuvable.", { status: 404 });
+    }
+  }
 
   if (!user && correspond(pathname, ESPACES_PROTEGES)) {
     return NextResponse.redirect(new URL("/connexion", request.url));
