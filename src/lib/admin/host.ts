@@ -48,3 +48,17 @@ export function hoteAdminAutorise(
   const hote = normaliserHote(hoteDemande);
   return hote === admin || hoteEstLocal(hote);
 }
+
+/**
+ * Demande adressée au sous-domaine admin lui-même (comparaison stricte, sans
+ * la tolérance locale) : sert à rabattre ses points d'entrée publics vers
+ * l'espace admin plutôt que vers le site public.
+ */
+export function estSurHoteAdmin(
+  hoteDemande: string | null | undefined,
+  hoteAdmin: string | null | undefined,
+): boolean {
+  const admin = (hoteAdmin ?? "").trim().toLowerCase();
+  if (!admin) return false;
+  return normaliserHote(hoteDemande) === admin;
+}
