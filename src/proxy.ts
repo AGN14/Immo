@@ -17,6 +17,7 @@ import { createServerClient } from "@supabase/ssr";
 
 /** Les espaces qui exigent une session. Le reste est public. */
 const ESPACES_PROTEGES = [
+  "/admin",
   "/dashboard",
   "/biens",
   "/locataires",
