@@ -9,6 +9,11 @@ const nextConfig: NextConfig = {
   // Les erreurs de compilation et d'exécution restent affichées.
   devIndicators: false,
 
+  // Sortie autonomome pour le Dockerfile (option Render / VPS sans Node) :
+  // `next start` continue de fonctionner partout ailleurs, et Vercel ignore
+  // ce réglage. Sans lui, `server.js` n'existe pas et l'image ne démarre pas.
+  output: "standalone",
+
   /**
    * Hôtes autorisés à charger les ressources de développement (chunks, HMR).
    *

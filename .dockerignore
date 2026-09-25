@@ -1,0 +1,10 @@
+# Rien de secret ni de reconstruisible dans l'image.
+.git
+.gitignore
+.next
+node_modules
+.env*
+!.env.example
+.vercel
+*.log
+coverage
