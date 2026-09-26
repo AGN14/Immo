@@ -77,8 +77,8 @@ export default function ConfidentialitePage() {
             <>
               <p>
                 L&rsquo;infrastructure est hébergée par Supabase (supabase.com), qui fournit la base de
-                données, l&rsquo;authentification et le stockage des photos. Les paiements sont traités
-                par KKiaPay (kkiapay.com).
+                données, l&rsquo;authentification et le stockage des photos.                 Les paiements sont traités
+                par GeniusPay (geniuspay.ci).
               </p>
               <p>
                 Ces sous-traitants peuvent stocker des données dans une région située hors du Bénin.

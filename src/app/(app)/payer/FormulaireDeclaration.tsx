@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import { declarerVersement } from "@/lib/actions/loyers";
 import type { EtatAction } from "@/lib/actions/biens";
-import { BoutonKkiapay } from "@/app/(app)/payer/BoutonKkiapay";
+import { BoutonGeniusPay } from "@/app/(app)/payer/BoutonGeniusPay";
 
 const etatInitial: EtatAction = { ok: false };
 
@@ -30,8 +30,7 @@ export function FormulaireDeclaration({
   loyerMensuelFcfa,
   moisDue,
   penalites,
-  kkiapay,
-  nomLocataire,
+  geniuspay,
   nomProprietaire,
 }: {
   loyerMensuelFcfa: number;
@@ -39,8 +38,10 @@ export function FormulaireDeclaration({
   moisDue: string[];
   /** L'amende encourue par mois, indexée par période. */
   penalites: Record<string, number>;
-  kkiapay?: { clePublique: string; bacASable: boolean };
-  nomLocataire: string;
+  /** Absent tant que les clés ne sont pas configurées : le paiement en ligne
+   *  disparaît alors proprement, la déclaration manuelle reste. Plus aucune
+   *  clé côté navigateur : le checkout est initié par le serveur. */
+  geniuspay?: { bacASable: boolean };
   /** Nommer le bailleur vaut mieux qu'un « votre propriétaire » impersonnel :
    *  le locataire sait qui doit confirmer, et à qui s'adresser. */
   nomProprietaire: string;
@@ -135,13 +136,11 @@ export function FormulaireDeclaration({
         </p>
       </div>
 
-      {kkiapay && (
-        <BoutonKkiapay
+      {geniuspay && (
+        <BoutonGeniusPay
           montantFcfa={montant}
           mois={choisis}
-          clePublique={kkiapay.clePublique}
-          bacASable={kkiapay.bacASable}
-          nomLocataire={nomLocataire}
+          bacASable={geniuspay.bacASable}
         />
       )}
 

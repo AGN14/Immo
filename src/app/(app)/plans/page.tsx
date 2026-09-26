@@ -2,7 +2,7 @@ import { requireProprietaire } from "@/lib/auth/session";
 import { choisirPlan } from "@/lib/actions/plans";
 import { getProprietaireById } from "@/lib/data";
 import { supabaseUtilisateur } from "@/lib/supabase/utilisateur";
-import { kkiapayConfigure } from "@/lib/paiement/kkiapay";
+import { geniuspayConfigure } from "@/lib/paiement/geniuspay";
 import { BoutonPalier, PaiementAbonnement } from "@/app/(app)/plans/PaiementAbonnement";
 import { MessagePalier } from "@/app/(app)/plans/MessagePalier";
 import type { PlanId } from "@/lib/plans";
@@ -52,12 +52,10 @@ export default async function PlansPage({
   const expireLe = proprietaire?.planExpireLe;
   const periodeEnCours = expireLe ? new Date(expireLe) > new Date() : false;
 
-  const kkiapay = kkiapayConfigure()
-    ? {
-        clePublique: process.env.NEXT_PUBLIC_KKIAPAY_PUBLIC_KEY!,
-        bacASable: process.env.NEXT_PUBLIC_KKIAPAY_SANDBOX !== "false",
-      }
-    : undefined;
+  // Plus aucune clé côté navigateur : le checkout est initié par le serveur.
+  // Absent tant que les clés ne sont pas configurées : les paliers payants
+  // affichent alors « indisponible », le gratuit reste choisissable.
+  const paiementEnLigne = geniuspayConfigure();
 
   const { data } = await supabaseUtilisateur()
     .from("plan")
@@ -69,14 +67,9 @@ export default async function PlansPage({
   const plans = (data ?? []) as LignePlan[];
 
   return (
-    /* Un seul fournisseur pour toute la page : le SDK KKiaPay ne garde qu'un
-       écouteur de succès, et l'état du paiement ne peut donc pas vivre dans
-       les cartes. Sans clé, il rend ses enfants tels quels. */
-    <PaiementAbonnement
-      clePublique={kkiapay?.clePublique}
-      bacASable={kkiapay?.bacASable ?? true}
-      nomProprietaire={session.nom}
-    >
+    /* Un seul état de chargement pour toute la page. Sans clés, le
+       fournisseur rend ses enfants tels quels. */
+    <PaiementAbonnement configure={paiementEnLigne}>
       <div>
         <div className="max-w-[42em]">
           <h1 className="font-display text-ink text-3xl font-semibold">
@@ -182,7 +175,7 @@ export default async function PlansPage({
                   >
                     Aller au tableau de bord
                   </a>
-                ) : plan.prix_fcfa > 0 && kkiapay ? (
+                ) : plan.prix_fcfa > 0 && paiementEnLigne ? (
                   /* Palier payant : il passe par un paiement vérifié. La porte
                    du formulaire simple est fermée — elle donnait Business
                    gratuitement à qui savait poster le bon champ. */

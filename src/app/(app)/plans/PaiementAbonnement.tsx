@@ -1,24 +1,18 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
-import Script from "next/script";
-import { useRouter } from "next/navigation";
-import { souscrireAbonnement } from "@/lib/actions/abonnement";
+import { createContext, useCallback, useContext, useState } from "react";
+import { initierAbonnementEnLigne } from "@/lib/actions/abonnement";
 import { PLANS, type PlanId } from "@/lib/plans";
-import type { ReponseKkiapay } from "@/app/(app)/payer/BoutonKkiapay";
 
 /**
- * Un seul propriétaire pour le paiement d'abonnement de toute la page.
+ * Paiement d'abonnement par GeniusPay.
  *
- * Le SDK KKiaPay ne garde qu'UN écouteur de succès : chaque
- * `addSuccessListener` remplace le précédent. Trois boutons qui s'enregistrent
- * chacun, c'est deux écouteurs perdus — et l'état (chargement, erreur) qui
- * s'affiche sur la carte du dernier inscrit plutôt que sur celle qu'on a
- * cliquée. C'est précisément ce qui s'est produit : paiement du palier Pro,
- * message d'échec sur la carte Business.
+ * Pas de widget ni d'écouteur global : un clic demande au serveur de créer le
+ * paiement, puis le navigateur part sur la page de checkout. Au retour,
+ * `/plans/confirmation` vérifie et active le palier.
  *
- * L'écouteur, l'état et le message vivent donc ici, une seule fois. Les boutons
- * ne font plus qu'ouvrir le widget.
+ * Le contexte ne sert plus qu'à partager l'état de chargement entre les
+ * cartes — plus aucun SDK à apprivoiser.
  */
 
 type Contexte = {
@@ -37,84 +31,38 @@ export function usePaiementAbonnement() {
 }
 
 export function PaiementAbonnement({
-  clePublique,
-  bacASable,
-  nomProprietaire,
+  configure,
   children,
 }: {
-  /** Absente si l'intégration n'est pas configurée : la page se rend alors
+  /** Faux tant que les clés ne sont pas renseignées : la page se rend alors
    *  telle quelle, sans paiement en ligne. */
-  clePublique?: string;
-  bacASable: boolean;
-  nomProprietaire: string;
+  configure: boolean;
   children: React.ReactNode;
 }) {
-  const router = useRouter();
-  const [pret, setPret] = useState(false);
   const [encours, setEncours] = useState<PlanId | null>(null);
   const [erreur, setErreur] = useState<string | null>(null);
-  const [vise, setVise] = useState<PlanId | null>(null);
-
-  useEffect(() => {
-    if (!pret || !window.addSuccessListener) return;
-
-    window.addSuccessListener(async (reponse: ReponseKkiapay) => {
-      if (!vise) return;
-
-      // Le SDK ne documente pas le nom de ce champ et l'a déjà changé : on
-      // accepte les variantes plausibles plutôt que d'en figer une seule.
-      const reference =
-        reponse.transactionId ?? reponse.transaction_id ?? reponse.id ?? reponse.reference;
-
-      if (!reference) {
-        setErreur(
-          "Paiement encaissé, mais l'opérateur n'a pas renvoyé de référence exploitable. Contactez le support.",
-        );
-        return;
-      }
-
-      setEncours(vise);
-      setErreur(null);
-      const etat = await souscrireAbonnement(String(reference), vise);
-      setEncours(null);
-
-      if (etat.ok) {
-        router.push("/dashboard");
-        router.refresh();
-      } else {
-        setErreur(`${etat.erreur ?? "Enregistrement impossible."} Référence : ${reference}.`);
-      }
-    });
-
-    window.addFailedListener?.(() => {
-      setErreur("Le paiement n'a pas abouti. Aucun montant n'a été débité.");
-    });
-  }, [pret, vise, router]);
 
   const ouvrir = useCallback(
     (plan: PlanId) => {
-      if (!clePublique) return;
+      if (!configure || encours !== null) return;
       setErreur(null);
-      setVise(plan);
-      window.openKkiapayWidget?.({
-        amount: PLANS[plan].prixFcfa,
-        key: clePublique,
-        sandbox: bacASable,
-        position: "center",
-        theme: "#1f6f5c",
-        name: nomProprietaire,
-        data: JSON.stringify({ plan }),
+      setEncours(plan);
+      initierAbonnementEnLigne(plan).then((etat) => {
+        if (!etat.ok || !etat.checkoutUrl) {
+          setEncours(null);
+          setErreur(etat.erreur ?? "Paiement non initié. Réessayez dans un instant.");
+          return;
+        }
+        // On garde l'indicateur jusqu'au départ : le retour se fera sur une
+        // autre page, qui portera sa propre confirmation.
+        window.location.href = etat.checkoutUrl;
       });
     },
-    [clePublique, bacASable, nomProprietaire],
+    [configure, encours],
   );
 
   return (
-    <ContextePaiement.Provider value={{ ouvrir, pret: pret && Boolean(clePublique), encours }}>
-      {clePublique && (
-        <Script src="https://cdn.kkiapay.me/k.js" onReady={() => setPret(true)} />
-      )}
-
+    <ContextePaiement.Provider value={{ ouvrir, pret: configure, encours }}>
       {/* Le message est au niveau de la page, pas d'une carte : il concerne le
           paiement, pas un palier en particulier. */}
       {erreur && (
@@ -153,7 +101,7 @@ export function BoutonPalier({
             : "border-line text-ink hover:border-ink-3 border"
         }`}
       >
-        {actif ? "Activation…" : libelle}
+        {actif ? "Redirection vers le paiement…" : libelle}
       </button>
       <p className="text-ink-3 mt-2 text-center text-xs">
         {PLANS[plan].prixFcfa.toLocaleString("fr-FR")} F pour 30 jours, sans reconduction

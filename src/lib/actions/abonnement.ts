@@ -4,11 +4,89 @@ import { revalidatePath } from "next/cache";
 import { requireProprietaire } from "@/lib/auth/session";
 import { supabaseServer } from "@/lib/supabase/server";
 import { PLANS, uuidDuPlan, type PlanId } from "@/lib/plans";
-import { verifierTransaction } from "@/lib/paiement/kkiapay";
+import {
+  creerPaiement,
+  listerPaiements,
+  originePaiement,
+  verifierTransaction,
+} from "@/lib/paiement/geniuspay";
 import type { EtatAction } from "@/lib/actions/biens";
 
 /** Un mois d'abonnement. Payé d'avance, sans reconduction automatique. */
 const DUREE_JOURS = 30;
+
+/**
+ * Crée le paiement GeniusPay d'un palier et rend l'URL de checkout.
+ *
+ * Le prix est relu depuis `PLANS`, jamais reçu du client — sans quoi on
+ * s'offrirait Business pour un franc. Le plan voyage dans l'URL de retour
+ * (connu avant la création) et dans les metadata ; la référence, elle, est
+ * retrouvée au retour par recherche du dernier paiement non consommé.
+ */
+export async function initierAbonnementEnLigne(
+  plan: PlanId,
+): Promise<{ ok: boolean; checkoutUrl?: string; erreur?: string }> {
+  const session = await requireProprietaire();
+
+  const palier = PLANS[plan];
+  if (!palier) return { ok: false, erreur: "Palier inconnu." };
+  if (palier.prixFcfa <= 0) {
+    return { ok: false, erreur: "Ce palier est gratuit : aucun paiement n'est attendu." };
+  }
+
+  const origine = await originePaiement();
+  const creation = await creerPaiement({
+    montantFcfa: palier.prixFcfa,
+    description: `Abonnement ${palier.nom} — 30 jours`.slice(0, 500),
+    client: { nom: session.nom, email: session.email },
+    metadata: { contexte: "abonnement", proprietaire_id: session.proprietaireId, plan },
+    successUrl: `${origine}/plans/confirmation?plan=${plan}`,
+    errorUrl: `${origine}/plans/confirmation?plan=${plan}`,
+  });
+  if (!creation.ok || !creation.checkoutUrl) {
+    return { ok: false, erreur: creation.erreur ?? "Paiement non initié." };
+  }
+  return { ok: true, checkoutUrl: creation.checkoutUrl };
+}
+
+/**
+ * Retrouve au retour du checkout le paiement à enregistrer.
+ *
+ * La référence n'est ni dans l'URL ni crue depuis le navigateur : on reprend
+ * les derniers paiements `completed` au nom du propriétaire et on retient le
+ * plus récent dont la référence n'a encore prolongé aucun abonnement, d'un
+ * montant suffisant et de moins de deux heures. Un rejeu de l'URL ne trouve
+ * rien à consommer deux fois.
+ */
+export async function retrouverPaiementAbonnement(
+  plan: PlanId,
+): Promise<{ ok: boolean; reference?: string; erreur?: string }> {
+  const session = await requireProprietaire();
+  const palier = PLANS[plan];
+  if (!palier || palier.prixFcfa <= 0) return { ok: false, erreur: "Palier inconnu." };
+
+  const sb = supabaseServer();
+  const { data: consommes } = await sb
+    .from("abonnement")
+    .select("reference_externe")
+    .eq("proprietaire_id", session.proprietaireId);
+  const dejaVues = new Set((consommes ?? []).map((a) => a.reference_externe));
+
+  const deuxHeures = Date.now() - 2 * 60 * 60 * 1000;
+  const candidats = await listerPaiements({
+    statut: "completed",
+    recherche: session.email,
+    parPage: 20,
+  });
+  const paiement = candidats.find(
+    (p) =>
+      !dejaVues.has(p.reference) &&
+      p.montantFcfa >= palier.prixFcfa &&
+      (!p.creeLe || new Date(p.creeLe).getTime() >= deuxHeures),
+  );
+  if (!paiement) return { ok: false, erreur: "Aucun paiement abouti à enregistrer." };
+  return { ok: true, reference: paiement.reference };
+}
 
 /**
  * Souscription à un palier payant.

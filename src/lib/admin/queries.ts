@@ -554,7 +554,7 @@ export async function getAdminCompteDetail(id: string): Promise<AdminCompteDetai
  * Tracer un geste commercial dans `abonnement` plutôt que nulle part.
  *
  * La table n'a pas de colonne « origine » : la référence `geste-admin-*`
- * distingue ces lignes des vrais paiements KkiaPay. Montant 0, donc aucun
+ * distingue ces lignes des vrais paiements GeniusPay. Montant 0, donc aucun
  * impact sur le total encaissé, le MRR ou la conversion — et `un geste reste
  * visible dans l'historique de la fiche compte.
  */

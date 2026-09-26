@@ -6,7 +6,7 @@ import {
   getVersementsDuLocataire,
 } from "@/lib/data";
 import { moisAPayer, penaliteDuMois, soldeDu } from "@/lib/echeances";
-import { kkiapayConfigure } from "@/lib/paiement/kkiapay";
+import { geniuspayBacASable, geniuspayConfigure } from "@/lib/paiement/geniuspay";
 import { FormulaireDeclaration } from "@/app/(app)/payer/FormulaireDeclaration";
 
 export default async function PayerPage() {
@@ -79,18 +79,10 @@ export default async function PayerPage() {
           loyerMensuelFcfa={bail.loyerMensuelFcfa}
           moisDue={moisDue}
           penalites={penalites}
-          nomLocataire={session.nom}
           nomProprietaire={proprietaire.nom}
           // Absent tant que les clés ne sont pas configurées : le paiement en
           // ligne disparaît alors proprement, la déclaration manuelle reste.
-          kkiapay={
-            kkiapayConfigure()
-              ? {
-                  clePublique: process.env.NEXT_PUBLIC_KKIAPAY_PUBLIC_KEY!,
-                  bacASable: process.env.NEXT_PUBLIC_KKIAPAY_SANDBOX !== "false",
-                }
-              : undefined
-          }
+          geniuspay={geniuspayConfigure() ? { bacASable: geniuspayBacASable() } : undefined}
         />
       </div>
     </div>
