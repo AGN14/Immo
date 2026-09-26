@@ -25,12 +25,13 @@ RUN npm ci
 # figés dans le JS servi au navigateur. Les autres variables (clé de service,
 # ADMIN_*, KKIAPAY_*) sont lues à l'exécution et peuvent arriver plus tard.
 FROM base AS construction
+# DOCKER_BUILD=1 active la sortie standalone (voir next.config.ts) : Vercel
+# et `next start` restent sur la sortie standard.
+ARG DOCKER_BUILD=1
 # Valeurs publiques figées au build (`docker build --build-arg ...`). Les
-# secrets (clé de service, ADMIN_*, KKIAPAY_* privés) arrivent à l'exécution.
+# secrets (clé de service, ADMIN_*, GENIUSPAY_* privés) arrivent à l'exécution.
 ARG NEXT_PUBLIC_SUPABASE_URL=""
 ARG NEXT_PUBLIC_SUPABASE_ANON_KEY=""
-ARG NEXT_PUBLIC_KKIAPAY_PUBLIC_KEY=""
-ARG NEXT_PUBLIC_KKIAPAY_SANDBOX=true
 COPY --from=dependances /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
