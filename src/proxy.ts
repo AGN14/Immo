@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { estSurHoteAdmin, hoteAdminAutorise } from "@/lib/admin/host";
+import { utilisateurAvecDelai } from "@/lib/supabase/delai";
 
 /**
  * Rafraîchissement de session et redirections d'authentification.
@@ -68,10 +69,9 @@ export async function proxy(request: NextRequest) {
   );
 
   // Ne rien insérer entre la création du client et cet appel : c'est lui qui
-  // déclenche le renouvellement du jeton.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // déclenche le renouvellement du jeton. Délai plafonné : si Supabase ne
+  // répond plus, on traite comme déconnecté plutôt que de pendre la navigation.
+  const user = await utilisateurAvecDelai(supabase);
 
   const { pathname } = request.nextUrl;
 

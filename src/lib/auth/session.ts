@@ -2,6 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { redirect } from "next/navigation";
 import { supabaseUtilisateur } from "@/lib/supabase/utilisateur";
+import { utilisateurAvecDelai } from "@/lib/supabase/delai";
 import { planDepuisUuid, type PlanId } from "@/lib/plans";
 
 /**
@@ -48,9 +49,9 @@ export type SessionLocataire = Session & { role: "locataire"; locataireId: strin
 export const getSession = cache(async (): Promise<Session | null> => {
   const sb = supabaseUtilisateur();
 
-  const {
-    data: { user },
-  } = await sb.auth.getUser();
+  // Même plafond que le proxy : un Supabase injoignable rend « pas de
+  // session » en quelques secondes plutôt qu'une page qui mouline.
+  const user = await utilisateurAvecDelai(sb);
   if (!user) return null;
 
   const { data: proprietaire } = await sb
