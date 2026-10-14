@@ -11,7 +11,7 @@ export async function POST(
   if (garde instanceof Response) return garde;
   try {
     const corps = (await requete.json()) as { jours?: number };
-    const resultat = await prolongerAbonnementAdmin((await params).id, corps.jours);
+    const resultat = await prolongerAbonnementAdmin((await params).id, corps.jours, garde.email);
     return Response.json({ ok: true, ...resultat });
   } catch (e) {
     return Response.json({ erreur: e instanceof Error ? e.message : "Action impossible." }, { status: 400 });

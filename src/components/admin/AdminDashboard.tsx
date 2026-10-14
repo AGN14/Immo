@@ -27,6 +27,7 @@ import {
   type SortingState,
 } from "@tanstack/react-table";
 import { KPICard } from "@/components/ui/KPICard";
+import { useAllerOnglet, useOngletCourant } from "@/components/admin/AdminShell";
 import {
   Badge,
   formaterDate,
@@ -41,7 +42,10 @@ import {
 import type {
   AdminAbonnement,
   AdminCompte,
+  AdminEvenement,
   AdminOverview,
+  AdminParc,
+  AdminSysteme,
   AdminTransaction,
   AdminTransactionsReponse,
   AlerteCompte,
@@ -885,19 +889,336 @@ function OngletTransactions() {
   );
 }
 
+/* ------------------------------------------------------------------- journal */
+
+const libelleActionAdmin: Record<AdminEvenement["action"], string> = {
+  plan_change: "Changement de plan",
+  prolongation: "Prolongation",
+};
+
+function OngletJournal() {
+  const { data, isPending, isError, refetch } = useQuery({
+    queryKey: ["admin", "journal"],
+    queryFn: () => lireJson<AdminEvenement[]>("/api/admin/journal"),
+  });
+  const [filtre, setFiltre] = useState("tous");
+
+  const filtrees = useMemo(
+    () => (data ?? []).filter((e) => filtre === "tous" || e.action === filtre),
+    [data, filtre],
+  );
+
+  if (isPending) return <p className="text-ink-3 py-10 text-center text-sm">Chargement du journal…</p>;
+  if (isError || !data)
+    return (
+      <div className="py-10 text-center">
+        <p className="text-ink-2 text-sm">Journal indisponible.</p>
+        <button type="button" onClick={() => refetch()} className="text-primary mt-2 text-sm font-semibold">
+          Réessayer
+        </button>
+      </div>
+    );
+
+  return (
+    <div>
+      <div className="flex flex-wrap items-center justify-between gap-2.5">
+        <p className="text-ink-3 text-sm" data-numeric>
+          {filtrees.length} geste{filtrees.length > 1 ? "s" : ""} tracé{filtrees.length > 1 ? "s" : ""}
+        </p>
+        <select
+          value={filtre}
+          onChange={(e) => setFiltre(e.target.value)}
+          className="border-line bg-surface text-ink rounded-md border px-3 py-2 text-sm"
+          aria-label="Filtrer par action"
+        >
+          <option value="tous">Toutes actions</option>
+          <option value="plan_change">Changement de plan</option>
+          <option value="prolongation">Prolongation</option>
+        </select>
+      </div>
+      {filtrees.length === 0 ? (
+        <p className="text-ink-3 py-10 text-center text-sm">
+          Aucun geste manuel pour l&apos;instant — ils apparaîtront ici dès la première
+          prolongation ou changement de plan.
+        </p>
+      ) : (
+        <div className="border-line mt-3 overflow-x-auto rounded-md border">
+          <table className="text-ink-2 w-full min-w-3xl text-left text-sm">
+            <thead className="bg-highlight text-ink-3 text-xs uppercase">
+              <tr>
+                <th className="px-4 py-2.5 font-semibold">Date</th>
+                <th className="px-4 py-2.5 font-semibold">Acteur</th>
+                <th className="px-4 py-2.5 font-semibold">Action</th>
+                <th className="px-4 py-2.5 font-semibold">Compte</th>
+                <th className="px-4 py-2.5 font-semibold">Détail</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtrees.map((e) => (
+                <tr key={e.id} className="border-line border-t">
+                  <td className="px-4 py-2.5 text-sm">{formaterDate(e.creeLe)}</td>
+                  <td className="px-4 py-2.5 text-sm">{e.acteurEmail}</td>
+                  <td className="px-4 py-2.5">
+                    <Badge ton={e.action === "plan_change" ? "primary" : "ambre"}>
+                      {libelleActionAdmin[e.action]}
+                    </Badge>
+                  </td>
+                  <td className="px-4 py-2.5 text-sm">{e.proprietaireEmail}</td>
+                  <td className="px-4 py-2.5 text-sm">{e.resume}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ----------------------------------------------------------------------- parc */
+
+function OngletParc() {
+  const { data, isPending, isError, refetch } = useQuery({
+    queryKey: ["admin", "parc"],
+    queryFn: () => lireJson<AdminParc>("/api/admin/parc"),
+  });
+
+  if (isPending) return <p className="text-ink-3 py-10 text-center text-sm">Chargement du parc…</p>;
+  if (isError || !data)
+    return (
+      <div className="py-10 text-center">
+        <p className="text-ink-2 text-sm">Parc indisponible.</p>
+        <button type="button" onClick={() => refetch()} className="text-primary mt-2 text-sm font-semibold">
+          Réessayer
+        </button>
+      </div>
+    );
+
+  const maxVille = Math.max(...data.villes.map((v) => v.nbBiens), 1);
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <KPICard
+          label="Biens suivis"
+          value={String(data.biens)}
+          caption={`${data.lots} lots au total`}
+          icon={<span aria-hidden="true">◆</span>}
+        />
+        <KPICard
+          label="Occupation"
+          value={`${data.tauxOccupation}%`}
+          caption={`${data.bauxActifs} baux actifs`}
+          icon={<span aria-hidden="true">▲</span>}
+        />
+        <KPICard
+          label="En attente"
+          value={formaterMontant(data.totalEnAttenteFcfa)}
+          caption={`${data.enAttente.length} déclaration${data.enAttente.length > 1 ? "s" : ""} à confirmer`}
+          icon={<span aria-hidden="true">●</span>}
+        />
+        <KPICard
+          label="Signalements ouverts"
+          value={String(data.signalementsOuverts)}
+          caption={Object.entries(data.signalementsParUrgence).map(([u, n]) => `${n} ${u}`).join(" · ") || "Aucun"}
+          icon={<span aria-hidden="true">★</span>}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <section className="border-line bg-surface rounded-md border p-5">
+          <h2 className="font-display text-ink text-xl font-semibold">Villes</h2>
+          <p className="text-ink-3 mt-1 text-sm">Biens par ville, top 10.</p>
+          <ul className="mt-4 space-y-2.5">
+            {data.villes.map((v) => (
+              <li key={v.ville}>
+                <div className="flex items-baseline justify-between gap-2 text-sm">
+                  <span className="text-ink-2">{v.ville}</span>
+                  <span className="text-ink font-semibold" data-numeric>{v.nbBiens}</span>
+                </div>
+                <div className="bg-sand mt-1 h-2 overflow-hidden rounded-full">
+                  <div className="bg-primary h-full rounded-full" style={{ width: `${(v.nbBiens / maxVille) * 100}%` }} />
+                </div>
+              </li>
+            ))}
+            {data.villes.length === 0 && (
+              <li className="text-ink-3 text-sm">Aucun bien pour l&apos;instant.</li>
+            )}
+          </ul>
+        </section>
+
+        <section className="border-line bg-surface rounded-md border p-5">
+          <h2 className="font-display text-ink text-xl font-semibold">Signalements récents</h2>
+          <p className="text-ink-3 mt-1 text-sm">Ouverts, tous parcs confondus.</p>
+          {data.signalementsRecents.length === 0 ? (
+            <p className="text-ink-3 mt-4 text-sm">Aucun signalement ouvert.</p>
+          ) : (
+            <ul className="mt-4 space-y-2.5">
+              {data.signalementsRecents.map((s) => (
+                <li key={s.id} className="flex flex-wrap items-center justify-between gap-2 text-sm">
+                  <span className="text-ink min-w-0 flex-1 truncate font-medium">{s.titre}</span>
+                  <span className="text-ink-3 text-xs">{s.ville} · {formaterDate(s.creeLe)}</span>
+                  <Badge ton={s.urgence === "haute" ? "danger" : s.urgence === "normale" ? "ambre" : "neutre"}>
+                    {s.urgence}
+                  </Badge>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      </div>
+
+      <section className="border-line bg-surface rounded-md border p-5">
+        <h2 className="font-display text-ink text-xl font-semibold">Déclarations en attente</h2>
+        <p className="text-ink-3 mt-1 text-sm">
+          Loyers déclarés que les propriétaires n&apos;ont pas encore confirmés — les plus anciens
+          d&apos;abord. Le badge distingue le paiement en ligne d&apos;une déclaration manuelle.
+        </p>
+        {data.enAttente.length === 0 ? (
+          <p className="text-ink-3 mt-4 text-sm">Rien en attente.</p>
+        ) : (
+          <div className="mt-3 overflow-x-auto">
+            <table className="text-ink-2 w-full min-w-xl text-left text-sm">
+              <thead className="text-ink-3 text-xs uppercase">
+                <tr>
+                  <th className="py-2 pr-4 font-semibold">Depuis le</th>
+                  <th className="py-2 pr-4 font-semibold">Propriétaire</th>
+                  <th className="py-2 pr-4 font-semibold">Montant</th>
+                  <th className="py-2 font-semibold">Canal</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.enAttente.map((v) => (
+                  <tr key={v.id} className="border-line border-t">
+                    <td className="py-2 pr-4">{formaterDate(v.depuisLe)}</td>
+                    <td className="py-2 pr-4">{v.proprietaireEmail}</td>
+                    <td className="py-2 pr-4 font-medium" data-numeric>{formaterMontant(v.montantFcfa)}</td>
+                    <td className="py-2">
+                      <Badge ton={v.enLigne ? "primary" : "neutre"}>
+                        {v.enLigne ? "En ligne" : "Manuel"}
+                      </Badge>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------- systeme */
+
+function LigneSysteme({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex flex-wrap items-baseline justify-between gap-2 py-2.5">
+      <span className="text-ink-3 text-sm">{label}</span>
+      <span className="text-ink text-sm font-medium">{children}</span>
+    </div>
+  );
+}
+
+function OngletSysteme() {
+  const { data, isPending, isError, refetch } = useQuery({
+    queryKey: ["admin", "systeme"],
+    queryFn: () => lireJson<AdminSysteme>("/api/admin/systeme"),
+  });
+
+  if (isPending) return <p className="text-ink-3 py-10 text-center text-sm">Chargement de l&apos;état…</p>;
+  if (isError || !data)
+    return (
+      <div className="py-10 text-center">
+        <p className="text-ink-2 text-sm">État indisponible.</p>
+        <button type="button" onClick={() => refetch()} className="text-primary mt-2 text-sm font-semibold">
+          Réessayer
+        </button>
+      </div>
+    );
+
+  return (
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <section className="border-line bg-surface rounded-md border p-5">
+        <h2 className="font-display text-ink text-xl font-semibold">Base de données</h2>
+        <div className="mt-2 divide-y divide-line-soft">
+          <LigneSysteme label="Latence (aller-retour)">
+            {data.supabaseLatenceMs === null ? (
+              <Badge ton="danger">Injoignable</Badge>
+            ) : (
+              <span data-numeric>{data.supabaseLatenceMs} ms</span>
+            )}
+          </LigneSysteme>
+          <LigneSysteme label="Comptes">
+            <span data-numeric>{data.comptes}</span>
+          </LigneSysteme>
+          <LigneSysteme label="Abonnements">
+            <span data-numeric>{data.abonnements}</span>
+          </LigneSysteme>
+        </div>
+      </section>
+
+      <section className="border-line bg-surface rounded-md border p-5">
+        <h2 className="font-display text-ink text-xl font-semibold">Paiements GeniusPay</h2>
+        <div className="mt-2 divide-y divide-line-soft">
+          <LigneSysteme label="Clés">
+            <span className="text-sm">{data.geniuspayDiagnostic}</span>
+          </LigneSysteme>
+          <LigneSysteme label="Monde">
+            <Badge ton={data.geniuspayBacASable ? "ambre" : "success"}>
+              {data.geniuspayBacASable ? "Bac à sable" : "Production"}
+            </Badge>
+          </LigneSysteme>
+        </div>
+      </section>
+
+      <section className="border-line bg-surface rounded-md border p-5">
+        <h2 className="font-display text-ink text-xl font-semibold">Déploiement</h2>
+        <div className="mt-2 divide-y divide-line-soft">
+          <LigneSysteme label="Version">
+            <span className="font-mono text-xs" data-numeric>{data.deploiement.commit}</span>
+          </LigneSysteme>
+          <LigneSysteme label="Environnement">
+            <span data-numeric>{data.deploiement.environnement}</span>
+          </LigneSysteme>
+          <LigneSysteme label="Hôte admin">
+            <Badge ton={data.deploiement.hoteAdmin === "configuré" ? "success" : "danger"}>
+              {data.deploiement.hoteAdmin}
+            </Badge>
+          </LigneSysteme>
+        </div>
+      </section>
+    </div>
+  );
+}
+
 /* ------------------------------------------------------------------- coquille */
 
-export type OngletAdmin = "overview" | "comptes" | "abonnements" | "transactions";
+export type OngletAdmin =
+  | "overview"
+  | "comptes"
+  | "abonnements"
+  | "transactions"
+  | "parc"
+  | "journal"
+  | "systeme";
 
 const onglets: { id: OngletAdmin; label: string }[] = [
   { id: "overview", label: "Vue d'ensemble" },
   { id: "comptes", label: "Comptes" },
   { id: "abonnements", label: "Abonnements" },
   { id: "transactions", label: "Transactions" },
+  { id: "parc", label: "Parc" },
+  { id: "journal", label: "Journal" },
+  { id: "systeme", label: "Système" },
 ];
 
-function Contenu({ ongletInitial }: { ongletInitial: OngletAdmin }) {
-  const [onglet, setOnglet] = useState<OngletAdmin>(ongletInitial);
+function Contenu() {
+  // L'onglet vit dans l'URL, pas dans un état local : la barre latérale et
+  // ces boutons pilotent la même source — navigation SPA, liens profonds, et
+  // plus aucun onglet qui « ne fait rien ».
+  const onglet = useOngletCourant();
+  const aller = useAllerOnglet();
   const client = useQueryClient();
 
   return (
@@ -921,7 +1242,7 @@ function Contenu({ ongletInitial }: { ongletInitial: OngletAdmin }) {
             type="button"
             role="tab"
             aria-selected={onglet === o.id}
-            onClick={() => setOnglet(o.id)}
+            onClick={() => aller(o.id)}
             className={`-mb-px border-b-2 px-4 py-2.5 text-sm font-medium transition-colors ${
               onglet === o.id
                 ? "border-primary text-ink"
@@ -938,12 +1259,15 @@ function Contenu({ ongletInitial }: { ongletInitial: OngletAdmin }) {
         {onglet === "comptes" && <OngletComptes />}
         {onglet === "abonnements" && <OngletAbonnements />}
         {onglet === "transactions" && <OngletTransactions />}
+        {onglet === "parc" && <OngletParc />}
+        {onglet === "journal" && <OngletJournal />}
+        {onglet === "systeme" && <OngletSysteme />}
       </div>
     </div>
   );
 }
 
-export function AdminDashboard({ ongletInitial = "overview" }: { ongletInitial?: OngletAdmin }) {
+export function AdminDashboard() {
   const [client] = useState(
     () =>
       new QueryClient({
@@ -952,7 +1276,7 @@ export function AdminDashboard({ ongletInitial = "overview" }: { ongletInitial?:
   );
   return (
     <QueryClientProvider client={client}>
-      <Contenu ongletInitial={ongletInitial} />
+      <Contenu />
     </QueryClientProvider>
   );
 }

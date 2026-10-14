@@ -115,6 +115,59 @@ export interface AdminTransactionsReponse {
   bacASable: boolean;
 }
 
+/** Ligne du journal d'audit : un geste manuel, son auteur, sa cible. */
+export interface AdminEvenement {
+  id: string;
+  creeLe: string;
+  acteurEmail: string;
+  action: "plan_change" | "prolongation";
+  proprietaireEmail: string;
+  resume: string;
+}
+
+export interface VilleParc {
+  ville: string;
+  nbBiens: number;
+}
+
+export interface VersementEnAttente {
+  id: string;
+  proprietaireEmail: string;
+  montantFcfa: number;
+  depuisLe: string;
+  enLigne: boolean;
+}
+
+export interface SignalementParc {
+  id: string;
+  titre: string;
+  urgence: string;
+  ville: string;
+  creeLe: string;
+}
+
+export interface AdminParc {
+  biens: number;
+  lots: number;
+  bauxActifs: number;
+  tauxOccupation: number;
+  villes: VilleParc[];
+  enAttente: VersementEnAttente[];
+  totalEnAttenteFcfa: number;
+  signalementsOuverts: number;
+  signalementsParUrgence: Record<string, number>;
+  signalementsRecents: SignalementParc[];
+}
+
+export interface AdminSysteme {
+  supabaseLatenceMs: number | null;
+  comptes: number;
+  abonnements: number;
+  geniuspayDiagnostic: string;
+  geniuspayBacASable: boolean;
+  deploiement: { commit: string; environnement: string; hoteAdmin: string };
+}
+
 export interface DetailLot {
   id: string;
   nom: string;

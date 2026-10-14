@@ -255,6 +255,41 @@ export type Database = {
           },
         ]
       }
+      evenement_admin: {
+        Row: {
+          acteur_email: string
+          action: string
+          cree_le: string
+          id: string
+          proprietaire_id: string | null
+          resume: string
+        }
+        Insert: {
+          acteur_email: string
+          action: string
+          cree_le?: string
+          id?: string
+          proprietaire_id?: string | null
+          resume: string
+        }
+        Update: {
+          acteur_email?: string
+          action?: string
+          cree_le?: string
+          id?: string
+          proprietaire_id?: string | null
+          resume?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evenement_admin_proprietaire_id_fkey"
+            columns: ["proprietaire_id"]
+            isOneToOne: false
+            referencedRelation: "proprietaire"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       gestionnaire: {
         Row: {
           cree_le: string

@@ -8,11 +8,19 @@
 import "server-only";
 import { supabaseServer } from "@/lib/supabase/server";
 import { planDepuisUuid, planEffectif, uuidDuPlan, type PlanId } from "@/lib/plans";
+import {
+  diagnostiquerConfiguration,
+  geniuspayBacASable,
+  estReferenceGeniusPay,
+} from "@/lib/paiement/geniuspay";
 import type {
   AdminAbonnement,
   AdminCompte,
   AdminCompteDetail,
+  AdminEvenement,
   AdminOverview,
+  AdminParc,
+  AdminSysteme,
   AlerteCompte,
   StatutCompte,
 } from "@/lib/admin/types";
@@ -588,10 +596,31 @@ function validerJours(jours: unknown): number {
  * Changer le plan d'un compte à la main : geste commercial, SAV, test.
  * Essentiel ne porte pas d'échéance ; un plan payant repart pour `jours`.
  */
+async function journaliserGesteAdmin(
+  proprietaireId: string,
+  acteurEmail: string,
+  action: "plan_change" | "prolongation",
+  resume: string,
+): Promise<void> {
+  // Le journal ne doit jamais faire échouer le geste : en cas d'erreur on
+  // perd une ligne d'audit, pas l'action elle-même.
+  try {
+    await supabaseServer().from("evenement_admin").insert({
+      proprietaire_id: proprietaireId,
+      acteur_email: acteurEmail,
+      action,
+      resume,
+    });
+  } catch {
+    // Rien à faire de plus : l'abonnement à 0 F garde déjà la trace brute.
+  }
+}
+
 export async function appliquerPlanAdmin(
   proprietaireId: string,
   plan: PlanId,
   joursBruts: unknown,
+  acteurEmail: string,
 ): Promise<{ expireLe: string | null }> {
   if (plan !== "essentiel" && plan !== "pro" && plan !== "business") {
     throw new Error("Palier inconnu.");
@@ -615,6 +644,14 @@ export async function appliquerPlanAdmin(
   if (error) throw new Error("Changement de palier impossible.");
 
   if (expireLe) await tracerGesteAdmin(sb, proprietaireId, uuidDuPlan(plan), debut, expireLe);
+  await journaliserGesteAdmin(
+    proprietaireId,
+    acteurEmail,
+    "plan_change",
+    expireLe
+      ? `Plan ${plan} appliqué (${expireLe.toLocaleDateString("fr-FR")})`
+      : "Retour au plan Essentiel",
+  );
   return { expireLe: expireLe?.toISOString() ?? null };
 }
 
@@ -625,6 +662,7 @@ export async function appliquerPlanAdmin(
 export async function prolongerAbonnementAdmin(
   proprietaireId: string,
   joursBruts: unknown,
+  acteurEmail: string,
 ): Promise<{ expireLe: string }> {
   const jours = validerJours(joursBruts);
   const sb = supabaseServer();
@@ -650,5 +688,160 @@ export async function prolongerAbonnementAdmin(
   if (error) throw new Error("Prolongation impossible.");
 
   await tracerGesteAdmin(sb, proprietaireId, p.plan_id, new Date(), fin);
+  await journaliserGesteAdmin(
+    proprietaireId,
+    acteurEmail,
+    "prolongation",
+    `Prolongation de ${jours} jours (${fin.toLocaleDateString("fr-FR")})`,
+  );
   return { expireLe: fin.toISOString() };
+}
+
+/* ----------------------------------------------------------------- journal */
+
+export async function getAdminJournal(): Promise<AdminEvenement[]> {
+  const sb = supabaseServer();
+  const [{ data: evenements }, { data: proprietaires }] = await Promise.all([
+    sb.from("evenement_admin").select("*").order("cree_le", { ascending: false }).limit(200),
+    sb.from("proprietaire").select("id, email").is("supprime_le", null).limit(2000),
+  ]);
+  const emailParId = new Map((proprietaires ?? []).map((p) => [p.id, p.email]));
+  return (evenements ?? []).map((e) => ({
+    id: e.id,
+    creeLe: e.cree_le,
+    acteurEmail: e.acteur_email,
+    action: e.action as AdminEvenement["action"],
+    proprietaireEmail: e.proprietaire_id
+      ? (emailParId.get(e.proprietaire_id) ?? "compte supprimé")
+      : "—",
+    resume: e.resume,
+  }));
+}
+
+/* --------------------------------------------------------------------- parc */
+
+/**
+ * Santé locative globale : occupation, villes, argent déclaré en attente et
+ * signalements ouverts — ce qu'un support regarde chaque matin.
+ */
+export async function getAdminParc(): Promise<AdminParc> {
+  const sb = supabaseServer();
+  const [{ data: biens }, { data: lots }, { data: proprietaires }] = await Promise.all([
+    sb.from("bien").select("id, ville, proprietaire_id").limit(2000),
+    sb.from("lot").select("id, bien_id").limit(5000),
+    sb.from("proprietaire").select("id, email").is("supprime_le", null).limit(2000),
+  ]);
+  const emailParId = new Map((proprietaires ?? []).map((p) => [p.id, p.email]));
+  const bienParId = new Map((biens ?? []).map((b) => [b.id, b]));
+  const propDuBien = new Map((biens ?? []).map((b) => [b.id, b.proprietaire_id]));
+  const villeDuLot = new Map<string, string>();
+  for (const l of lots ?? []) {
+    const bien = bienParId.get(l.bien_id);
+    if (bien) villeDuLot.set(l.id, bien.ville);
+  }
+  const lotIds = (lots ?? []).map((l) => l.id);
+
+  const [{ data: baux }, { data: versements }, { data: signalements }] = await Promise.all([
+    sb.from("bail").select("id, lot_id, statut").limit(5000),
+    sb
+      .from("versement")
+      .select("id, bail_id, montant_total_fcfa, declare_le, reference_externe")
+      .eq("statut", "initie")
+      .order("declare_le", { ascending: true })
+      .limit(200),
+    lotIds.length
+      ? sb
+          .from("signalement")
+          .select("id, lot_id, titre, urgence, cree_le")
+          .in("lot_id", lotIds)
+          .in("statut", ["signale", "pris-en-charge"])
+          .order("cree_le", { ascending: false })
+          .limit(100)
+      : Promise.resolve({ data: [] as { id: string; lot_id: string; titre: string; urgence: string; cree_le: string }[] }),
+  ]);
+
+  const bailParId = new Map((baux ?? []).map((b) => [b.id, b]));
+  const bauxActifs = (baux ?? []).filter((b) => b.statut === "actif").length;
+  const nbLots = lots?.length ?? 0;
+
+  const parVille = new Map<string, number>();
+  for (const b of biens ?? []) parVille.set(b.ville, (parVille.get(b.ville) ?? 0) + 1);
+  const villes = [...parVille.entries()]
+    .map(([ville, nbBiens]) => ({ ville, nbBiens }))
+    .sort((a, b) => b.nbBiens - a.nbBiens)
+    .slice(0, 10);
+
+  const bienDuLot = new Map((lots ?? []).map((l) => [l.id, l.bien_id]));
+  const enAttente = (versements ?? []).map((v) => {
+    const bail = bailParId.get(v.bail_id);
+    const bienId = bail?.lot_id ? bienDuLot.get(bail.lot_id) : undefined;
+    const propId = bienId ? propDuBien.get(bienId) : undefined;
+    return {
+      id: v.id,
+      proprietaireEmail: propId ? (emailParId.get(propId) ?? "—") : "—",
+      montantFcfa: v.montant_total_fcfa,
+      depuisLe: v.declare_le,
+      enLigne: estReferenceGeniusPay(v.reference_externe ?? undefined),
+    };
+  });
+
+  const parUrgence: Record<string, number> = {};
+  for (const s of signalements ?? []) {
+    const cle = s.urgence ?? "non renseignée";
+    parUrgence[cle] = (parUrgence[cle] ?? 0) + 1;
+  }
+
+  return {
+    biens: biens?.length ?? 0,
+    lots: nbLots,
+    bauxActifs,
+    tauxOccupation: nbLots ? Math.round((bauxActifs / nbLots) * 100) : 0,
+    villes,
+    enAttente,
+    totalEnAttenteFcfa: enAttente.reduce((s, v) => s + v.montantFcfa, 0),
+    signalementsOuverts: (signalements ?? []).length,
+    signalementsParUrgence: parUrgence,
+    signalementsRecents: (signalements ?? []).slice(0, 20).map((s) => ({
+      id: s.id,
+      titre: s.titre,
+      urgence: s.urgence ?? "non renseignée",
+      ville: villeDuLot.get(s.lot_id) ?? "—",
+      creeLe: s.cree_le,
+    })),
+  };
+}
+
+/* ------------------------------------------------------------------ systeme */
+
+/** L'état de la plateforme : base, opérateur de paiement, déploiement. */
+export async function getAdminSysteme(): Promise<AdminSysteme> {
+  const sb = supabaseServer();
+
+  const debut = Date.now();
+  const [{ count: nbComptes }, { count: nbAbonnements }, ping, diagnostic] = await Promise.all([
+    sb.from("proprietaire").select("id", { count: "exact", head: true }).is("supprime_le", null),
+    sb.from("abonnement").select("id", { count: "exact", head: true }),
+    sb
+      .from("plan")
+      .select("id", { count: "exact", head: true })
+      .then(
+        () => Date.now() - debut,
+        () => -1,
+      ),
+    diagnostiquerConfiguration(),
+  ]);
+
+  return {
+    supabaseLatenceMs: ping >= 0 ? ping : null,
+    comptes: nbComptes ?? 0,
+    abonnements: nbAbonnements ?? 0,
+    geniuspayDiagnostic: diagnostic,
+    geniuspayBacASable: geniuspayBacASable(),
+    deploiement: {
+      // Posés par Vercel ; absents sur le VPS, où le hash git fait foi.
+      commit: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? "serveur",
+      environnement: process.env.VERCEL_ENV ?? "vps",
+      hoteAdmin: process.env.ADMIN_HOST?.trim() ? "configuré" : "non configuré",
+    },
+  };
 }
