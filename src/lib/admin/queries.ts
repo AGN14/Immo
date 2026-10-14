@@ -17,6 +17,7 @@ import type {
   AdminAbonnement,
   AdminCompte,
   AdminCompteDetail,
+  AdminDossier,
   AdminEvenement,
   AdminOverview,
   AdminParc,
@@ -28,6 +29,7 @@ import type {
   StatutCompte,
 } from "@/lib/admin/types";
 import type { StatutSignalement, UrgenceSignalement } from "@/lib/types";
+import { isAdminEmail } from "@/lib/admin/guard";
 
 interface PlanRef {
   id: string;
@@ -155,7 +157,7 @@ export async function getAdminOverview(): Promise<AdminOverview> {
     await Promise.all([
       sb
         .from("proprietaire")
-        .select("id, nom, email, cree_le, plan_id, plan_expire_le")
+        .select("id, nom, email, cree_le, plan_id, plan_expire_le, suspendu_le")
         .is("supprime_le", null)
         .order("cree_le", { ascending: false })
         .limit(2000),
@@ -288,7 +290,7 @@ export async function getAdminComptes(): Promise<AdminCompte[]> {
   const [{ data: proprietaires }, { data: abonnements }, parc] = await Promise.all([
     sb
       .from("proprietaire")
-      .select("id, nom, email, cree_le, plan_id, plan_expire_le")
+      .select("id, nom, email, cree_le, plan_id, plan_expire_le, suspendu_le")
       .is("supprime_le", null)
       .order("cree_le", { ascending: false })
       .limit(2000),
@@ -332,6 +334,8 @@ export async function getAdminComptes(): Promise<AdminCompte[]> {
       dernierPaiementLe: payeInfo?.dernier ?? null,
       statut,
       quota,
+      suspendu: p.suspendu_le !== null,
+      suspenduLe: p.suspendu_le,
     };
   });
 }
@@ -421,7 +425,7 @@ export async function getAdminCompteDetail(id: string): Promise<AdminCompteDetai
 
   const { data: p } = await sb
     .from("proprietaire")
-    .select("id, nom, email, cree_le, plan_id, plan_expire_le")
+    .select("id, nom, email, cree_le, plan_id, plan_expire_le, suspendu_le")
     .eq("id", id)
     .is("supprime_le", null)
     .maybeSingle();
@@ -546,6 +550,8 @@ export async function getAdminCompteDetail(id: string): Promise<AdminCompteDetai
     dernierPaiementLe: payes[0]?.cree_le ?? null,
     statut,
     quota,
+    suspendu: p.suspendu_le !== null,
+    suspenduLe: p.suspendu_le,
   };
 
   return {
@@ -701,6 +707,71 @@ export async function prolongerAbonnementAdmin(
     `Prolongation de ${jours} jours (${fin.toLocaleDateString("fr-FR")})`,
   );
   return { expireLe: fin.toISOString() };
+}
+
+/* -------------------------------------------------------------- restriction */
+
+/**
+ * Restriction d'un compte : suspendu de la session ET de RLS, données
+ * intactes. Le verrou RLS tient dans `proprietaire_courant()` (un suspendu y
+ * vaut NULL) ; la session est résolue à null côté applicatif.
+ *
+ * Garde-fou : on ne suspend jamais un e-mail d'équipe — se couper l'accès
+ * admin à soi-même n'a pas de bouton « annuler » raisonnable.
+ */
+export async function suspenderCompteAdmin(
+  proprietaireId: string,
+  acteurEmail: string,
+  motif: string,
+): Promise<{ ok: boolean; erreur?: string }> {
+  const sb = supabaseServer();
+  const { data: p } = await sb
+    .from("proprietaire")
+    .select("id, email, suspendu_le")
+    .eq("id", proprietaireId)
+    .is("supprime_le", null)
+    .maybeSingle();
+  if (!p) return { ok: false, erreur: "Compte introuvable." };
+  if (isAdminEmail(p.email)) return { ok: false, erreur: "Un compte d'équipe ne se suspend pas." };
+  if (p.suspendu_le) return { ok: false, erreur: "Compte déjà suspendu." };
+
+  const { error } = await sb
+    .from("proprietaire")
+    .update({ suspendu_le: new Date().toISOString() })
+    .eq("id", proprietaireId);
+  if (error) return { ok: false, erreur: "Suspension impossible." };
+
+  await journaliserGesteAdmin(
+    proprietaireId,
+    acteurEmail,
+    "suspension",
+    motif.trim() ? `Compte suspendu — ${motif.trim().slice(0, 200)}` : "Compte suspendu",
+  );
+  return { ok: true };
+}
+
+export async function reintegrerCompteAdmin(
+  proprietaireId: string,
+  acteurEmail: string,
+): Promise<{ ok: boolean; erreur?: string }> {
+  const sb = supabaseServer();
+  const { data: p } = await sb
+    .from("proprietaire")
+    .select("id, suspendu_le")
+    .eq("id", proprietaireId)
+    .is("supprime_le", null)
+    .maybeSingle();
+  if (!p) return { ok: false, erreur: "Compte introuvable." };
+  if (!p.suspendu_le) return { ok: false, erreur: "Compte non suspendu." };
+
+  const { error } = await sb
+    .from("proprietaire")
+    .update({ suspendu_le: null })
+    .eq("id", proprietaireId);
+  if (error) return { ok: false, erreur: "Réintégration impossible." };
+
+  await journaliserGesteAdmin(proprietaireId, acteurEmail, "reintegration", "Compte réintégré");
+  return { ok: true };
 }
 
 /* ----------------------------------------------------------------- journal */
@@ -1008,6 +1079,100 @@ export async function getAdminRecherche(q: string): Promise<AdminRecherche> {
       urgence: s.urgence ?? "non renseignée",
     })),
   };
+}
+
+/* ----------------------------------------------------------------- dossier */
+
+/**
+ * Dossier documentaire d'un propriétaire : un dossier par bien, un
+ * sous-dossier par lot — photo du bien, photos des pannes signalées, avatar
+ * du locataire en place. Tout ce que le parc montre comme image, réuni pour
+ * modérer d'un seul écran.
+ */
+export async function getAdminDossier(proprietaireId: string): Promise<AdminDossier | null> {
+  const sb = supabaseServer();
+  const { data: proprietaire } = await sb
+    .from("proprietaire")
+    .select("id")
+    .eq("id", proprietaireId)
+    .is("supprime_le", null)
+    .maybeSingle();
+  if (!proprietaire) return null;
+
+  const { data: biens } = await sb
+    .from("bien")
+    .select("id, nom, ville, image_url")
+    .eq("proprietaire_id", proprietaireId)
+    .order("cree_le")
+    .limit(200);
+  if (!biens?.length) return { biens: [], totalPhotos: 0 };
+
+  const bienIds = biens.map((b) => b.id);
+  const { data: lots } = await sb.from("lot").select("id, bien_id, nom").in("bien_id", bienIds).limit(1000);
+  const lotIds = (lots ?? []).map((l) => l.id);
+
+  const [{ data: signalements }, { data: baux }, { data: locataires }] = await Promise.all([
+    lotIds.length
+      ? sb.from("signalement").select("id, lot_id, titre, cree_le").in("lot_id", lotIds).limit(500)
+      : Promise.resolve({ data: [] as { id: string; lot_id: string; titre: string; cree_le: string }[] }),
+    lotIds.length
+      ? sb.from("bail").select("id, lot_id, locataire_id, statut").in("lot_id", lotIds).eq("statut", "actif").limit(1000)
+      : Promise.resolve({ data: [] as { id: string; lot_id: string; locataire_id: string; statut: string }[] }),
+    sb.from("locataire").select("id, nom, photo_url").eq("proprietaire_id", proprietaireId).limit(1000),
+  ]);
+  const signalementIds = (signalements ?? []).map((s) => s.id);
+  const photos: { signalement_id: string; chemin: string }[] = signalementIds.length
+    ? (
+        await sb
+          .from("signalement_photo")
+          .select("signalement_id, chemin")
+          .in("signalement_id", signalementIds)
+          .order("ordre")
+          .limit(1000)
+      ).data ?? []
+    : [];
+
+  const photosParSignalement = new Map<string, string[]>();
+  for (const p of photos ?? []) {
+    const liste = photosParSignalement.get(p.signalement_id) ?? [];
+    liste.push(p.chemin);
+    photosParSignalement.set(p.signalement_id, liste);
+  }
+  const signalementsParLot = new Map<string, { id: string; titre: string; cree_le: string }[]>();
+  for (const s of signalements ?? []) {
+    const liste = signalementsParLot.get(s.lot_id) ?? [];
+    liste.push(s);
+    signalementsParLot.set(s.lot_id, liste);
+  }
+  const bailActifParLot = new Map((baux ?? []).map((b) => [b.lot_id, b]));
+  const locataireParId = new Map((locataires ?? []).map((l) => [l.id, l]));
+
+  let totalPhotos = 0;
+  const dossier = biens.map((b) => ({
+    id: b.id,
+    nom: b.nom,
+    ville: b.ville,
+    imageUrl: b.image_url,
+    lots: (lots ?? [])
+      .filter((l) => l.bien_id === b.id)
+      .map((l) => {
+        const photosLot = (signalementsParLot.get(l.id) ?? []).flatMap((s) =>
+          (photosParSignalement.get(s.id) ?? []).map((url) => ({ url, titre: s.titre, date: s.cree_le })),
+        );
+        totalPhotos += photosLot.length;
+        const bail = bailActifParLot.get(l.id);
+        const locataire = bail ? locataireParId.get(bail.locataire_id) : undefined;
+        return {
+          id: l.id,
+          nom: l.nom,
+          photos: photosLot,
+          locataireNom: locataire?.nom ?? null,
+          locatairePhotoUrl: locataire?.photo_url ?? null,
+        };
+      }),
+  }));
+
+  return { biens: dossier, totalPhotos };
 }
 
 /* ------------------------------------------------------------------ systeme */

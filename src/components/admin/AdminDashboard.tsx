@@ -27,7 +27,7 @@ import {
   type SortingState,
 } from "@tanstack/react-table";
 import { KPICard } from "@/components/ui/KPICard";
-import { useAllerOnglet, useOngletCourant } from "@/components/admin/AdminShell";
+import { useOngletCourant } from "@/components/admin/AdminShell";
 import {
   Badge,
   formaterDate,
@@ -269,7 +269,9 @@ function TableComptes({ donnees }: { donnees: AdminCompte[] }) {
       donnees.filter(
         (c) =>
           (filtrePlan === "tous" || c.planEffectif === filtrePlan) &&
-          (filtreStatut === "tous" || c.statut === filtreStatut),
+          (filtreStatut === "tous" ||
+            c.statut === filtreStatut ||
+            (filtreStatut === "suspendu" && c.suspendu)),
       ),
     [donnees, filtrePlan, filtreStatut],
   );
@@ -316,7 +318,12 @@ function TableComptes({ donnees }: { donnees: AdminCompte[] }) {
       }),
       aideColonnesComptes.accessor("statut", {
         header: "Statut",
-        cell: (info) => <Badge ton={tonStatutCompte(info.getValue())}>{libelleStatutCompte[info.getValue()]}</Badge>,
+        cell: (info) => (
+          <span className="flex flex-wrap gap-1">
+            <Badge ton={tonStatutCompte(info.getValue())}>{libelleStatutCompte[info.getValue()]}</Badge>
+            {info.row.original.suspendu && <Badge ton="danger">Suspendu</Badge>}
+          </span>
+        ),
       }),
     ],
     [],
@@ -369,6 +376,7 @@ function TableComptes({ donnees }: { donnees: AdminCompte[] }) {
           <option value="expire">Expiré</option>
           <option value="quota_atteint">Quota atteint</option>
           <option value="essentiel">Essentiel</option>
+          <option value="suspendu">Suspendu</option>
         </select>
         <button
           type="button"
@@ -1120,6 +1128,8 @@ const libelleActionAdmin: Record<AdminEvenement["action"], string> = {
   prolongation: "Prolongation",
   moderation_statut: "Modération (statut)",
   moderation_urgence: "Modération (urgence)",
+  suspension: "Suspension",
+  reintegration: "Réintégration",
 };
 
 function OngletJournal() {
@@ -1436,29 +1446,15 @@ export type OngletAdmin =
   | "journal"
   | "systeme";
 
-const onglets: { id: OngletAdmin; label: string }[] = [
-  { id: "overview", label: "Vue d'ensemble" },
-  { id: "comptes", label: "Comptes" },
-  { id: "abonnements", label: "Abonnements" },
-  { id: "transactions", label: "Transactions" },
-  { id: "moderation", label: "Modération" },
-  { id: "parc", label: "Parc" },
-  { id: "journal", label: "Journal" },
-  { id: "systeme", label: "Système" },
-];
-
 function Contenu() {
-  // L'onglet vit dans l'URL, pas dans un état local : la barre latérale et
-  // ces boutons pilotent la même source — navigation SPA, liens profonds, et
-  // plus aucun onglet qui « ne fait rien ».
+  // L'onglet vit dans l'URL et se pilote depuis la barre latérale, seule
+  // navigation : pas de doublon interne. Ici, contenu de la section +
+  // actualisation, rien de plus.
   const onglet = useOngletCourant();
-  const aller = useAllerOnglet();
   const client = useQueryClient();
 
   return (
     <div>
-      {/* Titre et navigation vivent dans la coquille (AdminShell sur l'hôte
-          admin) : ici, onglets internes + actualisation, rien de plus. */}
       <div className="flex items-center justify-end">
         <button
           type="button"
@@ -1467,25 +1463,6 @@ function Contenu() {
         >
           Actualiser
         </button>
-      </div>
-
-      <div className="border-line mt-4 flex gap-1 border-b" role="tablist" aria-label="Sections admin">
-        {onglets.map((o) => (
-          <button
-            key={o.id}
-            type="button"
-            role="tab"
-            aria-selected={onglet === o.id}
-            onClick={() => aller(o.id)}
-            className={`-mb-px border-b-2 px-4 py-2.5 text-sm font-medium transition-colors ${
-              onglet === o.id
-                ? "border-primary text-ink"
-                : "text-ink-3 hover:text-ink border-transparent"
-            }`}
-          >
-            {o.label}
-          </button>
-        ))}
       </div>
 
       <div className="mt-6">

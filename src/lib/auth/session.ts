@@ -54,11 +54,14 @@ export const getSession = cache(async (): Promise<Session | null> => {
   const user = await utilisateurAvecDelai(sb);
   if (!user) return null;
 
+  // Un compte suspendu n'a plus de session : ni interface, ni actions
+  // serveur. Le verrou RLS (`proprietaire_courant()`) fait le reste côté base.
   const { data: proprietaire } = await sb
     .from("proprietaire")
     .select("id, nom, plan_id")
     .eq("auth_user_id", user.id)
     .is("supprime_le", null)
+    .is("suspendu_le", null)
     .maybeSingle();
 
   if (proprietaire) {

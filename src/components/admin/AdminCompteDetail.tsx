@@ -27,7 +27,7 @@ import {
   tonStatutAbo,
   tonStatutCompte,
 } from "@/components/admin/ui";
-import type { AdminCompteDetail, DetailBien } from "@/lib/admin/types";
+import type { AdminCompteDetail, AdminDossier, DetailBien } from "@/lib/admin/types";
 import type { PlanId } from "@/lib/plans";
 
 async function poster(url: string, corps: unknown): Promise<{ expireLe?: string | null }> {
@@ -263,6 +263,11 @@ function Contenu({ id }: { id: string }) {
             <Badge ton={tonStatutCompte(c.statut)}>{libelleStatutCompte[c.statut]}</Badge>
             <Badge ton={tonPlan(c.planEffectif)}>Plan : {c.planEffectif}</Badge>
             {c.planExpireLe && <Badge ton="neutre">Expire le {formaterDate(c.planExpireLe)}</Badge>}
+            {c.suspendu && (
+              <Badge ton="danger">
+                Suspendu{c.suspenduLe ? ` depuis le ${formaterDate(c.suspenduLe)}` : ""}
+              </Badge>
+            )}
           </div>
         </div>
         <div className="shrink-0">
@@ -304,7 +309,11 @@ function Contenu({ id }: { id: string }) {
 
       <BlocPlan compteId={c.id} planPaye={c.planPaye} planEffectif={c.planEffectif} />
 
+      <BlocRestriction compteId={c.id} suspendu={c.suspendu} />
+
       <BlocParc biens={data.biens} />
+
+      <BlocDossier compteId={c.id} />
 
       <section className="border-line bg-surface rounded-md border p-5">
         <h2 className="font-display text-ink text-xl font-semibold">Historique des abonnements</h2>
@@ -346,6 +355,196 @@ function Contenu({ id }: { id: string }) {
         )}
       </section>
     </div>
+  );
+}
+
+/**
+ * Restriction du compte : suspendu de la session ET de RLS, données intactes.
+ * Jamais sur un e-mail d'équipe (refusé côté serveur). Chaque acte est
+ * journalisé avec son auteur et son motif.
+ */
+function BlocRestriction({ compteId, suspendu }: { compteId: string; suspendu: boolean }) {
+  const client = useQueryClient();
+  const [motif, setMotif] = useState("");
+  const [message, setMessage] = useState<{ ok: boolean; texte: string } | null>(null);
+
+  const mutation = useMutation({
+    mutationFn: (corps: { suspendu: boolean; motif?: string }) =>
+      poster(`/api/admin/comptes/${compteId}/suspension`, corps),
+    onSuccess: (_, variables) => {
+      setMessage({
+        ok: true,
+        texte: variables.suspendu ? "Compte suspendu — acte journalisé." : "Compte réintégré — acte journalisé.",
+      });
+      setMotif("");
+      client.invalidateQueries({ queryKey: ["admin"] });
+    },
+    onError: (e: unknown) =>
+      setMessage({ ok: false, texte: e instanceof Error ? e.message : "Action impossible." }),
+  });
+
+  return (
+    <section className="border-danger rounded-md border p-5">
+      <h2 className="font-display text-ink text-xl font-semibold">Restriction du compte</h2>
+      <p className="text-ink-2 mt-1 text-sm">
+        {suspendu
+          ? "Compte suspendu : banni de la session et de la base, baux et paiements intacts."
+          : "Suspendre bannit le compte de la session et de la base, sans toucher à ses données."}
+      </p>
+
+      {message && (
+        <p className={`mt-3 rounded-md px-3 py-2 text-sm ${message.ok ? "bg-success-soft text-success" : "bg-danger-soft text-danger"}`}>
+          {message.texte}
+        </p>
+      )}
+
+      {suspendu ? (
+        <button
+          type="button"
+          disabled={mutation.isPending}
+          onClick={() => {
+            if (window.confirm("Réintégrer ce compte ? Il retrouvera l'accès aussitôt.")) {
+              setMessage(null);
+              mutation.mutate({ suspendu: false });
+            }
+          }}
+          className="bg-primary text-on-primary hover:bg-primary-hi mt-3 rounded-md px-3 py-2 text-sm font-semibold transition-colors disabled:opacity-50"
+        >
+          Réintégrer le compte
+        </button>
+      ) : (
+        <div className="mt-3 flex flex-wrap items-center gap-2.5">
+          <input
+            type="text"
+            value={motif}
+            onChange={(e) => setMotif(e.target.value)}
+            placeholder="Motif (abus, fraude, impayé SaaS…) — consigné au journal"
+            aria-label="Motif de la suspension"
+            className="border-line bg-surface text-ink min-w-52 flex-1 rounded-md border px-3 py-2 text-sm"
+            disabled={mutation.isPending}
+          />
+          <button
+            type="button"
+            disabled={mutation.isPending}
+            onClick={() => {
+              if (window.confirm("Suspendre ce compte ? Il perdra l'accès aussitôt, données intactes.")) {
+                setMessage(null);
+                mutation.mutate({ suspendu: true, motif });
+              }
+            }}
+            className="bg-danger text-on-primary hover:brightness-110 rounded-md px-3 py-2 text-sm font-semibold transition-colors disabled:opacity-50"
+          >
+            Suspendre le compte
+          </button>
+        </div>
+      )}
+    </section>
+  );
+}
+
+/**
+ * Dossier documentaire : un dossier par bien, un sous-dossier par lot — photo
+ * du bien, photos des pannes, avatar du locataire en place. Tout ce que le
+ * parc montre comme image, réuni pour modérer d'un seul écran.
+ */
+function Vignette({ src, legende }: { src: string; legende?: string }) {
+  return (
+    <figure className="m-0">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={src}
+        alt={legende ?? "Photo du dossier"}
+        className="border-line aspect-square w-full rounded-md border object-cover"
+        loading="lazy"
+      />
+      {legende && <figcaption className="text-ink-3 mt-1 truncate text-xs">{legende}</figcaption>}
+    </figure>
+  );
+}
+
+function BlocDossier({ compteId }: { compteId: string }) {
+  const { data, isPending } = useQuery({
+    queryKey: ["admin", "dossier", compteId],
+    queryFn: async () => {
+      const reponse = await fetch(`/api/admin/comptes/${compteId}/documents`);
+      if (!reponse.ok) throw new Error("Dossier indisponible.");
+      return (await reponse.json()) as AdminDossier;
+    },
+  });
+
+  return (
+    <section className="border-line bg-surface rounded-md border p-5">
+      <h2 className="font-display text-ink text-xl font-semibold">Dossier documentaire</h2>
+      <p className="text-ink-3 mt-1 text-sm">
+        {isPending
+          ? "Chargement…"
+          : data && data.totalPhotos > 0
+            ? `${data.biens.length} bien${data.biens.length > 1 ? "s" : ""} · ${data.totalPhotos} photo${data.totalPhotos > 1 ? "s" : ""} de pannes`
+            : "Aucune image sur ce parc pour l'instant."}
+      </p>
+
+      {!isPending &&
+        data?.biens.map((b) => (
+          <details key={b.id} className="border-line mt-4 rounded-md border" open={data.biens.length === 1}>
+            <summary className="hover:bg-highlight flex cursor-pointer items-center gap-3 rounded-md p-4">
+              {b.imageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={b.imageUrl} alt="" aria-hidden="true" className="size-10 shrink-0 rounded-md object-cover" loading="lazy" />
+              ) : (
+                <span className="bg-sand text-ink-3 grid size-10 shrink-0 place-items-center rounded-md text-sm font-bold" aria-hidden="true">
+                  {b.nom.trim()[0]?.toUpperCase() ?? "?"}
+                </span>
+              )}
+              <span className="min-w-0 flex-1">
+                <span className="text-ink block truncate font-semibold">{b.nom}</span>
+                <span className="text-ink-3 block text-xs">
+                  {b.ville} · {b.lots.length} lot{b.lots.length > 1 ? "s" : ""}
+                </span>
+              </span>
+            </summary>
+            <div className="border-line space-y-5 border-t p-4">
+              {b.lots.length === 0 && (
+                <p className="text-ink-3 text-sm">Aucun lot dans ce bien.</p>
+              )}
+              {b.lots.map((l) => (
+                <details key={l.id}>
+                  <summary className="text-ink cursor-pointer text-sm font-semibold">
+                    {l.nom}
+                    <span className="text-ink-3 font-normal">
+                      {" "}· {l.photos.length} photo{l.photos.length > 1 ? "s" : ""}
+                      {l.locataireNom ? ` · occupé par ${l.locataireNom}` : " · libre"}
+                    </span>
+                  </summary>
+                  <div className="mt-2.5 flex flex-wrap items-start gap-4">
+                    {l.locataireNom && (
+                      <div className="flex items-center gap-2.5">
+                        {l.locatairePhotoUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={l.locatairePhotoUrl} alt={`${l.locataireNom} — photo`} className="size-9 shrink-0 rounded-full object-cover" loading="lazy" />
+                        ) : (
+                          <span className="bg-primary-soft text-primary grid size-9 shrink-0 place-items-center rounded-full text-sm font-bold" aria-hidden="true">
+                            {l.locataireNom.trim()[0]?.toUpperCase() ?? "?"}
+                          </span>
+                        )}
+                        <span className="text-ink-2 text-sm">{l.locataireNom}</span>
+                      </div>
+                    )}
+                  </div>
+                  {l.photos.length > 0 ? (
+                    <div className="mt-2.5 grid grid-cols-3 gap-2.5 sm:grid-cols-4">
+                      {l.photos.map((p, i) => (
+                        <Vignette key={`${p.url}-${i}`} src={p.url} legende={`${p.titre} · ${formaterDate(p.date)}`} />
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-ink-3 mt-2 text-sm">Aucune photo sur ce lot.</p>
+                  )}
+                </details>
+              ))}
+            </div>
+          </details>
+        ))}
+    </section>
   );
 }
 

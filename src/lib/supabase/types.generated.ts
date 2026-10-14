@@ -598,6 +598,7 @@ export type Database = {
           plan_expire_le: string | null
           plan_id: string
           supprime_le: string | null
+          suspendu_le: string | null
           telephone: string | null
         }
         Insert: {
@@ -615,6 +616,7 @@ export type Database = {
           plan_expire_le?: string | null
           plan_id?: string
           supprime_le?: string | null
+          suspendu_le?: string | null
           telephone?: string | null
         }
         Update: {
@@ -632,6 +634,7 @@ export type Database = {
           plan_expire_le?: string | null
           plan_id?: string
           supprime_le?: string | null
+          suspendu_le?: string | null
           telephone?: string | null
         }
         Relationships: [

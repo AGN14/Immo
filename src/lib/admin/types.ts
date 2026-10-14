@@ -77,6 +77,9 @@ export interface AdminCompte {
   dernierPaiementLe: string | null;
   statut: StatutCompte;
   quota: "ok" | "proche" | "atteint";
+  /** Restriction modérateur : banni de la session et de RLS, données intactes. */
+  suspendu: boolean;
+  suspenduLe: string | null;
 }
 
 export type StatutAbonnement = "actif" | "expire_bientot" | "expire";
@@ -120,9 +123,42 @@ export interface AdminEvenement {
   id: string;
   creeLe: string;
   acteurEmail: string;
-  action: "plan_change" | "prolongation" | "moderation_statut" | "moderation_urgence";
+  action:
+    | "plan_change"
+    | "prolongation"
+    | "moderation_statut"
+    | "moderation_urgence"
+    | "suspension"
+    | "reintegration";
   proprietaireEmail: string;
   resume: string;
+}
+
+export interface PhotoDossier {
+  url: string;
+  titre: string;
+  date: string;
+}
+
+export interface LotDossier {
+  id: string;
+  nom: string;
+  photos: PhotoDossier[];
+  locataireNom: string | null;
+  locatairePhotoUrl: string | null;
+}
+
+export interface BienDossier {
+  id: string;
+  nom: string;
+  ville: string;
+  imageUrl: string | null;
+  lots: LotDossier[];
+}
+
+export interface AdminDossier {
+  biens: BienDossier[];
+  totalPhotos: number;
 }
 
 export interface MessageSignalement {
