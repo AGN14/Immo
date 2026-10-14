@@ -36,11 +36,14 @@ import {
   tonPlan,
   tonStatutAbo,
   tonStatutCompte,
+  type TonBadge,
 } from "@/components/admin/ui";
 import type {
   AdminAbonnement,
   AdminCompte,
   AdminOverview,
+  AdminTransaction,
+  AdminTransactionsReponse,
   AlerteCompte,
 } from "@/lib/admin/types";
 
@@ -664,46 +667,254 @@ function OngletAbonnements() {
   );
 }
 
+/* ------------------------------------------------------------- transactions */
+
+const libelleStatutTransaction: Record<string, string> = {
+  completed: "Encaissé",
+  pending: "En attente",
+  processing: "En cours",
+  failed: "Échoué",
+  expired: "Expiré",
+  cancelled: "Annulé",
+  refunded: "Remboursé",
+};
+
+const tonStatutTransaction = (s: string): TonBadge =>
+  s === "completed"
+    ? "success"
+    : s === "failed"
+      ? "danger"
+      : s === "processing"
+        ? "ambre"
+        : "neutre";
+
+const aideColonnesTransactions = createColumnHelper<AdminTransaction>();
+
+function TableTransactions({ donnees }: { donnees: AdminTransaction[] }) {
+  const [recherche, setRecherche] = useState("");
+  const [filtreStatut, setFiltreStatut] = useState("tous");
+  const [tri, setTri] = useState<SortingState>([{ id: "creeLe", desc: true }]);
+
+  const filtrees = useMemo(
+    () => donnees.filter((t) => filtreStatut === "tous" || t.statut === filtreStatut),
+    [donnees, filtreStatut],
+  );
+
+  const colonnes = useMemo(
+    () => [
+      aideColonnesTransactions.accessor("creeLe", {
+        header: "Date",
+        cell: (info) => <span className="text-sm">{formaterDate(info.getValue())}</span>,
+      }),
+      aideColonnesTransactions.accessor("reference", {
+        header: "Référence",
+        cell: (info) => <span className="text-ink font-mono text-xs">{info.getValue()}</span>,
+      }),
+      aideColonnesTransactions.accessor("montantFcfa", {
+        header: "Montant",
+        cell: (info) => (
+          <span className="text-ink font-medium" data-numeric>
+            {formaterMontant(info.getValue())}
+          </span>
+        ),
+      }),
+      aideColonnesTransactions.accessor("methode", {
+        header: "Moyen",
+        cell: (info) => <span className="text-sm">{info.getValue() ?? "—"}</span>,
+      }),
+      aideColonnesTransactions.accessor("statut", {
+        header: "Statut",
+        cell: (info) => (
+          <Badge ton={tonStatutTransaction(info.getValue())}>
+            {libelleStatutTransaction[info.getValue()] ?? info.getValue()}
+          </Badge>
+        ),
+      }),
+    ],
+    [],
+  );
+
+  const table = useReactTable({
+    data: filtrees,
+    columns: colonnes,
+    state: { sorting: tri, globalFilter: recherche },
+    onSortingChange: setTri,
+    onGlobalFilterChange: setRecherche,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    initialState: { pagination: { pageSize: 15 } },
+  });
+
+  return (
+    <div>
+      <div className="flex flex-wrap gap-2.5">
+        <input
+          type="search"
+          value={recherche}
+          onChange={(e) => setRecherche(e.target.value)}
+          placeholder="Rechercher une référence…"
+          className="border-line bg-surface text-ink min-w-52 flex-1 rounded-md border px-3 py-2 text-sm"
+          aria-label="Rechercher une transaction"
+        />
+        <select
+          value={filtreStatut}
+          onChange={(e) => setFiltreStatut(e.target.value)}
+          className="border-line bg-surface text-ink rounded-md border px-3 py-2 text-sm"
+          aria-label="Filtrer par statut"
+        >
+          <option value="tous">Tous statuts</option>
+          <option value="completed">Encaissé</option>
+          <option value="pending">En attente</option>
+          <option value="processing">En cours</option>
+          <option value="failed">Échoué</option>
+          <option value="expired">Expiré</option>
+        </select>
+      </div>
+
+      <div className="border-line mt-3 overflow-x-auto rounded-md border">
+        <table className="text-ink-2 w-full min-w-3xl text-left text-sm">
+          <thead className="bg-highlight text-ink-3 text-xs uppercase">
+            {table.getHeaderGroups().map((groupe) => (
+              <tr key={groupe.id}>
+                {groupe.headers.map((entete) => (
+                  <th key={entete.id} className="px-4 py-2.5 font-semibold">
+                    {entete.isPlaceholder ? null : (
+                      <button
+                        type="button"
+                        onClick={entete.column.getToggleSortingHandler()}
+                        className="font-semibold uppercase"
+                        title="Trier"
+                      >
+                        {flexRender(entete.column.columnDef.header, entete.getContext())}
+                        {entete.column.getIsSorted() === "asc" ? " ↑" : entete.column.getIsSorted() === "desc" ? " ↓" : ""}
+                      </button>
+                    )}
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody>
+            {table.getRowModel().rows.map((ligne) => (
+              <tr key={ligne.id} className="border-line border-t">
+                {ligne.getVisibleCells().map((cellule) => (
+                  <td key={cellule.id} className="px-4 py-2.5">
+                    {flexRender(cellule.column.columnDef.cell, cellule.getContext())}
+                  </td>
+                ))}
+              </tr>
+            ))}
+            {table.getRowModel().rows.length === 0 && (
+              <tr>
+                <td colSpan={colonnes.length} className="text-ink-3 px-4 py-6 text-center">
+                  Aucune transaction ne correspond aux filtres.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="text-ink-3 mt-3 flex items-center justify-between text-sm">
+        <span data-numeric>
+          Page {table.getState().pagination.pageIndex + 1} / {Math.max(table.getPageCount(), 1)} ·{" "}
+          {table.getFilteredRowModel().rows.length} transaction
+          {table.getFilteredRowModel().rows.length > 1 ? "s" : ""}
+        </span>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+            className="border-line rounded-md border px-3 py-1.5 disabled:opacity-40"
+          >
+            ← Précédent
+          </button>
+          <button
+            type="button"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+            className="border-line rounded-md border px-3 py-1.5 disabled:opacity-40"
+          >
+            Suivant →
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function OngletTransactions() {
+  const { data, isPending, isError, refetch } = useQuery({
+    queryKey: ["admin", "transactions"],
+    queryFn: () => lireJson<AdminTransactionsReponse>("/api/admin/transactions"),
+  });
+
+  if (isPending) return <p className="text-ink-3 py-10 text-center text-sm">Chargement des transactions…</p>;
+  if (isError || !data)
+    return (
+      <div className="py-10 text-center">
+        <p className="text-ink-2 text-sm">Transactions indisponibles.</p>
+        <button type="button" onClick={() => refetch()} className="text-primary mt-2 text-sm font-semibold">
+          Réessayer
+        </button>
+      </div>
+    );
+
+  const encaisse = data.transactions
+    .filter((t) => t.statut === "completed")
+    .reduce((s, t) => s + t.montantFcfa, 0);
+
+  return (
+    <div>
+      <div className="border-line bg-surface mb-3 rounded-md border p-4">
+        <p className="text-sm">
+          <span className="text-ink font-semibold">GeniusPay : {data.diagnostic}</span>
+          {data.bacASable && <span className="text-ink-3"> — bac à sable, aucun argent réel.</span>}
+        </p>
+        <p className="text-ink-3 mt-1 text-sm">
+          <span className="text-ink font-semibold" data-numeric>{formaterMontant(encaisse)}</span>{" "}
+          encaissés sur les {data.transactions.length} dernières transactions — loyers et
+          abonnements confondus, à réconcilier avec vos versements et abonnements.
+        </p>
+      </div>
+      <TableTransactions donnees={data.transactions} />
+    </div>
+  );
+}
+
 /* ------------------------------------------------------------------- coquille */
 
-type Onglet = "overview" | "comptes" | "abonnements";
+export type OngletAdmin = "overview" | "comptes" | "abonnements" | "transactions";
 
-const onglets: { id: Onglet; label: string }[] = [
+const onglets: { id: OngletAdmin; label: string }[] = [
   { id: "overview", label: "Vue d'ensemble" },
   { id: "comptes", label: "Comptes" },
   { id: "abonnements", label: "Abonnements" },
+  { id: "transactions", label: "Transactions" },
 ];
 
-function Contenu() {
-  const [onglet, setOnglet] = useState<Onglet>("overview");
+function Contenu({ ongletInitial }: { ongletInitial: OngletAdmin }) {
+  const [onglet, setOnglet] = useState<OngletAdmin>(ongletInitial);
   const client = useQueryClient();
 
   return (
     <div>
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <p className="text-ink-3 text-xs font-semibold tracking-wider uppercase">Administration</p>
-          <h1 className="font-display text-ink mt-1 text-3xl font-semibold">Pilotage du SaaS</h1>
-          <p className="text-ink-2 mt-2">Comptes créés, abonnements pris, alertes à traiter.</p>
-        </div>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => client.invalidateQueries({ queryKey: ["admin"] })}
-            className="border-line text-ink-2 hover:bg-highlight rounded-md border px-3 py-2 text-sm font-medium transition-colors"
-          >
-            Actualiser
-          </button>
-          <Link
-            href="/dashboard"
-            className="border-line text-ink-2 hover:bg-highlight rounded-md border px-3 py-2 text-sm font-medium no-underline transition-colors"
-          >
-            ← Retour
-          </Link>
-        </div>
+      {/* Titre et navigation vivent dans la coquille (AdminShell sur l'hôte
+          admin) : ici, onglets internes + actualisation, rien de plus. */}
+      <div className="flex items-center justify-end">
+        <button
+          type="button"
+          onClick={() => client.invalidateQueries({ queryKey: ["admin"] })}
+          className="border-line text-ink-2 hover:bg-highlight rounded-md border px-3 py-2 text-sm font-medium transition-colors"
+        >
+          Actualiser
+        </button>
       </div>
 
-      <div className="border-line mt-6 flex gap-1 border-b" role="tablist" aria-label="Sections admin">
+      <div className="border-line mt-4 flex gap-1 border-b" role="tablist" aria-label="Sections admin">
         {onglets.map((o) => (
           <button
             key={o.id}
@@ -726,12 +937,13 @@ function Contenu() {
         {onglet === "overview" && <VueEnsemble />}
         {onglet === "comptes" && <OngletComptes />}
         {onglet === "abonnements" && <OngletAbonnements />}
+        {onglet === "transactions" && <OngletTransactions />}
       </div>
     </div>
   );
 }
 
-export function AdminDashboard() {
+export function AdminDashboard({ ongletInitial = "overview" }: { ongletInitial?: OngletAdmin }) {
   const [client] = useState(
     () =>
       new QueryClient({
@@ -740,7 +952,7 @@ export function AdminDashboard() {
   );
   return (
     <QueryClientProvider client={client}>
-      <Contenu />
+      <Contenu ongletInitial={ongletInitial} />
     </QueryClientProvider>
   );
 }

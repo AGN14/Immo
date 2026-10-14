@@ -98,6 +98,23 @@ export interface AdminAbonnement {
   gesteAdmin: boolean;
 }
 
+/** Ligne de l'historique marchand GeniusPay, pour réconcilier les loyers et
+ *  abonnements encaissés en ligne avec ce que l'opérateur a vraiment vu. */
+export interface AdminTransaction {
+  reference: string;
+  statut: string;
+  montantFcfa: number;
+  methode: string | null;
+  creeLe: string;
+}
+
+export interface AdminTransactionsReponse {
+  transactions: AdminTransaction[];
+  /** Résultat du diagnostic des clés (« clés acceptées… » ou la raison). */
+  diagnostic: string;
+  bacASable: boolean;
+}
+
 export interface DetailLot {
   id: string;
   nom: string;

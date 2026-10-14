@@ -209,6 +209,14 @@ export async function verifierTransaction(reference: string): Promise<Transactio
  * Liste les derniers paiements, pour retrouver au retour celui qu'on vient
  * d'encaisser sans avoir eu à croire le navigateur sur parole.
  */
+export interface PaiementListe {
+  reference: string;
+  statut: string;
+  montantFcfa: number;
+  methode: string | null;
+  creeLe: string;
+}
+
 export async function listerPaiements({
   statut,
   recherche,
@@ -217,7 +225,7 @@ export async function listerPaiements({
   statut?: string;
   recherche?: string;
   parPage?: number;
-}): Promise<{ reference: string; statut: string; montantFcfa: number; creeLe: string }[]> {
+}): Promise<PaiementListe[]> {
   const params = new URLSearchParams({ per_page: String(Math.min(Math.max(parPage, 1), 100)) });
   if (statut) params.set("status", statut);
   if (recherche) params.set("search", recherche);
@@ -232,7 +240,13 @@ export async function listerPaiements({
 
   const corps = (await reponse.json()) as {
     success?: boolean;
-    data?: { reference?: string; status?: string; amount?: number; created_at?: string }[];
+    data?: {
+      reference?: string;
+      status?: string;
+      amount?: number;
+      payment_method?: string | null;
+      created_at?: string;
+    }[];
   };
   if (!corps.success || !Array.isArray(corps.data)) return [];
 
@@ -242,6 +256,7 @@ export async function listerPaiements({
       reference: String(p.reference),
       statut: String(p.status ?? "inconnu"),
       montantFcfa: Number(p.amount ?? 0),
+      methode: p.payment_method ?? null,
       creeLe: String(p.created_at ?? ""),
     }));
 }
