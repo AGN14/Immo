@@ -20,10 +20,14 @@ import type {
   AdminEvenement,
   AdminOverview,
   AdminParc,
+  AdminRecherche,
+  AdminSignalement,
+  AdminSignalementListe,
   AdminSysteme,
   AlerteCompte,
   StatutCompte,
 } from "@/lib/admin/types";
+import type { StatutSignalement, UrgenceSignalement } from "@/lib/types";
 
 interface PlanRef {
   id: string;
@@ -596,10 +600,12 @@ function validerJours(jours: unknown): number {
  * Changer le plan d'un compte à la main : geste commercial, SAV, test.
  * Essentiel ne porte pas d'échéance ; un plan payant repart pour `jours`.
  */
+type ActionJournalisee = AdminEvenement["action"];
+
 async function journaliserGesteAdmin(
-  proprietaireId: string,
+  proprietaireId: string | null,
   acteurEmail: string,
-  action: "plan_change" | "prolongation",
+  action: ActionJournalisee,
   resume: string,
 ): Promise<void> {
   // Le journal ne doit jamais faire échouer le geste : en cas d'erreur on
@@ -807,6 +813,199 @@ export async function getAdminParc(): Promise<AdminParc> {
       urgence: s.urgence ?? "non renseignée",
       ville: villeDuLot.get(s.lot_id) ?? "—",
       creeLe: s.cree_le,
+    })),
+  };
+}
+
+/* --------------------------------------------------------------- moderation */
+
+/**
+ * Transitions autorisées au modérateur : celles du propriétaire, plus la
+ * réouverture d'un dossier marqué résolu à tort et l'annulation d'un résolu
+ * abusif. `confirme` et `annule` restent terminaux — rouvrir un dossier clos
+ * par le locataire ou effacer une annulation réécrirait l'histoire.
+ */
+const TRANSITIONS_MODERATION: Record<string, StatutSignalement[]> = {
+  signale: ["pris-en-charge", "annule"],
+  "pris-en-charge": ["resolu", "annule"],
+  resolu: ["pris-en-charge", "annule"],
+};
+
+const URGENCES: UrgenceSignalement[] = ["basse", "normale", "haute"];
+
+export async function getAdminSignalements(): Promise<AdminSignalementListe[]> {
+  const sb = supabaseServer();
+  const { data: signalements } = await sb
+    .from("signalement")
+    .select("id, titre, lot_id, urgence, statut, cree_le")
+    .order("cree_le", { ascending: false })
+    .limit(500);
+  if (!signalements?.length) return [];
+
+  // Les signalements portent des lots, pas des biens : on remonte lot →
+  // bien → ville en deux requêtes indexées plutôt qu'en boucle.
+  const { data: lots } = await sb
+    .from("lot")
+    .select("id, bien_id")
+    .in("id", [...new Set(signalements.map((s) => s.lot_id))]);
+  const bienIds = [...new Set((lots ?? []).map((l) => l.bien_id))];
+  const { data: biens } = bienIds.length
+    ? await sb.from("bien").select("id, ville").in("id", bienIds)
+    : { data: [] as { id: string; ville: string }[] };
+  const villeDuBien = new Map((biens ?? []).map((b) => [b.id, b.ville]));
+  const bienDuLot = new Map((lots ?? []).map((l) => [l.id, l.bien_id]));
+
+  return signalements.map((s) => ({
+    id: s.id,
+    titre: s.titre,
+    ville: villeDuBien.get(bienDuLot.get(s.lot_id) ?? "") ?? "—",
+    urgence: s.urgence ?? "non renseignée",
+    statut: s.statut,
+    creeLe: s.cree_le,
+  }));
+}
+
+export async function getAdminSignalement(id: string): Promise<AdminSignalement | null> {
+  const sb = supabaseServer();
+  const { data: s } = await sb.from("signalement").select("*").eq("id", id).maybeSingle();
+  if (!s) return null;
+
+  const [{ data: photos }, { data: messages }, { data: lot }] = await Promise.all([
+    sb.from("signalement_photo").select("chemin").eq("signalement_id", id).order("ordre"),
+    sb.from("signalement_message").select("auteur, corps, cree_le").eq("signalement_id", id).order("cree_le"),
+    sb.from("lot").select("id, nom, bien_id").eq("id", s.lot_id).maybeSingle(),
+  ]);
+  const { data: bien } = lot
+    ? await sb.from("bien").select("id, nom, ville, proprietaire_id").eq("id", lot.bien_id).maybeSingle()
+    : { data: null as null | { id: string; nom: string; ville: string; proprietaire_id: string } };
+  const { data: proprietaire } = bien
+    ? await sb.from("proprietaire").select("id, nom, email").eq("id", bien.proprietaire_id).maybeSingle()
+    : { data: null as null | { id: string; nom: string; email: string } };
+  const { data: bail } = s.bail_id
+    ? await sb.from("bail").select("locataire_id").eq("id", s.bail_id).maybeSingle()
+    : { data: null as null | { locataire_id: string } };
+  const { data: locataire } = bail
+    ? await sb.from("locataire").select("nom, telephone").eq("id", bail.locataire_id).maybeSingle()
+    : { data: null as null | { nom: string; telephone: string | null } };
+
+  return {
+    id: s.id,
+    titre: s.titre,
+    description: s.description,
+    urgence: s.urgence ?? "non renseignée",
+    statut: s.statut,
+    creeLe: s.cree_le,
+    resoluLe: s.resolu_le,
+    photos: (photos ?? []).map((p) => p.chemin),
+    messages: (messages ?? []).map((m) => ({ auteur: m.auteur, corps: m.corps, creeLe: m.cree_le })),
+    lotNom: lot?.nom ?? "—",
+    bienNom: bien?.nom ?? "—",
+    ville: bien?.ville ?? "—",
+    bailId: s.bail_id,
+    proprietaireId: proprietaire?.id ?? "",
+    proprietaireNom: proprietaire?.nom ?? "—",
+    proprietaireEmail: proprietaire?.email ?? "—",
+    locataireNom: locataire?.nom ?? "—",
+    locataireTelephone: locataire?.telephone ?? "—",
+  };
+}
+
+/**
+ * Acte de modération sur un signalement : statut (transitions ci-dessus) ou
+ * urgence. Mêmes horodatages que le parcours propriétaire (`resolu_le` posé
+ * à la résolution, `confirme_le` réinitialisé), et chaque acte est journalisé
+ * avec son auteur — modérer le dossier d'autrui sans trace est exclu.
+ */
+export async function modererSignalement(
+  signalementId: string,
+  changement: { statut?: StatutSignalement; urgence?: UrgenceSignalement },
+  acteurEmail: string,
+): Promise<{ ok: boolean; erreur?: string }> {
+  const sb = supabaseServer();
+  const { data: s } = await sb
+    .from("signalement")
+    .select("id, statut, urgence, lot_id, resolu_le")
+    .eq("id", signalementId)
+    .maybeSingle();
+  if (!s) return { ok: false, erreur: "Signalement introuvable." };
+
+  const patch: { statut?: string; urgence?: string; resolu_le?: string | null; confirme_le?: null } = {};
+  const resumes: string[] = [];
+
+  if (changement.statut && changement.statut !== s.statut) {
+    const autorises = TRANSITIONS_MODERATION[s.statut] ?? [];
+    if (!autorises.includes(changement.statut)) {
+      return { ok: false, erreur: "Transition de statut interdite." };
+    }
+    patch.statut = changement.statut;
+    patch.resolu_le = changement.statut === "resolu" ? new Date().toISOString() : s.resolu_le;
+    patch.confirme_le = null;
+    resumes.push(`statut ${s.statut} → ${changement.statut}`);
+  }
+
+  if (changement.urgence && changement.urgence !== s.urgence) {
+    if (!URGENCES.includes(changement.urgence)) return { ok: false, erreur: "Urgence invalide." };
+    patch.urgence = changement.urgence;
+    resumes.push(`urgence ${s.urgence ?? "—"} → ${changement.urgence}`);
+  }
+
+  if (!resumes.length) return { ok: false, erreur: "Rien à changer." };
+
+  const { data: lot } = await sb.from("lot").select("bien_id").eq("id", s.lot_id).maybeSingle();
+  const { data: bien } = lot
+    ? await sb.from("bien").select("proprietaire_id").eq("id", lot.bien_id).maybeSingle()
+    : { data: null as null | { proprietaire_id: string } };
+
+  const { error } = await sb.from("signalement").update(patch).eq("id", signalementId);
+  if (error) return { ok: false, erreur: "Mise à jour impossible." };
+
+  await journaliserGesteAdmin(
+    bien?.proprietaire_id ?? null,
+    acteurEmail,
+    resumes.some((r) => r.startsWith("statut")) ? "moderation_statut" : "moderation_urgence",
+    `Signalement « ${s.id.slice(0, 8)}… » : ${resumes.join(", ")}`,
+  );
+  return { ok: true };
+}
+
+/* --------------------------------------------------------------- recherche */
+
+/**
+ * Recherche support : un nom, un e-mail, un bout de référence ou de titre —
+ * et on tombe sur le compte, le bien ou le dossier. Plafonds bas, il s'agit
+ * de retrouver, pas d'exporter.
+ */
+export async function getAdminRecherche(q: string): Promise<AdminRecherche> {
+  const sb = supabaseServer();
+  // Sans les caractères qui casseraient la syntaxe `or=` de PostgREST : une
+  // recherche ne doit jamais devenir une erreur 400.
+  const terme = q.trim().replace(/[,()]/g, "").slice(0, 60);
+  if (terme.length < 2) return { comptes: [], biens: [], signalements: [] };
+  const motif = `%${terme}%`;
+
+  const [{ data: comptes }, { data: biens }, { data: signalements }, { data: proprietaires }] =
+    await Promise.all([
+      sb.from("proprietaire").select("id, nom, email").or(`nom.ilike.${motif},email.ilike.${motif}`).is("supprime_le", null).limit(10),
+      sb.from("bien").select("id, nom, ville, proprietaire_id").or(`nom.ilike.${motif},ville.ilike.${motif}`).limit(10),
+      sb.from("signalement").select("id, titre, statut, urgence").ilike("titre", motif).order("cree_le", { ascending: false }).limit(10),
+      sb.from("proprietaire").select("id, email").is("supprime_le", null).limit(2000),
+    ]);
+  const emailParId = new Map((proprietaires ?? []).map((p) => [p.id, p.email]));
+
+  return {
+    comptes: (comptes ?? []).map((c) => ({ id: c.id, nom: c.nom, email: c.email })),
+    biens: (biens ?? []).map((b) => ({
+      id: b.id,
+      nom: b.nom,
+      ville: b.ville,
+      proprietaireId: b.proprietaire_id,
+      proprietaireEmail: emailParId.get(b.proprietaire_id) ?? "—",
+    })),
+    signalements: (signalements ?? []).map((s) => ({
+      id: s.id,
+      titre: s.titre,
+      statut: s.statut,
+      urgence: s.urgence ?? "non renseignée",
     })),
   };
 }

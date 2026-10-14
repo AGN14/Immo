@@ -25,6 +25,7 @@ const liens: { id: OngletAdmin | "fiche"; label: string; href: string; icone: Re
     { id: "comptes", label: "Comptes", href: "/admin?onglet=comptes", icone: <><circle cx="9" cy="8" r="3.5" /><path d="M3.5 20a5.5 5.5 0 0 1 11 0" /></> },
     { id: "abonnements", label: "Abonnements", href: "/admin?onglet=abonnements", icone: <><rect x="3" y="7" width="18" height="12" rx="2" /><circle cx="12" cy="13" r="2" /></> },
     { id: "transactions", label: "Transactions", href: "/admin?onglet=transactions", icone: <><path d="M3 21h18" /><path d="M6 21V10M11 21V4M16 21v-8M21 21V8" /></> },
+    { id: "moderation", label: "Modération", href: "/admin?onglet=moderation", icone: <><path d="M12 9v4M12 16.5v.5" /><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" /></> },
     { id: "parc", label: "Parc", href: "/admin?onglet=parc", icone: <><path d="M3 10.5 12 3l9 7.5" /><path d="M5 9.5V21h14V9.5" /></> },
     { id: "journal", label: "Journal", href: "/admin?onglet=journal", icone: <><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9zM14 3v6h6M8 13h8M8 17h5" /></> },
     { id: "systeme", label: "Système", href: "/admin?onglet=systeme", icone: <><path d="M12 3l1.9 5.8H20l-4.9 3.6 1.9 5.8-5-3.6-5 3.6 1.9-5.8L4 8.8h6.1z" /></> },
@@ -56,6 +57,7 @@ export function useOngletCourant(): OngletAdmin {
   return demande === "comptes" ||
     demande === "abonnements" ||
     demande === "transactions" ||
+    demande === "moderation" ||
     demande === "parc" ||
     demande === "journal" ||
     demande === "systeme"
@@ -151,6 +153,18 @@ export function AdminShell({ email, children }: { email: string; children: React
             </Icone>
           </button>
         </div>
+
+        {/* Recherche support : un nom, un e-mail, un titre — puis la fiche.
+            Simple formulaire GET vers une page serveur, rien de désynchronisé. */}
+        <form action="/admin/recherche" method="get" className="shrink-0 px-3 pt-3" onSubmit={fermer}>
+          <input
+            type="search"
+            name="q"
+            placeholder="Rechercher…"
+            aria-label="Recherche globale"
+            className="border-line bg-paper text-ink w-full rounded-md border px-3 py-2 text-sm"
+          />
+        </form>
 
         <Suspense>
           <Navigation fermer={fermer} />

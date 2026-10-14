@@ -120,9 +120,51 @@ export interface AdminEvenement {
   id: string;
   creeLe: string;
   acteurEmail: string;
-  action: "plan_change" | "prolongation";
+  action: "plan_change" | "prolongation" | "moderation_statut" | "moderation_urgence";
   proprietaireEmail: string;
   resume: string;
+}
+
+export interface MessageSignalement {
+  auteur: string;
+  corps: string;
+  creeLe: string;
+}
+
+export interface AdminSignalement {
+  id: string;
+  titre: string;
+  description: string;
+  urgence: string;
+  statut: string;
+  creeLe: string;
+  resoluLe: string | null;
+  photos: string[];
+  messages: MessageSignalement[];
+  lotNom: string;
+  bienNom: string;
+  ville: string;
+  bailId: string | null;
+  proprietaireId: string;
+  proprietaireNom: string;
+  proprietaireEmail: string;
+  locataireNom: string;
+  locataireTelephone: string;
+}
+
+export interface AdminSignalementListe {
+  id: string;
+  titre: string;
+  ville: string;
+  urgence: string;
+  statut: string;
+  creeLe: string;
+}
+
+export interface AdminRecherche {
+  comptes: { id: string; nom: string; email: string }[];
+  biens: { id: string; nom: string; ville: string; proprietaireId: string; proprietaireEmail: string }[];
+  signalements: { id: string; titre: string; statut: string; urgence: string }[];
 }
 
 export interface VilleParc {

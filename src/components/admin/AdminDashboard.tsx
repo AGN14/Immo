@@ -45,6 +45,7 @@ import type {
   AdminEvenement,
   AdminOverview,
   AdminParc,
+  AdminSignalementListe,
   AdminSysteme,
   AdminTransaction,
   AdminTransactionsReponse,
@@ -889,11 +890,236 @@ function OngletTransactions() {
   );
 }
 
+/* --------------------------------------------------------------- moderation */
+
+const libelleStatutSignalement: Record<string, string> = {
+  signale: "Signalé",
+  "pris-en-charge": "Pris en charge",
+  resolu: "Résolu",
+  confirme: "Confirmé",
+  annule: "Annulé",
+};
+
+const tonStatutSignalement = (s: string): TonBadge =>
+  s === "signale" ? "danger" : s === "pris-en-charge" ? "ambre" : "neutre";
+
+const aideColonnesSignalements = createColumnHelper<AdminSignalementListe>();
+
+function TableSignalements({ donnees }: { donnees: AdminSignalementListe[] }) {
+  const [recherche, setRecherche] = useState("");
+  const [filtreStatut, setFiltreStatut] = useState("tous");
+  const [filtreUrgence, setFiltreUrgence] = useState("tous");
+  const [tri, setTri] = useState<SortingState>([{ id: "creeLe", desc: true }]);
+
+  const filtrees = useMemo(
+    () =>
+      donnees.filter(
+        (s) =>
+          (filtreStatut === "tous" || s.statut === filtreStatut) &&
+          (filtreUrgence === "tous" || s.urgence === filtreUrgence),
+      ),
+    [donnees, filtreStatut, filtreUrgence],
+  );
+
+  const colonnes = useMemo(
+    () => [
+      aideColonnesSignalements.accessor("titre", {
+        header: "Dossier",
+        cell: (info) => (
+          <Link
+            href={`/admin/signalements/${info.row.original.id}`}
+            className="no-underline hover:underline"
+            title="Ouvrir le dossier"
+          >
+            <span className="text-ink block font-medium">{info.getValue()}</span>
+            <span className="text-ink-3 block text-xs">{info.row.original.ville}</span>
+          </Link>
+        ),
+      }),
+      aideColonnesSignalements.accessor("urgence", {
+        header: "Urgence",
+        cell: (info) => (
+          <Badge ton={info.getValue() === "haute" ? "danger" : info.getValue() === "normale" ? "ambre" : "neutre"}>
+            {info.getValue()}
+          </Badge>
+        ),
+      }),
+      aideColonnesSignalements.accessor("statut", {
+        header: "Statut",
+        cell: (info) => (
+          <Badge ton={tonStatutSignalement(info.getValue())}>
+            {libelleStatutSignalement[info.getValue()] ?? info.getValue()}
+          </Badge>
+        ),
+      }),
+      aideColonnesSignalements.accessor("creeLe", {
+        header: "Signalé le",
+        cell: (info) => <span className="text-sm">{formaterDate(info.getValue())}</span>,
+      }),
+    ],
+    [],
+  );
+
+  const table = useReactTable({
+    data: filtrees,
+    columns: colonnes,
+    state: { sorting: tri, globalFilter: recherche },
+    onSortingChange: setTri,
+    onGlobalFilterChange: setRecherche,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    initialState: { pagination: { pageSize: 15 } },
+  });
+
+  return (
+    <div>
+      <div className="flex flex-wrap gap-2.5">
+        <input
+          type="search"
+          value={recherche}
+          onChange={(e) => setRecherche(e.target.value)}
+          placeholder="Rechercher un titre, une ville…"
+          className="border-line bg-surface text-ink min-w-52 flex-1 rounded-md border px-3 py-2 text-sm"
+          aria-label="Rechercher un signalement"
+        />
+        <select
+          value={filtreStatut}
+          onChange={(e) => setFiltreStatut(e.target.value)}
+          className="border-line bg-surface text-ink rounded-md border px-3 py-2 text-sm"
+          aria-label="Filtrer par statut"
+        >
+          <option value="tous">Tous statuts</option>
+          <option value="signale">Signalé</option>
+          <option value="pris-en-charge">Pris en charge</option>
+          <option value="resolu">Résolu</option>
+          <option value="confirme">Confirmé</option>
+          <option value="annule">Annulé</option>
+        </select>
+        <select
+          value={filtreUrgence}
+          onChange={(e) => setFiltreUrgence(e.target.value)}
+          className="border-line bg-surface text-ink rounded-md border px-3 py-2 text-sm"
+          aria-label="Filtrer par urgence"
+        >
+          <option value="tous">Toutes urgences</option>
+          <option value="haute">Haute</option>
+          <option value="normale">Normale</option>
+          <option value="basse">Basse</option>
+        </select>
+      </div>
+
+      <div className="border-line mt-3 overflow-x-auto rounded-md border">
+        <table className="text-ink-2 w-full min-w-3xl text-left text-sm">
+          <thead className="bg-highlight text-ink-3 text-xs uppercase">
+            {table.getHeaderGroups().map((groupe) => (
+              <tr key={groupe.id}>
+                {groupe.headers.map((entete) => (
+                  <th key={entete.id} className="px-4 py-2.5 font-semibold">
+                    {entete.isPlaceholder ? null : (
+                      <button
+                        type="button"
+                        onClick={entete.column.getToggleSortingHandler()}
+                        className="font-semibold uppercase"
+                        title="Trier"
+                      >
+                        {flexRender(entete.column.columnDef.header, entete.getContext())}
+                        {entete.column.getIsSorted() === "asc" ? " ↑" : entete.column.getIsSorted() === "desc" ? " ↓" : ""}
+                      </button>
+                    )}
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody>
+            {table.getRowModel().rows.map((ligne) => (
+              <tr key={ligne.id} className="border-line border-t">
+                {ligne.getVisibleCells().map((cellule) => (
+                  <td key={cellule.id} className="px-4 py-2.5">
+                    {flexRender(cellule.column.columnDef.cell, cellule.getContext())}
+                  </td>
+                ))}
+              </tr>
+            ))}
+            {table.getRowModel().rows.length === 0 && (
+              <tr>
+                <td colSpan={colonnes.length} className="text-ink-3 px-4 py-6 text-center">
+                  Aucun dossier ne correspond aux filtres.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="text-ink-3 mt-3 flex items-center justify-between text-sm">
+        <span data-numeric>
+          Page {table.getState().pagination.pageIndex + 1} / {Math.max(table.getPageCount(), 1)} ·{" "}
+          {table.getFilteredRowModel().rows.length} dossier
+          {table.getFilteredRowModel().rows.length > 1 ? "s" : ""}
+        </span>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+            className="border-line rounded-md border px-3 py-1.5 disabled:opacity-40"
+          >
+            ← Précédent
+          </button>
+          <button
+            type="button"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+            className="border-line rounded-md border px-3 py-1.5 disabled:opacity-40"
+          >
+            Suivant →
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function OngletModeration() {
+  const { data, isPending, isError, refetch } = useQuery({
+    queryKey: ["admin", "signalements"],
+    queryFn: () => lireJson<AdminSignalementListe[]>("/api/admin/signalements"),
+  });
+
+  if (isPending) return <p className="text-ink-3 py-10 text-center text-sm">Chargement des dossiers…</p>;
+  if (isError || !data)
+    return (
+      <div className="py-10 text-center">
+        <p className="text-ink-2 text-sm">Dossiers indisponibles.</p>
+        <button type="button" onClick={() => refetch()} className="text-primary mt-2 text-sm font-semibold">
+          Réessayer
+        </button>
+      </div>
+    );
+
+  const ouverts = data.filter((s) => s.statut === "signale" || s.statut === "pris-en-charge").length;
+  return (
+    <div>
+      <p className="text-ink-3 mb-3 text-sm">
+        <span className="text-ink font-semibold" data-numeric>{ouverts} dossier{ouverts > 1 ? "s" : ""} ouvert{ouverts > 1 ? "s" : ""}</span> sur{" "}
+        <span className="text-ink font-semibold" data-numeric>{data.length}</span> au total.
+        Ouvrez un dossier pour voir photos, échanges et parties, puis tranchez.
+      </p>
+      <TableSignalements donnees={data} />
+    </div>
+  );
+}
+
 /* ------------------------------------------------------------------- journal */
 
 const libelleActionAdmin: Record<AdminEvenement["action"], string> = {
   plan_change: "Changement de plan",
   prolongation: "Prolongation",
+  moderation_statut: "Modération (statut)",
+  moderation_urgence: "Modération (urgence)",
 };
 
 function OngletJournal() {
@@ -1056,7 +1282,13 @@ function OngletParc() {
             <ul className="mt-4 space-y-2.5">
               {data.signalementsRecents.map((s) => (
                 <li key={s.id} className="flex flex-wrap items-center justify-between gap-2 text-sm">
-                  <span className="text-ink min-w-0 flex-1 truncate font-medium">{s.titre}</span>
+                  <Link
+                    href={`/admin/signalements/${s.id}`}
+                    className="text-ink min-w-0 flex-1 truncate font-medium no-underline hover:underline"
+                    title="Ouvrir le dossier"
+                  >
+                    {s.titre}
+                  </Link>
                   <span className="text-ink-3 text-xs">{s.ville} · {formaterDate(s.creeLe)}</span>
                   <Badge ton={s.urgence === "haute" ? "danger" : s.urgence === "normale" ? "ambre" : "neutre"}>
                     {s.urgence}
@@ -1199,6 +1431,7 @@ export type OngletAdmin =
   | "comptes"
   | "abonnements"
   | "transactions"
+  | "moderation"
   | "parc"
   | "journal"
   | "systeme";
@@ -1208,6 +1441,7 @@ const onglets: { id: OngletAdmin; label: string }[] = [
   { id: "comptes", label: "Comptes" },
   { id: "abonnements", label: "Abonnements" },
   { id: "transactions", label: "Transactions" },
+  { id: "moderation", label: "Modération" },
   { id: "parc", label: "Parc" },
   { id: "journal", label: "Journal" },
   { id: "systeme", label: "Système" },
@@ -1259,6 +1493,7 @@ function Contenu() {
         {onglet === "comptes" && <OngletComptes />}
         {onglet === "abonnements" && <OngletAbonnements />}
         {onglet === "transactions" && <OngletTransactions />}
+        {onglet === "moderation" && <OngletModeration />}
         {onglet === "parc" && <OngletParc />}
         {onglet === "journal" && <OngletJournal />}
         {onglet === "systeme" && <OngletSysteme />}

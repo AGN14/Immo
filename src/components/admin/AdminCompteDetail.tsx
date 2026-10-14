@@ -265,6 +265,14 @@ function Contenu({ id }: { id: string }) {
             {c.planExpireLe && <Badge ton="neutre">Expire le {formaterDate(c.planExpireLe)}</Badge>}
           </div>
         </div>
+        <div className="shrink-0">
+          <a
+            href={`mailto:${c.email}?subject=${encodeURIComponent("Votre compte Xwégán")}`}
+            className="border-line text-ink-2 hover:bg-highlight inline-block rounded-md border px-3 py-2 text-sm font-medium no-underline transition-colors"
+          >
+            Contacter
+          </a>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
