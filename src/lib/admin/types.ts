@@ -244,6 +244,57 @@ export interface AdminSysteme {
   geniuspayDiagnostic: string;
   geniuspayBacASable: boolean;
   deploiement: { commit: string; environnement: string; hoteAdmin: string };
+  plansOk: boolean;
+  plansEcarts: { slug: string; champ: string; base: string; code: string }[];
+}
+
+export interface JourAudience {
+  periode: string;
+  label: string;
+  visiteurs: number;
+  pagesVues: number;
+  inscriptions: number;
+}
+
+export interface RelanceAbonnement {
+  id: string;
+  nom: string;
+  email: string;
+  plan: string;
+  expireLe: string;
+  joursRestants: number;
+}
+
+export interface AdminAudience {
+  visiteursUniques14j: number;
+  pagesVues14j: number;
+  tempsMoyenSecondes: number | null;
+  serie: JourAudience[];
+  pagesTop: { chemin: string; nb: number }[];
+  clicsTop: { label: string; nb: number }[];
+  newsletterTotal: number;
+  newsletterActifs: number;
+  newsletterRecents: { email: string; creeLe: string }[];
+  relances: RelanceAbonnement[];
+}
+
+export interface AdminReversement {
+  id: string;
+  periode: string;
+  proprietaireEmail: string;
+  brutFcfa: number;
+  netFcfa: number;
+  prevuLe: string;
+  executeLe: string | null;
+  statut: string;
+  enRetard: boolean;
+}
+
+export interface AdminReversements {
+  reversements: AdminReversement[];
+  totalNetFcfa: number;
+  enRetard: number;
+  echoues: number;
 }
 
 export interface DetailLot {

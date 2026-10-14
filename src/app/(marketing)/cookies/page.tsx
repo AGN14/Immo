@@ -42,7 +42,9 @@ export default function CookiesPage() {
               </ul>
               <p>
                 Xwégán ne dépose pas, par défaut, de cookie de mesure d&rsquo;audience ou de
-                publicité tiers.
+                publicité tiers. Si vous acceptez la mesure d&rsquo;audience, nous comptons
+                nous-mêmes les pages vues, les clics marqués et le temps passé (identifiant
+                de visite anonyme, un an) — sans traceur tiers, sans adresse IP stockée.
               </p>
             </>
           ),
@@ -51,8 +53,9 @@ export default function CookiesPage() {
           titre: "Cookies de services tiers",
           corps: (
             <p>
-              Le widget de paiement KKiaPay peut déposer ses propres cookies lors d&rsquo;un
-              règlement. Ces cookies sont soumis à la politique de KKiaPay.
+              Le règlement en ligne redirige vers GeniusPay, qui peut déposer ses propres
+              cookies sur sa page de paiement. Ces cookies sont soumis à la politique de
+              GeniusPay.
             </p>
           ),
         },

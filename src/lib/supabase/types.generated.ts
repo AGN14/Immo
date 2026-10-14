@@ -290,6 +290,36 @@ export type Database = {
           },
         ]
       }
+      evenement_audience: {
+        Row: {
+          chemin: string
+          cree_le: string
+          detail: string | null
+          duree_ms: number | null
+          evenement: string
+          id: string
+          visite_id: string
+        }
+        Insert: {
+          chemin: string
+          cree_le?: string
+          detail?: string | null
+          duree_ms?: number | null
+          evenement: string
+          id?: string
+          visite_id: string
+        }
+        Update: {
+          chemin?: string
+          cree_le?: string
+          detail?: string | null
+          duree_ms?: number | null
+          evenement?: string
+          id?: string
+          visite_id?: string
+        }
+        Relationships: []
+      }
       gestionnaire: {
         Row: {
           cree_le: string

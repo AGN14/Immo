@@ -7,7 +7,7 @@
  */
 import "server-only";
 import { supabaseServer } from "@/lib/supabase/server";
-import { planDepuisUuid, planEffectif, uuidDuPlan, type PlanId } from "@/lib/plans";
+import { PLANS, planDepuisUuid, planEffectif, uuidDuPlan, type PlanId } from "@/lib/plans";
 import {
   diagnostiquerConfiguration,
   geniuspayBacASable,
@@ -15,6 +15,7 @@ import {
 } from "@/lib/paiement/geniuspay";
 import type {
   AdminAbonnement,
+  AdminAudience,
   AdminCompte,
   AdminCompteDetail,
   AdminDossier,
@@ -22,9 +23,11 @@ import type {
   AdminOverview,
   AdminParc,
   AdminRecherche,
+  AdminReversements,
   AdminSignalement,
   AdminSignalementListe,
   AdminSysteme,
+  RelanceAbonnement,
   AlerteCompte,
   StatutCompte,
 } from "@/lib/admin/types";
@@ -1175,6 +1178,172 @@ export async function getAdminDossier(proprietaireId: string): Promise<AdminDoss
   return { biens: dossier, totalPhotos };
 }
 
+/* -------------------------------------------------------------- audience */
+
+/** Libellé court « 12 oct. » pour une clé AAAA-MM-JJ. */
+function libelleJour(cle: string): string {
+  const [a, m, j] = cle.split("-").map(Number);
+  return new Date(a, m - 1, j).toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+}
+
+function quatorzeDerniersJours(): string[] {
+  const cles: string[] = [];
+  const maintenant = new Date();
+  for (let i = 13; i >= 0; i--) {
+    const j = new Date(maintenant.getFullYear(), maintenant.getMonth(), maintenant.getDate() - i);
+    cles.push(`${j.getFullYear()}-${String(j.getMonth() + 1).padStart(2, "0")}-${String(j.getDate()).padStart(2, "0")}`);
+  }
+  return cles;
+}
+
+/**
+ * Ce que le public fait du site : visites et pages (consenties uniquement),
+ * funnel vers l'inscription, newsletter, et relances d'abonnement à venir.
+ * Les comptes créés viennent de la base, pas du tracker : un visiteur qui
+ * s'inscrit sur un autre appareil reste compté.
+ */
+export async function getAdminAudience(): Promise<AdminAudience> {
+  const sb = supabaseServer();
+  const maintenant = Date.now();
+  const jours = quatorzeDerniersJours();
+  const debut = `${jours[0]}T00:00:00`;
+
+  const [{ data: evenements }, { data: proprietaires }, { data: abonnes }, { data: comptesPlans }] =
+    await Promise.all([
+      sb
+        .from("evenement_audience")
+        .select("visite_id, chemin, evenement, detail, duree_ms, cree_le")
+        .gte("cree_le", debut)
+        .order("cree_le", { ascending: false })
+        .limit(5000),
+      sb.from("proprietaire").select("cree_le").is("supprime_le", null).gte("cree_le", debut).limit(2000),
+      sb.from("newsletter_abonne").select("email, actif, cree_le").order("cree_le", { ascending: false }).limit(2000),
+      sb
+        .from("proprietaire")
+        .select("id, nom, email, plan_id, plan_expire_le, cree_le")
+        .is("supprime_le", null)
+        .limit(2000),
+    ]);
+
+  const lignes = evenements ?? [];
+  const vues = lignes.filter((e) => e.evenement === "page_vue");
+  const visiteursUniques = new Set(vues.map((e) => e.visite_id)).size;
+  const temps = lignes.filter((e) => e.evenement === "temps" && e.duree_ms !== null);
+  const tempsMoyenSecondes = temps.length
+    ? Math.round(temps.reduce((s, e) => s + (e.duree_ms ?? 0), 0) / temps.length / 1000)
+    : null;
+
+  const visiteursParJour = new Map<string, Set<string>>();
+  const vuesParJour = new Map<string, number>();
+  const inscritsParJour = new Map<string, number>();
+  for (const j of jours) {
+    visiteursParJour.set(j, new Set());
+    vuesParJour.set(j, 0);
+    inscritsParJour.set(j, 0);
+  }
+  for (const e of vues) {
+    const cle = e.cree_le.slice(0, 10);
+    if (!visiteursParJour.has(cle)) continue;
+    visiteursParJour.get(cle)?.add(e.visite_id);
+    vuesParJour.set(cle, (vuesParJour.get(cle) ?? 0) + 1);
+  }
+  for (const p of proprietaires ?? []) {
+    const cle = (p.cree_le ?? "").slice(0, 10);
+    if (inscritsParJour.has(cle)) inscritsParJour.set(cle, (inscritsParJour.get(cle) ?? 0) + 1);
+  }
+
+  const pagesTop = new Map<string, number>();
+  for (const e of vues) pagesTop.set(e.chemin, (pagesTop.get(e.chemin) ?? 0) + 1);
+  const clicsTop = new Map<string, number>();
+  for (const e of lignes.filter((e) => e.evenement === "clic" && e.detail)) {
+    clicsTop.set(e.detail ?? "", (clicsTop.get(e.detail ?? "") ?? 0) + 1);
+  }
+  const top = (m: Map<string, number>, n: number) =>
+    [...m.entries()].map(([k, nb]) => ({ k, nb })).sort((a, b) => b.nb - a.nb).slice(0, n);
+
+  // Relances : paliers payants qui expirent sous 7 jours, puis expirés
+  // récents non renouvelés — sans reconduction auto, c'est là que le MRR se
+  // joue, et aucun e-mail ne part encore : cette liste EST la relance.
+  const { parId } = await referentielPlans(sb);
+  const relances: RelanceAbonnement[] = [];
+  for (const p of comptesPlans ?? []) {
+    const slug = parId.get(p.plan_id)?.slug ?? planDepuisUuid(p.plan_id);
+    if (slug === "essentiel" || !p.plan_expire_le) continue;
+    const joursRestants = Math.ceil((new Date(p.plan_expire_le).getTime() - maintenant) / MS_JOUR);
+    if (joursRestants <= 7 && joursRestants >= -30) {
+      relances.push({
+        id: p.id,
+        nom: p.nom,
+        email: p.email,
+        plan: slug,
+        expireLe: p.plan_expire_le,
+        joursRestants,
+      });
+    }
+  }
+  relances.sort((a, b) => a.joursRestants - b.joursRestants);
+
+  const abonnesListe = abonnes ?? [];
+  return {
+    visiteursUniques14j: visiteursUniques,
+    pagesVues14j: vues.length,
+    tempsMoyenSecondes,
+    serie: jours.map((j) => ({
+      periode: j,
+      label: libelleJour(j),
+      visiteurs: visiteursParJour.get(j)?.size ?? 0,
+      pagesVues: vuesParJour.get(j) ?? 0,
+      inscriptions: inscritsParJour.get(j) ?? 0,
+    })),
+    pagesTop: top(pagesTop, 10).map(({ k, nb }) => ({ chemin: k, nb })),
+    clicsTop: top(clicsTop, 10).map(({ k, nb }) => ({ label: k, nb })),
+    newsletterTotal: abonnesListe.length,
+    newsletterActifs: abonnesListe.filter((a) => a.actif).length,
+    newsletterRecents: abonnesListe.slice(0, 20).map((a) => ({ email: a.email, creeLe: a.cree_le })),
+    relances: relances.slice(0, 50),
+  };
+}
+
+/* ---------------------------------------------------------- reversements */
+
+/**
+ * Supervision des reversements aux bailleurs : le SaaS encaisse via GeniusPay
+ * puis reverse — un `prevu` dépassé ou un `echoue` qui traîne, c'est la
+ * confiance des propriétaires qui part.
+ */
+export async function getAdminReversements(): Promise<AdminReversements> {
+  const sb = supabaseServer();
+  const maintenant = Date.now();
+  const [{ data: reversements }, { data: proprietaires }] = await Promise.all([
+    sb
+      .from("reversement")
+      .select("id, periode, proprietaire_id, montant_brut_fcfa, montant_net_fcfa, prevu_le, execute_le, statut")
+      .order("prevu_le", { ascending: false })
+      .limit(500),
+    sb.from("proprietaire").select("id, email").is("supprime_le", null).limit(2000),
+  ]);
+  const emailParId = new Map((proprietaires ?? []).map((p) => [p.id, p.email]));
+
+  const lignes = (reversements ?? []).map((r) => ({
+    id: r.id,
+    periode: r.periode,
+    proprietaireEmail: emailParId.get(r.proprietaire_id) ?? "—",
+    brutFcfa: r.montant_brut_fcfa,
+    netFcfa: r.montant_net_fcfa,
+    prevuLe: r.prevu_le,
+    executeLe: r.execute_le,
+    statut: r.statut,
+    enRetard: r.statut === "prevu" && new Date(r.prevu_le).getTime() < maintenant,
+  }));
+
+  return {
+    reversements: lignes,
+    totalNetFcfa: lignes.reduce((s, r) => s + r.netFcfa, 0),
+    enRetard: lignes.filter((r) => r.enRetard).length,
+    echoues: lignes.filter((r) => r.statut === "echoue").length,
+  };
+}
+
 /* ------------------------------------------------------------------ systeme */
 
 /** L'état de la plateforme : base, opérateur de paiement, déploiement. */
@@ -1182,18 +1351,50 @@ export async function getAdminSysteme(): Promise<AdminSysteme> {
   const sb = supabaseServer();
 
   const debut = Date.now();
-  const [{ count: nbComptes }, { count: nbAbonnements }, ping, diagnostic] = await Promise.all([
-    sb.from("proprietaire").select("id", { count: "exact", head: true }).is("supprime_le", null),
-    sb.from("abonnement").select("id", { count: "exact", head: true }),
-    sb
-      .from("plan")
-      .select("id", { count: "exact", head: true })
-      .then(
-        () => Date.now() - debut,
-        () => -1,
-      ),
-    diagnostiquerConfiguration(),
-  ]);
+  const [{ count: nbComptes }, { count: nbAbonnements }, ping, diagnostic, { data: plansBase }] =
+    await Promise.all([
+      sb.from("proprietaire").select("id", { count: "exact", head: true }).is("supprime_le", null),
+      sb.from("abonnement").select("id", { count: "exact", head: true }),
+      sb
+        .from("plan")
+        .select("id", { count: "exact", head: true })
+        .then(
+          () => Date.now() - debut,
+          () => -1,
+        ),
+      diagnostiquerConfiguration(),
+      sb.from("plan").select("slug, nom, prix_fcfa, max_baux").limit(20),
+    ]);
+
+  // Dérive code/base : les prix et quotas qui font foi côté serveur vivent
+  // dans `PLANS`, l'affichage lit la base — tout écart affiché ici est un bug
+  // en attente (palier facturé autrement qu'annoncé, ou quota non appliqué).
+  const ecarts: AdminSysteme["plansEcarts"] = [];
+  const parSlug = new Map((plansBase ?? []).map((p) => [p.slug, p]));
+  for (const [slug, plan] of Object.entries(PLANS)) {
+    const ligne = parSlug.get(slug);
+    if (!ligne) {
+      ecarts.push({ slug, champ: "palier", base: "absent", code: plan.nom });
+      continue;
+    }
+    if (ligne.nom !== plan.nom)
+      ecarts.push({ slug, champ: "nom", base: ligne.nom, code: plan.nom });
+    if (ligne.prix_fcfa !== plan.prixFcfa)
+      ecarts.push({
+        slug,
+        champ: "prix",
+        base: `${ligne.prix_fcfa.toLocaleString("fr-FR")} F`,
+        code: `${plan.prixFcfa.toLocaleString("fr-FR")} F`,
+      });
+    const maxBase = ligne.max_baux === null ? "illimité" : String(ligne.max_baux);
+    const maxCode = plan.maxBaux === null ? "illimité" : String(plan.maxBaux);
+    if (maxBase !== maxCode) ecarts.push({ slug, champ: "quota", base: maxBase, code: maxCode });
+  }
+  for (const ligne of plansBase ?? []) {
+    if (!(ligne.slug in PLANS)) {
+      ecarts.push({ slug: ligne.slug, champ: "palier", base: ligne.nom, code: "inconnu du code" });
+    }
+  }
 
   return {
     supabaseLatenceMs: ping >= 0 ? ping : null,
@@ -1201,6 +1402,8 @@ export async function getAdminSysteme(): Promise<AdminSysteme> {
     abonnements: nbAbonnements ?? 0,
     geniuspayDiagnostic: diagnostic,
     geniuspayBacASable: geniuspayBacASable(),
+    plansOk: ecarts.length === 0,
+    plansEcarts: ecarts,
     deploiement: {
       // Posés par Vercel ; absents sur le VPS, où le hash git fait foi.
       commit: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? "serveur",

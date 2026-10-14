@@ -41,10 +41,12 @@ import {
 } from "@/components/admin/ui";
 import type {
   AdminAbonnement,
+  AdminAudience,
   AdminCompte,
   AdminEvenement,
   AdminOverview,
   AdminParc,
+  AdminReversements,
   AdminSignalementListe,
   AdminSysteme,
   AdminTransaction,
@@ -892,6 +894,10 @@ function OngletTransactions() {
           encaissés sur les {data.transactions.length} dernières transactions — loyers et
           abonnements confondus, à réconcilier avec vos versements et abonnements.
         </p>
+        <p className="text-ink-3 mt-1 text-sm">
+          Remboursement : GeniusPay n&apos;expose pas d&apos;endpoint — il se fait depuis
+          le tableau de bord marchand, transaction par transaction.
+        </p>
       </div>
       <TableTransactions donnees={data.transactions} />
     </div>
@@ -1430,6 +1436,290 @@ function OngletSysteme() {
           </LigneSysteme>
         </div>
       </section>
+
+      <section className="border-line bg-surface rounded-md border p-5 lg:col-span-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="font-display text-ink text-xl font-semibold">Référentiel plans</h2>
+          {data.plansOk ? (
+            <Badge ton="success">Code et base alignés</Badge>
+          ) : (
+            <Badge ton="danger">{data.plansEcarts.length} écart{data.plansEcarts.length > 1 ? "s" : ""}</Badge>
+          )}
+        </div>
+        <p className="text-ink-3 mt-1 text-sm">
+          Prix et quotas facturés par le code face à la table `plan` lue par l&apos;affichage —
+          tout écart est un bug en attente.
+        </p>
+        {!data.plansOk && (
+          <ul className="mt-3 space-y-1.5">
+            {data.plansEcarts.map((e, i) => (
+              <li key={`${e.slug}-${e.champ}-${i}`} className="text-sm">
+                <span className="text-ink font-medium">{e.slug} · {e.champ}</span>{" "}
+                <span className="text-ink-3">base : {e.base} — code : {e.code}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ audience */
+
+function BarresAudience({
+  valeurs,
+  etiquettes,
+  formater,
+}: {
+  valeurs: number[];
+  etiquettes: string[];
+  formater: (n: number) => string;
+}) {
+  const max = Math.max(...valeurs, 1);
+  return (
+    <div className="flex h-32 items-end gap-1" role="img" aria-label="14 derniers jours">
+      {valeurs.map((v, i) => (
+        <div key={etiquettes[i]} className="flex min-w-0 flex-1 flex-col items-center gap-1" title={`${etiquettes[i]} : ${formater(v)}`}>
+          <div className="flex h-24 w-full items-end">
+            <div
+              className="bg-primary w-full rounded-t-sm"
+              style={{ height: `${Math.max((v / max) * 100, v > 0 ? 4 : 0)}%` }}
+            />
+          </div>
+          <span className="text-ink-3 text-[9px]">{etiquettes[i]}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function OngletAudience() {
+  const { data, isPending, isError, refetch } = useQuery({
+    queryKey: ["admin", "audience"],
+    queryFn: () => lireJson<AdminAudience>("/api/admin/audience"),
+  });
+
+  if (isPending) return <p className="text-ink-3 py-10 text-center text-sm">Chargement de l&apos;audience…</p>;
+  if (isError || !data)
+    return (
+      <div className="py-10 text-center">
+        <p className="text-ink-2 text-sm">Audience indisponible.</p>
+        <button type="button" onClick={() => refetch()} className="text-primary mt-2 text-sm font-semibold">
+          Réessayer
+        </button>
+      </div>
+    );
+
+  const inscrits14j = data.serie.reduce((s, j) => s + j.inscriptions, 0);
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <KPICard
+          label="Visiteurs (14 j)"
+          value={String(data.visiteursUniques14j)}
+          caption={`${data.pagesVues14j} pages vues, mesure consentie`}
+          icon={<span aria-hidden="true">◆</span>}
+          tendance={data.serie.map((j) => j.visiteurs)}
+        />
+        <KPICard
+          label="Temps moyen"
+          value={data.tempsMoyenSecondes === null ? "—" : `${data.tempsMoyenSecondes} s`}
+          caption="Par page vue"
+          icon={<span aria-hidden="true">●</span>}
+        />
+        <KPICard
+          label="Inscriptions (14 j)"
+          value={String(inscrits14j)}
+          caption="Comptes créés, tous appareils"
+          icon={<span aria-hidden="true">▲</span>}
+          tendance={data.serie.map((j) => j.inscriptions)}
+        />
+        <KPICard
+          label="Newsletter"
+          value={String(data.newsletterActifs)}
+          caption={`${data.newsletterTotal} adresses au total`}
+          icon={<span aria-hidden="true">★</span>}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <section className="border-line bg-surface rounded-md border p-5">
+          <h2 className="font-display text-ink text-xl font-semibold">Visiteurs</h2>
+          <p className="text-ink-3 mt-1 text-sm">Uniques par jour, 14 derniers jours.</p>
+          <div className="mt-3">
+            <BarresAudience
+              valeurs={data.serie.map((j) => j.visiteurs)}
+              etiquettes={data.serie.map((j) => j.label)}
+              formater={(n) => `${n} visiteur${n > 1 ? "s" : ""}`}
+            />
+          </div>
+        </section>
+        <section className="border-line bg-surface rounded-md border p-5">
+          <h2 className="font-display text-ink text-xl font-semibold">Pages vues</h2>
+          <p className="text-ink-3 mt-1 text-sm">Où s&apos;arrêtent les visiteurs.</p>
+          <ul className="mt-3 space-y-1.5">
+            {data.pagesTop.map((p) => (
+              <li key={p.chemin} className="flex items-baseline justify-between gap-2 text-sm">
+                <span className="text-ink-2 min-w-0 flex-1 truncate font-mono text-xs">{p.chemin}</span>
+                <span className="text-ink font-semibold" data-numeric>{p.nb}</span>
+              </li>
+            ))}
+            {data.pagesTop.length === 0 && (
+              <li className="text-ink-3 text-sm">Pas encore de mesure — elle démarre aux prochains consentements.</li>
+            )}
+          </ul>
+          {data.clicsTop.length > 0 && (
+            <>
+              <h3 className="text-ink mt-4 text-sm font-semibold">Clics marqués</h3>
+              <ul className="mt-2 space-y-1.5">
+                {data.clicsTop.map((c) => (
+                  <li key={c.label} className="flex items-baseline justify-between gap-2 text-sm">
+                    <span className="text-ink-2 min-w-0 flex-1 truncate">{c.label}</span>
+                    <span className="text-ink font-semibold" data-numeric>{c.nb}</span>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </section>
+        <section className="border-line bg-surface rounded-md border p-5">
+          <h2 className="font-display text-ink text-xl font-semibold">Relances à faire</h2>
+          <p className="text-ink-3 mt-1 text-sm">
+            Paliers payants expirant sous 7 jours ou échus depuis moins de 30 — sans
+            reconduction auto ni e-mail auto, cette liste EST la relance.
+          </p>
+          {data.relances.length === 0 ? (
+            <p className="text-ink-3 mt-3 text-sm">Rien à relancer.</p>
+          ) : (
+            <ul className="mt-3 space-y-2">
+              {data.relances.map((r) => (
+                <li key={r.id} className="text-sm">
+                  <Link href={`/admin/comptes/${r.id}`} className="text-ink font-medium no-underline hover:underline">
+                    {r.nom}
+                  </Link>{" "}
+                  <span className="text-ink-3 text-xs">{r.email}</span>
+                  <span className="block text-xs">
+                    <Badge ton={r.joursRestants < 0 ? "danger" : r.joursRestants <= 3 ? "ambre" : "neutre"}>
+                      {r.plan} · {r.joursRestants < 0 ? `expiré depuis ${-r.joursRestants} j` : `J-${r.joursRestants}`}
+                    </Badge>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      </div>
+
+      <section className="border-line bg-surface rounded-md border p-5">
+        <h2 className="font-display text-ink text-xl font-semibold">Newsletter</h2>
+        <p className="text-ink-3 mt-1 text-sm">Dernières adresses collectées.</p>
+        {data.newsletterRecents.length === 0 ? (
+          <p className="text-ink-3 mt-3 text-sm">Aucune adresse pour l&apos;instant.</p>
+        ) : (
+          <ul className="mt-3 grid grid-cols-1 gap-x-8 sm:grid-cols-2 lg:grid-cols-3">
+            {data.newsletterRecents.map((n) => (
+              <li key={n.email} className="flex items-baseline justify-between gap-2 border-b border-line-soft py-1.5 text-sm">
+                <span className="text-ink-2 min-w-0 flex-1 truncate">{n.email}</span>
+                <span className="text-ink-3 shrink-0 text-xs">{formaterDate(n.creeLe)}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------- reversements */
+
+const libelleStatutReversement: Record<string, string> = {
+  prevu: "Prévu",
+  envoye: "Envoyé",
+  echoue: "Échoué",
+};
+
+function OngletReversements() {
+  const { data, isPending, isError, refetch } = useQuery({
+    queryKey: ["admin", "reversements"],
+    queryFn: () => lireJson<AdminReversements>("/api/admin/reversements"),
+  });
+
+  if (isPending) return <p className="text-ink-3 py-10 text-center text-sm">Chargement des reversements…</p>;
+  if (isError || !data)
+    return (
+      <div className="py-10 text-center">
+        <p className="text-ink-2 text-sm">Reversements indisponibles.</p>
+        <button type="button" onClick={() => refetch()} className="text-primary mt-2 text-sm font-semibold">
+          Réessayer
+        </button>
+      </div>
+    );
+
+  return (
+    <div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <KPICard
+          label="Reversé (net)"
+          value={formaterMontant(data.totalNetFcfa)}
+          caption="Tous propriétaires confondus"
+          icon={<span aria-hidden="true">◆</span>}
+        />
+        <KPICard
+          label="En retard"
+          value={String(data.enRetard)}
+          caption="Prévus dont la date est passée"
+          icon={<span aria-hidden="true">●</span>}
+          hausseSouhaitee={false}
+        />
+        <KPICard
+          label="Échoués"
+          value={String(data.echoues)}
+          caption="À retraiter côté opérateur"
+          icon={<span aria-hidden="true">▲</span>}
+          hausseSouhaitee={false}
+        />
+      </div>
+
+      {data.reversements.length === 0 ? (
+        <p className="text-ink-3 py-10 text-center text-sm">Aucun reversement enregistré.</p>
+      ) : (
+        <div className="border-line mt-4 overflow-x-auto rounded-md border">
+          <table className="text-ink-2 w-full min-w-3xl text-left text-sm">
+            <thead className="bg-highlight text-ink-3 text-xs uppercase">
+              <tr>
+                <th className="px-4 py-2.5 font-semibold">Période</th>
+                <th className="px-4 py-2.5 font-semibold">Propriétaire</th>
+                <th className="px-4 py-2.5 font-semibold">Net</th>
+                <th className="px-4 py-2.5 font-semibold">Prévu le</th>
+                <th className="px-4 py-2.5 font-semibold">Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.reversements.map((r) => (
+                <tr key={r.id} className="border-line border-t">
+                  <td className="px-4 py-2.5" data-numeric>{r.periode}</td>
+                  <td className="px-4 py-2.5 text-sm">{r.proprietaireEmail}</td>
+                  <td className="px-4 py-2.5" data-numeric>
+                    <span className="text-ink font-medium">{formaterMontant(r.netFcfa)}</span>{" "}
+                    <span className="text-ink-3 text-xs">(brut {formaterMontant(r.brutFcfa)})</span>
+                  </td>
+                  <td className="px-4 py-2.5 text-sm">
+                    {formaterDate(r.prevuLe)}
+                    {r.executeLe && <span className="text-ink-3"> · fait le {formaterDate(r.executeLe)}</span>}
+                  </td>
+                  <td className="px-4 py-2.5">
+                    <Badge ton={r.enRetard || r.statut === "echoue" ? "danger" : r.statut === "envoye" ? "success" : "neutre"}>
+                      {r.enRetard ? "En retard" : (libelleStatutReversement[r.statut] ?? r.statut)}
+                    </Badge>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
@@ -1443,6 +1733,8 @@ export type OngletAdmin =
   | "transactions"
   | "moderation"
   | "parc"
+  | "audience"
+  | "reversements"
   | "journal"
   | "systeme";
 
@@ -1472,6 +1764,8 @@ function Contenu() {
         {onglet === "transactions" && <OngletTransactions />}
         {onglet === "moderation" && <OngletModeration />}
         {onglet === "parc" && <OngletParc />}
+        {onglet === "audience" && <OngletAudience />}
+        {onglet === "reversements" && <OngletReversements />}
         {onglet === "journal" && <OngletJournal />}
         {onglet === "systeme" && <OngletSysteme />}
       </div>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { inter } from "@/fonts";
 import { CookieConsent } from "@/components/CookieConsent";
+import { SuiviAudience } from "@/components/SuiviAudience";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -99,6 +100,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         />
         {children}
         <CookieConsent />
+        <SuiviAudience />
       </body>
     </html>
   );

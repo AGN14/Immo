@@ -27,6 +27,8 @@ const liens: { id: OngletAdmin | "fiche"; label: string; href: string; icone: Re
     { id: "transactions", label: "Transactions", href: "/admin?onglet=transactions", icone: <><path d="M3 21h18" /><path d="M6 21V10M11 21V4M16 21v-8M21 21V8" /></> },
     { id: "moderation", label: "Modération", href: "/admin?onglet=moderation", icone: <><path d="M12 9v4M12 16.5v.5" /><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" /></> },
     { id: "parc", label: "Parc", href: "/admin?onglet=parc", icone: <><path d="M3 10.5 12 3l9 7.5" /><path d="M5 9.5V21h14V9.5" /></> },
+    { id: "audience", label: "Audience", href: "/admin?onglet=audience", icone: <><circle cx="12" cy="12" r="9" /><path d="M12 8v5l3 2" /></> },
+    { id: "reversements", label: "Reversements", href: "/admin?onglet=reversements", icone: <><path d="M7 17 17 7" /><path d="M8 7h9v9" /></> },
     { id: "journal", label: "Journal", href: "/admin?onglet=journal", icone: <><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9zM14 3v6h6M8 13h8M8 17h5" /></> },
     { id: "systeme", label: "Système", href: "/admin?onglet=systeme", icone: <><path d="M12 3l1.9 5.8H20l-4.9 3.6 1.9 5.8-5-3.6-5 3.6 1.9-5.8L4 8.8h6.1z" /></> },
   ];
@@ -59,6 +61,8 @@ export function useOngletCourant(): OngletAdmin {
     demande === "transactions" ||
     demande === "moderation" ||
     demande === "parc" ||
+    demande === "audience" ||
+    demande === "reversements" ||
     demande === "journal" ||
     demande === "systeme"
     ? demande

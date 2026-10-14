@@ -124,7 +124,7 @@ export function CookieConsent() {
                   Mesure d&rsquo;audience
                 </p>
                 <p className="text-[var(--ink-3)] mt-1 text-xs leading-relaxed">
-                  Statistiques anonymes d&rsquo;utilisation (Plausible).
+                  Pages vues et temps passé, mesurés par nos soins, sans traceur tiers.
                 </p>
               </div>
               <Interrupteur
@@ -140,7 +140,7 @@ export function CookieConsent() {
                   Paiement
                 </p>
                 <p className="text-[var(--ink-3)] mt-1 text-xs leading-relaxed">
-                  Cookies du widget KKiaPay lors d&rsquo;un règlement Mobile
+                  Redirection vers GeniusPay lors d&rsquo;un règlement Mobile
                   Money.
                 </p>
               </div>
