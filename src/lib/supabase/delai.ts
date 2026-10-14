@@ -10,6 +10,27 @@
  * Fonctions pures, sans API Node : importé par le proxy (runtime edge) comme
  * par la session (serveur). Ne pas y ajouter `server-only`.
  */
+/**
+ * Plafonne n'importe quelle requête : au-delà du délai, `null` plutôt qu'une
+ * page pendue. Sert les lectures publiques (grille tarifaire) qui doivent
+ * s'afficher même quand la base tousse — avec des valeurs de repli.
+ */
+export async function avecDelai<T>(promesse: Promise<T>, ms = 3000): Promise<T | null> {
+  let minuteur: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      promesse,
+      new Promise<never>((_, rejeter) => {
+        minuteur = setTimeout(() => rejeter(new Error("delai-requete")), ms);
+      }),
+    ]);
+  } catch {
+    return null;
+  } finally {
+    if (minuteur !== undefined) clearTimeout(minuteur);
+  }
+}
+
 export async function utilisateurAvecDelai(
   client: {
     auth: { getUser: () => Promise<{ data: { user: { id: string; email?: string } | null } }> };

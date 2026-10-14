@@ -2,7 +2,8 @@ import { Button } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Reveal } from "@/components/ui/Reveal";
 import { supabaseUtilisateur } from "@/lib/supabase/utilisateur";
-import type { PlanId } from "@/lib/plans";
+import { avecDelai } from "@/lib/supabase/delai";
+import { PLANS, type PlanId } from "@/lib/plans";
 
 function Check() {
   return (
@@ -54,17 +55,38 @@ const cta: Record<PlanId, Cta> = {
 };
 
 /**
+ * Secours quand la base ne répond pas (panne, réseau coupé) : prix et quotas
+ * viennent alors de `PLANS`, qui porte les mêmes valeurs par construction —
+ * seules la description et les fonctionnalités, éditoriales, manquent. Sans
+ * ce filet, une base injoignable pendrait toute la page d'accueil.
+ */
+const PLANS_DE_SECOURS: LignePlan[] = (Object.keys(PLANS) as PlanId[]).map((slug) => ({
+  id: slug,
+  slug,
+  nom: PLANS[slug].nom,
+  prix_fcfa: PLANS[slug].prixFcfa,
+  description: null,
+  fonctionnalites: [],
+  max_baux: PLANS[slug].maxBaux,
+}));
+
+/**
  * La grille est lue depuis la table `plan` : la description et les
  * fonctionnalités affichées ici sont exactement celles de la page de choix
  * après l'inscription. Le quota est défendu en base par le trigger.
  */
 export async function Pricing() {
-  const { data } = await supabaseUtilisateur()
-    .from("plan")
-    .select("id, slug, nom, prix_fcfa, description, fonctionnalites, max_baux")
-    .order("prix_fcfa", { ascending: true });
+  const reponse = await avecDelai(
+    supabaseUtilisateur()
+      .from("plan")
+      .select("id, slug, nom, prix_fcfa, description, fonctionnalites, max_baux")
+      .order("prix_fcfa", { ascending: true }),
+    3000,
+  );
 
-  const plans = (data ?? []) as LignePlan[];
+  const plans = (
+    reponse?.data?.length ? reponse.data : PLANS_DE_SECOURS
+  ) as LignePlan[];
 
   return (
     <section id="tarifs" className="bg-sand py-16 md:py-24">
