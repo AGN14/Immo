@@ -15,7 +15,7 @@
  * page pendue. Sert les lectures publiques (grille tarifaire) qui doivent
  * s'afficher même quand la base tousse — avec des valeurs de repli.
  */
-export async function avecDelai<T>(promesse: Promise<T>, ms = 3000): Promise<T | null> {
+export async function avecDelai<T>(promesse: PromiseLike<T>, ms = 3000): Promise<T | null> {
   let minuteur: ReturnType<typeof setTimeout> | undefined;
   try {
     return await Promise.race([
