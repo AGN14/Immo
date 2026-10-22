@@ -44,7 +44,7 @@ export default function ConfidentialitePage() {
                 </li>
                 <li>
                   Données de paiement : en cas d&rsquo;abonnement, les informations de transaction sont
-                  confiées au prestataire KKiaPay ; nous ne stockons pas vos coordonnées bancaires.
+                  confiées au prestataire Genius Pay ; nous ne stockons pas vos coordonnées bancaires.
                 </li>
               </ul>
             </>

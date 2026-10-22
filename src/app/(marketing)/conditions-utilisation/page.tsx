@@ -70,7 +70,7 @@ export default function ConditionsUtilisationPage() {
           corps: (
             <>
               <p>
-                Les abonnements propriétaires sont réglés via KKiaPay (Mobile Money et autres moyens
+                Les abonnements propriétaires sont réglés via Genius Pay (Mobile Money et autres moyens
                 pris en charge). Sauf indication contraire, l&rsquo;abonnement est reconductible selon
                 la périodicité choisie. Aucun remboursement n&rsquo;est dû pour une période déjà
                 commencée, sauf disposition légale contraire.
