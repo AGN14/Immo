@@ -77,7 +77,7 @@ export function Footer() {
 
         <div className="border-line text-ink-3 mt-10 flex flex-wrap items-center justify-between gap-4 border-t pt-6 text-sm">
           <span>© 2026 Xwégán. Tous droits réservés.</span>
-          <span>Fait en Afrique de l&rsquo;Ouest</span>
+          <span>Par TechVerseBJ</span>
         </div>
       </div>
     </footer>
